@@ -1,7 +1,6 @@
 <template>
   <transition name="fade">
-    <div v-if="show" class="fixed inset-0 z-[9999] flex items-center justify-center bg-white"
-    >
+    <div v-if="show" class="fixed inset-0 z-[9999] flex items-center justify-center bg-white">
       <div class="text-2xl font-semibold text-green-900 space-x-1">
         <span
           v-for="(char, index) in chars"
@@ -17,21 +16,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted } from 'vue';
 
 const show = ref(true);
-const chars = "Loading...".split("");
+const chars = 'Loading...'.split('');
 
 onMounted(() => {
   // sembunyikan setelah halaman siap
-  if (document.readyState === "complete") {
+  if (document.readyState === 'complete') {
     setTimeout(() => (show.value = false), 1000);
   } else {
-    window.addEventListener(
-      "load",
-      () => setTimeout(() => (show.value = false), 1000),
-      { once: true }
-    );
+    window.addEventListener('load', () => setTimeout(() => (show.value = false), 1000), {
+      once: true,
+    });
   }
 });
 </script>
