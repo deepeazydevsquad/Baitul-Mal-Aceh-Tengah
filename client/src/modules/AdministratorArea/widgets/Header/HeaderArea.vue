@@ -68,7 +68,7 @@ import { useHead } from '@vueuse/head';
             >APLIKASI MUSTAHIK & MUZAKKI</span
           >
           <span class="block text-sm font-normal text-white dark:text-white"
-            >Kabupaten Aceh Tengah</span
+            >Kabupaten Bener Meriah</span
           >
         </span>
       </div>

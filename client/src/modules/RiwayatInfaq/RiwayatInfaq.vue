@@ -321,7 +321,7 @@ async function cetakSuratSerahTerimaInfaq(id: number) {
 
     doc.setFont('times', 'normal');
     doc.setFontSize(9);
-    doc.text('BAITUL MAL KABUPATEN ACEH TENGAH', pageWidth - 85, y, { align: 'left' });
+    doc.text('BAITUL MAL KABUPATEN BENER MERIAH', pageWidth - 85, y, { align: 'left' });
     y += 4;
 
     const alamat = buktiData.lokasi_kantor.alamat || '';
@@ -555,7 +555,7 @@ async function cetakSuratSerahTerimaInfaq(id: number) {
 //   y = y + 6;
 //   doc.text('SERAH TERIMA ZAKAT', 105, y, { align: 'center' });
 //   y = y + 6;
-//   doc.text('KABUPATEN ACEH TENGAH', 105, y, { align: 'center' });
+//   doc.text('KABUPATEN Bener Meriah', 105, y, { align: 'center' });
 
 //   doc.addImage(logoBase64, 'PNG', x, 12, logoWidth, logoHeight);
 
@@ -571,7 +571,7 @@ async function cetakSuratSerahTerimaInfaq(id: number) {
 //   const spacing = 1.2;
 //   y += lineHeight * spacing;
 //   doc.text(
-//     `Pada hari ini Senin, 23 Januari 2025 bertempat di Kabupaten Aceh Tengah, Kami bertanda tangan di bawah ini :`,
+//     `Pada hari ini Senin, 23 Januari 2025 bertempat di Kabupaten Bener Meriah, Kami bertanda tangan di bawah ini :`,
 //     20,
 //     y,
 //     { maxWidth: 170, align: 'justify' },
@@ -602,7 +602,7 @@ async function cetakSuratSerahTerimaInfaq(id: number) {
 //   doc.text(': Bilacaddi, Kec. Pattallassang, Kab. Takalar.', 50, y);
 //   y += lineHeight * spacing;
 //   doc.text('Sebagai', 30, y);
-//   doc.text(': Petugas Baitulmal Kabupaten Aceh Tengah', 50, y);
+//   doc.text(': Petugas Baitulmal Kabupaten Bener Meriah', 50, y);
 //   doc.setFont('times', 'bold');
 //   doc.text('(PIHAK KEDUA)', 127, y);
 //   doc.setFont('times', 'normal');
@@ -619,7 +619,7 @@ async function cetakSuratSerahTerimaInfaq(id: number) {
 //   doc.text('PIHAK KEDUA', 150, y, { align: 'center' });
 //   y += lineHeight * spacing;
 //   doc.text('Muzakki', 40, y, { align: 'center' });
-//   doc.text('Petugas Baitulmal Kabupaten Aceh Tengah', 150, y, { align: 'center' });
+//   doc.text('Petugas Baitulmal Kabupaten Bener Meriah', 150, y, { align: 'center' });
 //   y = y + 30;
 //   doc.text('S U D I R M A N', 40, y, { align: 'center' });
 //   doc.text('REZKAYANTHA USMAN, S. PD', 150, y, { align: 'center' });

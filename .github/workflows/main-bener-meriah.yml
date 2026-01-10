@@ -1,0 +1,71 @@
+name: CI/CD Deploy Aplikasi Baitulmal Bener Meriah
+
+on:
+  push:
+    branches: [master-bener-meriah]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_PASS }}
+
+      - name: Build and push client image
+        run: |
+          docker build -t muammar88/baitulmal_bener_meriah_client:1.0.0 ./client
+          docker push muammar88/baitulmal_bener_meriah_client:1.0.0
+
+      - name: Build and push backend image
+        run: |
+          docker build -t muammar88/baitulmal_bener_meriah_server:1.0.0 ./server
+          docker push muammar88/baitulmal_bener_meriah_server:1.0.0
+
+      - name: Deploy to Ubuntu server via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.IP_SERVER_DATABASE_MACHINE }}
+          username: ${{ secrets.SSH_USER_DATABASE_MACHINE }}
+          key: ${{ secrets.SSH_PRIVATE_KEY_DATABASE_MACHINE }}
+          script: |
+            cd /home/dbmachine/baitulmal-bener-meriah
+
+            # Pull latest images
+            docker pull muammar88/baitulmal_bener_meriah_client:1.0.0
+            docker pull muammar88/baitulmal_bener_meriah_server:1.0.0
+
+            # Restart services
+            docker-compose down
+            docker-compose up -d --force-recreate
+
+            echo "⏳ Waiting for MySQL to be ready..."
+            until docker exec mysql_container_baitulmal_bener_meriah mysqladmin ping -uroot -p"root_password" --silent; do
+              echo "   ... still waiting for MySQL"
+              sleep 5
+            done
+
+            echo "⏳ Waiting for Container_server_baitulmal to be running..."
+            until [ "$(docker inspect -f '{{.State.Running}}' Container_server_baitulmal_bener_meriah)" == "true" ]; do
+              echo "   ... still waiting for Container_server_baitulmal_bener_meriah"
+              sleep 5
+            done
+
+            echo "🗑 Dropping and creating database..."
+            docker exec -i mysql_container_baitulmal_bener_meriah mysql -uroot -p"qhwgebsf6y12t3123jh126" -e "DROP DATABASE IF EXISTS baitulmalbenermeriah_db; CREATE DATABASE baitulmalbenermeriah_db;"
+
+            echo "📜 Running Sequelize migrations..."
+            if docker exec -i Container_server_baitulmal_bener_meriah npx sequelize-cli db:migrate; then
+              echo "🌱 Seeding database..."
+              docker exec -i Container_server_baitulmal_bener_meriah npx sequelize-cli db:seed:all --debug
+              echo "🔄 Restarting Container_server..."
+              docker restart Container_server_baitulmal_bener_meriah
+            else
+              echo "⚠️ Migration failed. Skipping seed."
+            fi

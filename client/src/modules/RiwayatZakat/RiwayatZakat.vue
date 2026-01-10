@@ -330,7 +330,7 @@ async function cetakSuratSerahTerimaZakat(id: number) {
 
     doc.setFont('times', 'normal');
     doc.setFontSize(9);
-    doc.text('BAITUL MAL KABUPATEN ACEH TENGAH', pageWidth - 85, y, { align: 'left' });
+    doc.text('BAITUL MAL KABUPATEN BENER MERIAH', pageWidth - 85, y, { align: 'left' });
     y += 4;
 
     const alamat = buktiData.lokasi_kantor.alamat || '';

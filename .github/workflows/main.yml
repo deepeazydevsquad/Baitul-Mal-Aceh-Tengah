@@ -1,4 +1,4 @@
-name: CI/CD Deploy Aplikasi Baitulmal Aceh Tengah
+name: CI/CD Deploy Aplikasi Baitulmal Bener Meriah
 
 on:
   push:
@@ -69,4 +69,4 @@ jobs:
           else
             echo "⚠️ Migration failed. Skipping seed."
           fi
-          
+

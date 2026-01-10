@@ -15,7 +15,7 @@ module.exports = {
           nomor_kk: "1175427237712",
           whatsapp_number: "085262802141",
           birth_date: "1999-01-01",
-          alamat: "Jln Utama, Kabupaten Aceh Tengah",
+          alamat: "Jln Utama, Kabupaten Bener Meriah",
           username: "admin",
           password:
             "$2a$10$0nIvAjMEhKk2S2T2GbP1ou0OIpItaEtlHqb9Dns1NSQdkVM1r6o82",
@@ -47,7 +47,7 @@ module.exports = {
           nomor_kk: "1175427237712",
           whatsapp_number: "085262802141",
           birth_date: "1999-01-01",
-          alamat: "Jln Utama, Kabupaten Aceh Tengah, Aceh Tengah",
+          alamat: "Jln Utama, Kabupaten Bener Meriah, Bener Meriah",
           username: "admin",
           password:
             "$2a$10$0nIvAjMEhKk2S2T2GbP1ou0OIpItaEtlHqb9Dns1NSQdkVM1r6o82",
@@ -63,7 +63,7 @@ module.exports = {
           nomor_kk: "1175427238003",
           whatsapp_number: "085262802203",
           birth_date: "1992-03-15",
-          alamat: "Jln Dummy 3, Kecamatan Simulasi, Aceh Tengah",
+          alamat: "Jln Dummy 3, Kecamatan Simulasi, Bener Meriah",
           username: "member_dummy_3",
           password:
             "$2a$10$0nIvAjMEhKk2S2T2GbP1ou0OIpItaEtlHqb9Dns1NSQdkVM1r6o82",
@@ -79,7 +79,7 @@ module.exports = {
           nomor_kk: "1175427238004",
           whatsapp_number: "085262802204",
           birth_date: "1993-04-15",
-          alamat: "Jln Dummy 4, Kecamatan Simulasi, Aceh Tengah",
+          alamat: "Jln Dummy 4, Kecamatan Simulasi, Bener Meriah",
           username: "member_dummy_4",
           password:
             "$2a$10$0nIvAjMEhKk2S2T2GbP1ou0OIpItaEtlHqb9Dns1NSQdkVM1r6o82",
@@ -95,7 +95,7 @@ module.exports = {
           nomor_kk: "1175427238005",
           whatsapp_number: "085262802205",
           birth_date: "1994-05-15",
-          alamat: "Jln Dummy 5, Kecamatan Simulasi, Aceh Tengah",
+          alamat: "Jln Dummy 5, Kecamatan Simulasi, Bener Meriah",
           username: "member_dummy_5",
           password:
             "$2a$10$0nIvAjMEhKk2S2T2GbP1ou0OIpItaEtlHqb9Dns1NSQdkVM1r6o82",
@@ -111,7 +111,7 @@ module.exports = {
           nomor_kk: "1175427238006",
           whatsapp_number: "085262802206",
           birth_date: "1995-06-15",
-          alamat: "Jln Dummy 6, Kecamatan Simulasi, Aceh Tengah",
+          alamat: "Jln Dummy 6, Kecamatan Simulasi, Bener Meriah",
           username: "member_dummy_6",
           password:
             "$2a$10$0nIvAjMEhKk2S2T2GbP1ou0OIpItaEtlHqb9Dns1NSQdkVM1r6o82",
@@ -127,7 +127,7 @@ module.exports = {
           nomor_kk: "1175427238007",
           whatsapp_number: "085262802207",
           birth_date: "1996-07-15",
-          alamat: "Jln Dummy 7, Kecamatan Simulasi, Aceh Tengah",
+          alamat: "Jln Dummy 7, Kecamatan Simulasi, Bener Meriah",
           username: "member_dummy_7",
           password:
             "$2a$10$0nIvAjMEhKk2S2T2GbP1ou0OIpItaEtlHqb9Dns1NSQdkVM1r6o82",
@@ -143,7 +143,7 @@ module.exports = {
           nomor_kk: "1175427238008",
           whatsapp_number: "085262802208",
           birth_date: "1997-08-15",
-          alamat: "Jln Dummy 8, Kecamatan Simulasi, Aceh Tengah",
+          alamat: "Jln Dummy 8, Kecamatan Simulasi, Bener Meriah",
           username: "member_dummy_8",
           password:
             "$2a$10$0nIvAjMEhKk2S2T2GbP1ou0OIpItaEtlHqb9Dns1NSQdkVM1r6o82",
@@ -159,7 +159,7 @@ module.exports = {
           nomor_kk: "1175427238009",
           whatsapp_number: "085262802209",
           birth_date: "1998-09-15",
-          alamat: "Jln Dummy 9, Kecamatan Simulasi, Aceh Tengah",
+          alamat: "Jln Dummy 9, Kecamatan Simulasi, Bener Meriah",
           username: "member_dummy_9",
           password:
             "$2a$10$0nIvAjMEhKk2S2T2GbP1ou0OIpItaEtlHqb9Dns1NSQdkVM1r6o82",
@@ -175,7 +175,7 @@ module.exports = {
           nomor_kk: "1175427238010",
           whatsapp_number: "085262802210",
           birth_date: "1999-10-15",
-          alamat: "Jln Dummy 10, Kecamatan Simulasi, Aceh Tengah",
+          alamat: "Jln Dummy 10, Kecamatan Simulasi, Bener Meriah",
           username: "member_dummy_10",
           password:
             "$2a$10$0nIvAjMEhKk2S2T2GbP1ou0OIpItaEtlHqb9Dns1NSQdkVM1r6o82",
@@ -191,7 +191,7 @@ module.exports = {
           nomor_kk: "1175427238011",
           whatsapp_number: "085262802211",
           birth_date: "1990-11-15",
-          alamat: "Jln Dummy 11, Kecamatan Simulasi, Aceh Tengah",
+          alamat: "Jln Dummy 11, Kecamatan Simulasi, Bener Meriah",
           username: "member_dummy_11",
           password:
             "$2a$10$0nIvAjMEhKk2S2T2GbP1ou0OIpItaEtlHqb9Dns1NSQdkVM1r6o82",
@@ -207,7 +207,7 @@ module.exports = {
           nomor_kk: "1175427238012",
           whatsapp_number: "085262802212",
           birth_date: "1991-12-15",
-          alamat: "Jln Dummy 12, Kecamatan Simulasi, Aceh Tengah",
+          alamat: "Jln Dummy 12, Kecamatan Simulasi, Bener Meriah",
           username: "member_dummy_12",
           password:
             "$2a$10$0nIvAjMEhKk2S2T2GbP1ou0OIpItaEtlHqb9Dns1NSQdkVM1r6o82",
@@ -223,7 +223,7 @@ module.exports = {
           nomor_kk: "1175427238013",
           whatsapp_number: "085262802213",
           birth_date: "1992-01-15",
-          alamat: "Jln Dummy 13, Kecamatan Simulasi, Aceh Tengah",
+          alamat: "Jln Dummy 13, Kecamatan Simulasi, Bener Meriah",
           username: "member_dummy_13",
           password:
             "$2a$10$0nIvAjMEhKk2S2T2GbP1ou0OIpItaEtlHqb9Dns1NSQdkVM1r6o82",
@@ -239,7 +239,7 @@ module.exports = {
           nomor_kk: "1175427237712",
           whatsapp_number: "085262802141",
           birth_date: "1999-01-01",
-          alamat: "Jln Utama, Kabupaten Aceh Tengah",
+          alamat: "Jln Utama, Kabupaten Bener Meriah",
           username: "admin",
           password:
             "$2a$10$0nIvAjMEhKk2S2T2GbP1ou0OIpItaEtlHqb9Dns1NSQdkVM1r6o82",

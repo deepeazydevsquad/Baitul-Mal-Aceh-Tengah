@@ -93,7 +93,7 @@ onMounted(() => {
           <div
             class="self-stretch justify-start text-yellow-500 text-[52px] leading-[120%] font-bold tracking-wide"
           >
-            Kabupaten Aceh Tengah
+            Kabupaten Bener Meriah
           </div>
         </div>
         <div class="w-96 flex flex-col justify-start items-start gap-4">
@@ -101,7 +101,7 @@ onMounted(() => {
             class="self-stretch justify-start text-neutral-800 text-base font-normal tracking-tight"
           >
             Ayo, kita cari tahu bersama program-program bantuan apa saja yang sedang tersedia di
-            Baitul Mal Kabupaten Aceh Tengah!
+            Baitul Mal Kabupaten Bener Meriah!
           </div>
         </div>
       </div>

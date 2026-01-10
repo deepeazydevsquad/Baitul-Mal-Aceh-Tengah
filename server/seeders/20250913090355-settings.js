@@ -50,14 +50,14 @@ module.exports = {
         },
         {
           name: "nama_kabupaten_kota",
-          value: "Kab. Aceh Tengah",
+          value: "Kab. Bener Meriah",
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
           name: "alamat",
           value:
-            "Jl. Lebe Kader No.2, Asir Asir Asia, Kec. Lut Tawar, Kabupaten Aceh Tengah, Provinsi Aceh 24519",
+            "Jl. Lebe Kader No.2, Asir Asir Asia, Kec. Lut Tawar, Kabupaten Bener Meriah, Provinsi Aceh 24519",
           createdAt: new Date(),
           updatedAt: new Date(),
         },

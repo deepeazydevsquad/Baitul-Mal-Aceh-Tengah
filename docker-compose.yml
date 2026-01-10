@@ -2,15 +2,15 @@ version: "3.9"
 
 services:
   server:
-    image: muammar88/baitulmal_server:1.0.0
-    container_name: Container_server_baitulmal
+    image: muammar88/baitulmal_bener_meriah_server:1.0.0
+    container_name: Container_server_baitulmal_bener_meriah
     build:
-      context: ./server  # pastikan Dockerfile di folder server
+      context: ./server # pastikan Dockerfile di folder server
       dockerfile: Dockerfile
     volumes:
-      - ./server:/app           # bind mount source code
+      - ./server:/app # bind mount source code
     ports:
-      - "3003:3003"             # port unik untuk Baitulmal
+      - "3003:3003" # port unik untuk Baitulmal Bener Meriah
     environment:
       ADMINISTRATOR_SECRET_KEY: "9813kbk31023khvviuytyuwqkiwvj9mnb757uytr34nm123o"
       ADMINISTRATOR_REFRESH_SECRET_KEY: "y87238giehgaiuwgd82o123455gskiassmnxzxclaoihdsobk"
@@ -20,21 +20,21 @@ services:
       PORT: 3003
       MIDTRANS_SERVER_KEY: SB-Mid-server-zw-LJ6-UHTMlabcfbM06qqvz
       MIDTRANS_SANDBOX_URL: "https://app.sandbox.midtrans.com/snap/v1/transactions"
-      MIDTRANS_PRODUCTION_URL: ''
+      MIDTRANS_PRODUCTION_URL: ""
       DB_DIALECT: "mysql"
       DB_HOST: "mysql"
       DB_PORT: 3306
-      DB_NAME: "baitulmalacehtengah_db"
-      DB_USER: "baitulmalacehtengah_user"
-      DB_PASS: "baitulmalacehtengah_password"
+      DB_NAME: "baitulmalbenermeriah_db"
+      DB_USER: "baitulmalbenermeriah_user"
+      DB_PASS: "baitulmalbenermeriah_password"
     depends_on:
       - mysql
     networks:
-      - app-network-baitulmal
+      - app-network-baitulmal-bener-meriah
 
   client:
-    image: muammar88/baitulmal_client:1.0.0
-    container_name: Container_client_baitulmal
+    image: muammar88/baitulmal_bener_meriah_client:1.0.0
+    container_name: Container_client_baitulmal_bener_meriah
     ports:
       - "8089:80"
     environment:
@@ -43,40 +43,40 @@ services:
     depends_on:
       - server
     networks:
-      - app-network-baitulmal
+      - app-network-baitulmal-bener-meriah
 
   mysql:
     image: mysql:5.7
-    container_name: mysql_container_baitulmal
+    container_name: mysql_container_baitulmal_bener_meriah
     restart: always
     environment:
-      MYSQL_DATABASE: baitulmalacehtengah_db
-      MYSQL_USER: baitulmalacehtengah_user
-      MYSQL_PASSWORD: baitulmalacehtengah_password
-      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: baitulmalbenermeriah_db
+      MYSQL_USER: baitulmalbenermeriah_user
+      MYSQL_PASSWORD: baitulmalbenermeriah_password
+      MYSQL_ROOT_PASSWORD: qhwgebsf6y12t3123jh126
     volumes:
-      - mysql-data-baitulmal:/var/lib/mysql     # named volume unik untuk Baitulmal
+      - mysql-data-baitulmal-bener-meriah:/var/lib/mysql # named volume unik untuk Baitulmal
       - ./mysql_config/my.cnf:/etc/mysql/my.cnf
     networks:
-      - app-network-baitulmal
+      - app-network-baitulmal-bener-meriah
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin_container_baitulmal
+    container_name: phpmyadmin_container_baitulmal_bener_meriah
     restart: always
     ports:
       - "8085:80"
     environment:
       PMA_HOST: mysql
-      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_ROOT_PASSWORD: qhwgebsf6y12t3123jh126
     depends_on:
       - mysql
     networks:
-      - app-network-baitulmal
+      - app-network-baitulmal-bener-meriah
 
 volumes:
-  mysql-data-baitulmal:
+  mysql-data-baitulmal-bener-meriah:
 
 networks:
-  app-network-baitulmal:
+  app-network-baitulmal-bener-meriah:
     driver: bridge

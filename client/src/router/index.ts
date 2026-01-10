@@ -32,9 +32,9 @@ const router = createRouter({
       name: 'home',
       component: homeView,
       meta: {
-        title: 'Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+        title: 'Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah merupakan platform digital yang dirancang untuk mempermudah pengelolaan data penerima manfaat (mustahik) dan pemberi zakat (muzaki). Melalui aplikasi ini, proses pendataan, penyaluran, dan pelaporan zakat, infak, serta sedekah dapat dilakukan dengan lebih transparan, cepat, dan akurat. Aplikasi ini juga mendukung visi Baitul Mal Kabupaten Aceh Tengah dalam mewujudkan tata kelola zakat yang religius, mandiri, dan sejahtera bagi masyarakat.',
+          'Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah merupakan platform digital yang dirancang untuk mempermudah pengelolaan data penerima manfaat (mustahik) dan pemberi zakat (muzaki). Melalui aplikasi ini, proses pendataan, penyaluran, dan pelaporan zakat, infak, serta sedekah dapat dilakukan dengan lebih transparan, cepat, dan akurat. Aplikasi ini juga mendukung visi Baitul Mal Kabupaten Bener Meriah dalam mewujudkan tata kelola zakat yang religius, mandiri, dan sejahtera bagi masyarakat.',
       },
     },
     {
@@ -42,9 +42,9 @@ const router = createRouter({
       name: 'login-admin',
       component: LoginAdminView,
       meta: {
-        title: 'Login Area || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+        title: 'Login Area || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah untuk registrasi, pendataan, dan layanan zakat secara mudah, cepat, dan transparan.',
+          'Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah untuk registrasi, pendataan, dan layanan zakat secara mudah, cepat, dan transparan.',
       },
     },
     {
@@ -52,9 +52,9 @@ const router = createRouter({
       name: 'registrasi',
       component: Register,
       meta: {
-        title: 'Registrasi Area || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+        title: 'Registrasi Area || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Daftar sekarang di Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah. Nikmati kemudahan layanan zakat online, mulai dari registrasi hingga pendataan, dengan sistem yang aman, transparan, dan terpercaya.',
+          'Daftar sekarang di Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah. Nikmati kemudahan layanan zakat online, mulai dari registrasi hingga pendataan, dengan sistem yang aman, transparan, dan terpercaya.',
       },
     },
     {
@@ -62,9 +62,9 @@ const router = createRouter({
       name: 'member-area',
       component: MemberAreaView,
       meta: {
-        title: 'Member Area || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+        title: 'Member Area || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
       },
     },
     {
@@ -72,9 +72,9 @@ const router = createRouter({
       name: 'administrator-area',
       component: AdministratorAreaView,
       meta: {
-        title: 'Administrator Area || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+        title: 'Administrator Area || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
       },
     },
     {
@@ -84,7 +84,7 @@ const router = createRouter({
       meta: {
         title: 'Apakah Anda Suka dengan Survey Lapangan ini?',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
       },
     },
     {
@@ -92,9 +92,9 @@ const router = createRouter({
       name: 'laporan-tahunan',
       component: LaporanTahunan,
       meta: {
-        title: 'Laporan Tahunan || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+        title: 'Laporan Tahunan || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
       },
     },
     {
@@ -102,9 +102,9 @@ const router = createRouter({
       name: 'laporan-pengumpulan',
       component: LaporanPengumpulan,
       meta: {
-        title: 'Laporan Pengumpulan || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+        title: 'Laporan Pengumpulan || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
       },
     },
     {
@@ -112,9 +112,9 @@ const router = createRouter({
       name: 'laporan-umum',
       component: LaporanUmum,
       meta: {
-        title: 'Laporan Umum || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+        title: 'Laporan Umum || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
       },
     },
 
@@ -124,9 +124,9 @@ const router = createRouter({
       name: 'laporan-perencanaan',
       component: LaporanPerencanaan,
       meta: {
-        title: 'Laporan Perencanaan || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+        title: 'Laporan Perencanaan || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
       },
     },
     {
@@ -134,9 +134,9 @@ const router = createRouter({
       name: 'beranda',
       component: Beranda,
       meta: {
-        title: 'Beranda || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+        title: 'Beranda || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
       },
     },
     {
@@ -144,7 +144,7 @@ const router = createRouter({
       name: 'cetak-laporan-asnaf-fakir',
       component: CetakLaporanAsnafFakir,
       meta: {
-        title: 'Cetak Laporan Asnaf Fakir || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+        title: 'Cetak Laporan Asnaf Fakir || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriahh',
         description: '',
       },
     },
@@ -154,7 +154,7 @@ const router = createRouter({
       component: CetakLaporanAsnafFilsabilillah,
       meta: {
         title:
-          'Cetak Laporan Asnaf Filsabilillah || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+          'Cetak Laporan Asnaf Filsabilillah || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description: '',
       },
     },
@@ -163,7 +163,7 @@ const router = createRouter({
       name: 'cetak-laporan-asnaf-gharim',
       component: CetakLaporanAsnafGharim,
       meta: {
-        title: 'Cetak Laporan Asnaf Gharim || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+        title: 'Cetak Laporan Asnaf Gharim || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description: '',
       },
     },
@@ -173,7 +173,7 @@ const router = createRouter({
       component: CetakLaporanAsnafMiskin,
       meta: {
         title:
-          'Cetak Laporan Asnaf MiskinCetakLaporanAsnafMiskin || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+          'Cetak Laporan Asnaf MiskinCetakLaporanAsnafMiskin || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description: '',
       },
     },
@@ -183,7 +183,7 @@ const router = createRouter({
       component: CetakLaporanAsnafIbnuSabil,
       meta: {
         title:
-          'Cetak Laporan Asnaf Ibnu Sabil || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+          'Cetak Laporan Asnaf Ibnu Sabil || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriahh',
         description: '',
       },
     },
@@ -192,7 +192,7 @@ const router = createRouter({
       name: 'cetak-laporan-asnaf-mualaf',
       component: CetakLaporanAsnafMualaf,
       meta: {
-        title: 'Cetak Laporan Asnaf Mualaf || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+        title: 'Cetak Laporan Asnaf Mualaf || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description: '',
       },
     },
@@ -201,9 +201,9 @@ const router = createRouter({
       name: 'rekap-per-asnaf',
       component: CetakRekapDistribusiPerAsnaf,
       meta: {
-        title: 'Cetak Rekap Per Asnaf || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+        title: 'Cetak Rekap Per Asnaf || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
       },
     },
     {
@@ -212,7 +212,7 @@ const router = createRouter({
       component: CetakRekapDistribusiPerkecamatan,
       meta: {
         title:
-          'Rekap Distribusi Perkecamatan || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+          'Rekap Distribusi Perkecamatan || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description: '',
       },
     },
@@ -222,9 +222,9 @@ const router = createRouter({
       component: LaporanKesekretariatan,
       meta: {
         title:
-          'Cetak Laporan Kesekretariatan || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+          'Cetak Laporan Kesekretariatan || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
       },
     },
     {
@@ -233,7 +233,7 @@ const router = createRouter({
       component: CetakRekapPengumpulanPerkecamatan,
       meta: {
         title:
-          'Rekap Pengumpulan Perkecamatan || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+          'Rekap Pengumpulan Perkecamatan || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
       },
     },
     {
@@ -241,9 +241,9 @@ const router = createRouter({
       name: 'cetak-rekap-pengumpulan',
       component: CetakRekapPengumpulan,
       meta: {
-        title: 'Cetak Rekap Pengumpulan || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+        title: 'Cetak Rekap Pengumpulan || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
       },
     },
     {
@@ -252,9 +252,9 @@ const router = createRouter({
       component: CetakRekapDistribusiPerKodeAsnaf,
       meta: {
         title:
-          'Cetak Rekap Distribusi Per Kode Asnaf || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+          'Cetak Rekap Distribusi Per Kode Asnaf || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
       },
     },
     {
@@ -262,9 +262,9 @@ const router = createRouter({
       name: 'kalkulator',
       component: Kalkulator,
       meta: {
-        title: 'Kalkulator Zakat || Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah',
+        title: 'Kalkulator Zakat || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Aceh Tengah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
       },
     },
   ],

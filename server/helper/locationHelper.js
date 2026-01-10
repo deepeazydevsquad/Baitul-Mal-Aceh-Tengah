@@ -38,7 +38,7 @@ helper.get_info_lokasi_list = async (ids) => {
     ],
   });
 
-  return desaList.map(desa => ({
+  return desaList.map((desa) => ({
     id: desa.id,
     desa_name: desa.name,
     kecamatan_id: desa.kecamatan_id,
@@ -47,7 +47,7 @@ helper.get_info_lokasi_list = async (ids) => {
 };
 
 helper.kabupatenKota = () => {
-  return "Kabupaten Aceh Tengah";
+  return "Kabupaten Bener Meriah";
 };
 
 module.exports = helper;

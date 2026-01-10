@@ -4,7 +4,7 @@ import { getActiveRunningText, getSpeedSetting } from '@/service/running_text';
 
 // --- State Management ---
 const combinedActiveText = ref(
-  'SELAMAT DATANG DI APLIKASI MUSTAHIK DAN MUZAKKI BAITUL MAL KABUPATEN ACEH TENGAH',
+  'SELAMAT DATANG DI APLIKASI MUSTAHIK DAN MUZAKKI BAITUL MAL KABUPATEN BENER MERIAH',
 );
 const isLoading = ref(true);
 const speed = ref(80);
@@ -51,7 +51,6 @@ const fetchSpeedSetting = async () => {
   }
 };
 
-
 const updateMarqueeParameters = () => {
   if (marqueeTextRef.value && marqueeTextRef.value.parentElement) {
     const container = marqueeTextRef.value.parentElement;
@@ -77,7 +76,7 @@ const marqueeStyle = computed(() => {
     animation: `scroll-and-pause var(--animation-duration) linear infinite`,
   };
 });
-  
+
 onMounted(async () => {
   await Promise.all([fetchData(), fetchSpeedSetting()]);
   if (marqueeTextRef.value && marqueeTextRef.value.parentElement) {
