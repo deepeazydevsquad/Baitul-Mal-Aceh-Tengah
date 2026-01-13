@@ -4,7 +4,7 @@ import { getActiveRunningText, getSpeedSetting } from '@/service/running_text';
 
 // --- State Management ---
 const combinedActiveText = ref(
-  'SELAMAT DATANG DI APLIKASI MUSTAHIK DAN MUZAKKI BAITUL MAL KABUPATEN BENER MERIAH',
+  'SELAMAT DATANG DI APLIKASI ZIWAH BAITUL MAL KABUPATEN BENER MERIAH',
 );
 const isLoading = ref(true);
 const speed = ref(80);

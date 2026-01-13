@@ -4,12 +4,12 @@ import { RouterLink, RouterView } from 'vue-router';
 import { useHead } from '@vueuse/head';
 
 useHead({
-  title: 'Aplikasi Muzakki & Mustahik Kabupaten Bener Meriah',
+  title: 'Aplikasi Ziwah Kabupaten Bener Meriah',
   link: [{ rel: 'icon', type: 'image/png', href: 'public/favicon.png' }],
   meta: [
     {
-      name: 'Aplikasi Muzakki & Mustahik',
-      content: 'Aplikasi Muzakki & Mustahik Kabupaten Bener Meriah',
+      name: 'Aplikasi Ziwah',
+      content: 'Aplikasi Ziwah Kabupaten Bener Meriah',
     },
   ],
 });
