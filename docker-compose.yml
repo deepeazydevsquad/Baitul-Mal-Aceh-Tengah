@@ -10,14 +10,14 @@ services:
     volumes:
       - ./server:/app # bind mount source code
     ports:
-      - "3003:3003" # port unik untuk Baitulmal Bener Meriah
+      - "3033:3033" # port unik untuk Baitulmal Bener Meriah
     environment:
       ADMINISTRATOR_SECRET_KEY: "9813kbk31023khvviuytyuwqkiwvj9mnb757uytr34nm123o"
       ADMINISTRATOR_REFRESH_SECRET_KEY: "y87238giehgaiuwgd82o123455gskiassmnxzxclaoihdsobk"
       MEMBERSHIP_SECRET_KEY: "9813kbk31023khvviuytyuwqkiwvj9mnb757uytr34nm123o"
       MEMBERSHIP_REFRESH_SECRET_KEY: "y87238giehgaiuwgd82o123455gskiassmnxzxclaoihdsobk"
       NODE_ENV: "development"
-      PORT: 3003
+      PORT: 3033
       MIDTRANS_SERVER_KEY: SB-Mid-server-zw-LJ6-UHTMlabcfbM06qqvz
       MIDTRANS_SANDBOX_URL: "https://app.sandbox.midtrans.com/snap/v1/transactions"
       MIDTRANS_PRODUCTION_URL: ""
@@ -36,7 +36,7 @@ services:
     image: muammar88/baitulmal_bener_meriah_client:1.0.0
     container_name: Container_client_baitulmal_bener_meriah
     ports:
-      - "8089:80"
+      - "8099:80"
     environment:
       VITE_APP_API_BASE_URL: "http://server:3003"
       NODE_ENV: "development"
