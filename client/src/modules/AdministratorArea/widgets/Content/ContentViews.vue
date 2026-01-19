@@ -115,7 +115,6 @@ const tabComponents = {
   target_pengumpulan: TargetPengumpulan,
   target_distribusi: TargetDistribusi,
   laporan_sekretariatan: LaporanKesekretariatan,
-  beranda_utama: Beranda,
   monev: Monev,
   rekap_distribusi_asnaf: RekapDistribusiPerAsnaf,
   laporan_kesekretariatan: LaporanKesekretariatan,
