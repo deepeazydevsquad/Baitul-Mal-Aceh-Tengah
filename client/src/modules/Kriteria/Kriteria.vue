@@ -128,7 +128,7 @@ async function deleteData(id: number) {
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
-            <template v-if="dataKriteria">
+            <template v-if="dataKriteria.length > 0">
               <tr
                 v-for="data in dataKriteria"
                 :key="data.id"
