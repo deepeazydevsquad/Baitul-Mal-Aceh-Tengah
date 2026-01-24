@@ -7,6 +7,8 @@ import html2canvas from 'html2canvas';
 import Logo from '@/components/Logo/Logo.vue';
 import { useNotification } from '@/composables/useNotification';
 
+import ziwahImg from '@/assets/images/brand/ziwah.png';
+
 import { get_laporan_harian, list } from '@/service/laporan_umum';
 // Global Properties
 const { appContext } = getCurrentInstance()!;
@@ -217,8 +219,8 @@ async function cetakLaporanHarian() {
 
     const logo = BASE_URL + '/uploads/img/logos/site_logo.png';
     const logoBase64 = await loadImageAsBase64(logo);
-    const footer = '/images/ziwah.png';
-    const footerBase64 = await loadImageAsBase64(footer);
+    // const footer = '/images/ziwah.png';
+    const footerBase64 = await loadImageAsBase64(ziwahImg);
 
     // Inisialisasi PDF
     const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });

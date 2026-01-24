@@ -19,6 +19,8 @@ import { getCurrentInstance, onMounted, ref, watch } from 'vue';
 
 import BaseSelect from '@/components/Form/BaseSelect.vue';
 
+import ziwahImg from '@/assets/images/brand/ziwah.png';
+
 // import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
@@ -294,8 +296,7 @@ async function cetakSuratSerahTerima(id: number) {
     // Load images
     const logo = BASE_URL + '/uploads/img/logos/site_logo.png';
     const logoBase64 = await loadImageAsBase64(logo);
-    const footer = '/images/ziwah.png';
-    const footerBase64 = await loadImageAsBase64(footer);
+    const footerBase64 = await loadImageAsBase64(ziwahImg);
 
     // Inisialisasi PDF
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });

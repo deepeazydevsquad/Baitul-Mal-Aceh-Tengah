@@ -22,6 +22,8 @@ import { getCurrentInstance, onMounted, ref } from 'vue';
 // import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
+import ziwahImg from '@/assets/images/brand/ziwah.png';
+
 // Composable
 import { useConfirmation } from '@/composables/useConfirmation';
 import { useDynamicLabel } from '@/composables/useDynamicLabel';
@@ -293,8 +295,7 @@ async function cetakSuratSerahTerimaInfaq(id: number) {
     // Load images
     const logo = BASE_URL + '/uploads/img/logos/site_logo.png';
     const logoBase64 = await loadImageAsBase64(logo);
-    const footer = '/images/ziwah.png';
-    const footerBase64 = await loadImageAsBase64(footer);
+    const footerBase64 = await loadImageAsBase64(ziwahImg);
 
     // Inisialisasi PDF
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
