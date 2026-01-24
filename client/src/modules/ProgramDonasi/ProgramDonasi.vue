@@ -173,6 +173,7 @@ function formatToRupiah(angka: number | string) {
     <!-- Header -->
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
+      <!--        flex flex-col sm:flex-row sm:items-center justify-end gap-4 -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <BaseButton
           @click="openModalAdd()"
@@ -185,7 +186,8 @@ function formatToRupiah(angka: number | string) {
         </BaseButton>
 
         <!-- Search -->
-        <div class="flex items-center w-full sm:w-auto">
+        <!--        flex items-center w-full sm:w-auto gap-2 -->
+        <div class="flex items-center w-full sm:w-auto gap-2">
           <label for="search" class="mr-2 text-sm font-medium text-gray-600">Filter</label>
           <input
             id="search"
