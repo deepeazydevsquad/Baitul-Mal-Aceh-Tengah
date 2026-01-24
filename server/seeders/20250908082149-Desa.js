@@ -3,301 +3,711 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.bulkInsert(
-      "Desas",
-      [
-        {
-          kecamatan_id: 1,
-          name: "Bale Atu",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 1,
-          name: "Bale Atu Gayo",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 1,
-          name: "Bebesen",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 1,
-          name: "Bener Pepanyi",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 1,
-          name: "Blang Kolak I",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 1,
-          name: "Blang Kolak II",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 1,
-          name: "Blang Kolak III",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 1,
-          name: "Blang Mancung",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 1,
-          name: "Gunung Bukit",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 1,
-          name: "Hakim Bale Bujang",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 1,
-          name: "Hakim Bale Takengon",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 1,
-          name: "Kemili",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 1,
-          name: "Kuteni Reje",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 1,
-          name: "Lelabu",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 1,
-          name: "Lelabu Pepanyi",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 1,
-          name: "Lelabu Pepanyi",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 1,
-          name: "Paya Tumpi Baru",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 1,
-          name: "Paya Tumpi I",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 1,
-          name: "Paya Tumpi Induk",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 1,
-          name: "Paya Tumpi Lama",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        // Kecamatan 2: Bies
-        {
-          kecamatan_id: 2,
-          name: "Bies Penantanan",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 2,
-          name: "Bies Mulie",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 2,
-          name: "Bintang Bener",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 2,
-          name: "Bintang Kekelip",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 2,
-          name: "Bintang Pepanyi",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 2,
-          name: "Bintang Pepanyi",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 2,
-          name: "Bintang Pepanyi",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 2,
-          name: "Bintang Pepanyi",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        // Kecamatan 3: Bintang
-        {
-          kecamatan_id: 3,
-          name: "Bintang",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 3,
-          name: "Bintang Kekelip",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 3,
-          name: "Bintang Pepanyi",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        // Kecamatan 4: Celala
-        {
-          kecamatan_id: 4,
-          name: "Celala",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 4,
-          name: "Celala Baru",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        // Kecamatan 5: Jagong Jeget
-        {
-          kecamatan_id: 5,
-          name: "Jagong Jeget",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 5,
-          name: "Jeget Ayu",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        // Kecamatan 6: Kebayakan
-        {
-          kecamatan_id: 6,
-          name: "Kebayakan",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        // Kecamatan 7: Ketol
-        {
-          kecamatan_id: 7,
-          name: "Ketol",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        // Kecamatan 8: Kute Panang
-        {
-          kecamatan_id: 8,
-          name: "Kute Panang",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        // Kecamatan 9: Linge
-        {
-          kecamatan_id: 9,
-          name: "Linge",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        // Kecamatan 10: Lut Tawar
-        {
-          kecamatan_id: 10,
-          name: "Lut Tawar",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        // Kecamatan 11: Pegasing
-        {
-          kecamatan_id: 11,
-          name: "Pegasing",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        // Kecamatan 12: Rusip Antara
-        {
-          kecamatan_id: 12,
-          name: "Rusip Antara",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        // Kecamatan 13: Silih Nara
-        {
-          kecamatan_id: 13,
-          name: "Silih Nara",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        // Kecamatan 14: Atu Lintang
-        {
-          kecamatan_id: 14,
-          name: "Atu Lintang",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 14,
-          name: "Berawang Dewal",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          kecamatan_id: 14,
-          name: "Delung Sikenel",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ],
-      {}
-    );
+    const now = new Date();
+
+    await queryInterface.bulkInsert("Desas", [
+      // ===========================
+      // Kecamatan Bandar (id:1)
+      // ===========================
+      {
+        kecamatan_id: 1,
+        name: "Bahgie Bentona",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 1, name: "Batin Baru", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 1,
+        name: "Belang Jorong",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 1,
+        name: "Beranun Teleden",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 1, name: "Blang Pulo", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 1,
+        name: "Bukit Wih Ilang",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 1,
+        name: "Gele Semayang",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 1,
+        name: "Gunung Antara",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 1,
+        name: "Hakim Wih Ilang",
+        createdAt: now,
+        updatedAt: now,
+      },
+
+      { kecamatan_id: 1, name: "Jadi Sepakat", createdAt: now, updatedAt: now },
+      { kecamatan_id: 1, name: "Janarata", createdAt: now, updatedAt: now },
+      { kecamatan_id: 1, name: "Kala Nempan", createdAt: now, updatedAt: now },
+      { kecamatan_id: 1, name: "Keramat Jaya", createdAt: now, updatedAt: now },
+      { kecamatan_id: 1, name: "Lewajadi", createdAt: now, updatedAt: now },
+
+      {
+        kecamatan_id: 1,
+        name: "Makmur Sentosa",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 1, name: "Mutiara", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 1,
+        name: "Muyang Kute Mangku",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 1, name: "Purwosari", createdAt: now, updatedAt: now },
+      { kecamatan_id: 1, name: "Pakat Jeroh", createdAt: now, updatedAt: now },
+      { kecamatan_id: 1, name: "Paya Baning", createdAt: now, updatedAt: now },
+      { kecamatan_id: 1, name: "Paya Ringkel", createdAt: now, updatedAt: now },
+      { kecamatan_id: 1, name: "Pondok Baru", createdAt: now, updatedAt: now },
+      { kecamatan_id: 1, name: "Pondok Gajah", createdAt: now, updatedAt: now },
+      { kecamatan_id: 1, name: "Pondok Ulung", createdAt: now, updatedAt: now },
+      { kecamatan_id: 1, name: "Puja Mulia", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 1,
+        name: "Remang Ketike Jaya",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 1, name: "Selamat Rejo", createdAt: now, updatedAt: now },
+      { kecamatan_id: 1, name: "Selisih Mara", createdAt: now, updatedAt: now },
+      { kecamatan_id: 1, name: "Sidodadi", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 1,
+        name: "Simpang Utama",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 1,
+        name: "Suku Wih Ilang",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 1, name: "Tanjung Pura", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 1,
+        name: "Tansaran Bidin",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 1,
+        name: "Tawar Sedenge",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 1, name: "Wonosari", createdAt: now, updatedAt: now },
+
+      // ==============================
+      // Kecamatan Bener Kelipah (id:2)
+      // ==============================
+      { kecamatan_id: 2, name: "Bandar Jaya", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 2,
+        name: "Bener Kelipah Selatan",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 2,
+        name: "Bener Kelipah Utara",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 2,
+        name: "Bintang Musara",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 2,
+        name: "Gunung Musara",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 2,
+        name: "Jongok Meluem",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 2, name: "Kala Tenang", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 2,
+        name: "Lot Bener Kelipah",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 2, name: "Nosar Baru", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 2,
+        name: "Nosar Tawar Jaya",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 2, name: "Suku Bener", createdAt: now, updatedAt: now },
+
+      // ===========================
+      // Kecamatan Bukit (id:3)
+      // ===========================
+      { kecamatan_id: 3, name: "Babussalam", createdAt: now, updatedAt: now },
+      { kecamatan_id: 3, name: "Bale Atu", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 3,
+        name: "Bale Redelong",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 3,
+        name: "Bathin Wih Pongas",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 3, name: "Blang Ara", createdAt: now, updatedAt: now },
+      { kecamatan_id: 3, name: "Blang Panas", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 3,
+        name: "Blang Sentang",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 3, name: "Blang Tampu", createdAt: now, updatedAt: now },
+      { kecamatan_id: 3, name: "Bujang", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 3,
+        name: "Bukit Bersatu",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 3, name: "Delung Asli", createdAt: now, updatedAt: now },
+      { kecamatan_id: 3, name: "Delung Tue", createdAt: now, updatedAt: now },
+      { kecamatan_id: 3, name: "Godang", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 3,
+        name: "Hakim Tungul Naru",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 3, name: "Isaq Busur", createdAt: now, updatedAt: now },
+      { kecamatan_id: 3, name: "Karang Rejo", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 3,
+        name: "Kenawat Redelong",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 3, name: "Kute Kering", createdAt: now, updatedAt: now },
+      { kecamatan_id: 3, name: "Kute Lintang", createdAt: now, updatedAt: now },
+      { kecamatan_id: 3, name: "Kute Tanjung", createdAt: now, updatedAt: now },
+      { kecamatan_id: 3, name: "Meluem", createdAt: now, updatedAt: now },
+      { kecamatan_id: 3, name: "Mupakat Jadi", createdAt: now, updatedAt: now },
+      { kecamatan_id: 3, name: "Mutiara Baru", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 3,
+        name: "Panji Mulia I",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 3,
+        name: "Panji Mulia II",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 3,
+        name: "Pasar Simpang Tiga",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 3, name: "Paya Gajah", createdAt: now, updatedAt: now },
+      { kecamatan_id: 3, name: "Pilar Jaya", createdAt: now, updatedAt: now },
+      { kecamatan_id: 3, name: "Rejeguru", createdAt: now, updatedAt: now },
+      { kecamatan_id: 3, name: "Rembele", createdAt: now, updatedAt: now },
+      { kecamatan_id: 3, name: "Sedie Jadi", createdAt: now, updatedAt: now },
+      { kecamatan_id: 3, name: "Serule Kayu", createdAt: now, updatedAt: now },
+      { kecamatan_id: 3, name: "Tingkem Asli", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 3,
+        name: "Tingkem Benyer",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 3,
+        name: "Tingkem Bersatu",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 3, name: "Ujung Gele", createdAt: now, updatedAt: now },
+      { kecamatan_id: 3, name: "Uning Bersah", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 3,
+        name: "Uning Teritit",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 3, name: "Uring", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 3,
+        name: "Waq Pondok Sayur",
+        createdAt: now,
+        updatedAt: now,
+      },
+
+      // ===============================
+      // Kecamatan Gajah Putih (id:4)
+      // ===============================
+      { kecamatan_id: 4, name: "Alam Jaya", createdAt: now, updatedAt: now },
+      { kecamatan_id: 4, name: "Gajah Putih", createdAt: now, updatedAt: now },
+      { kecamatan_id: 4, name: "Gayo Setie", createdAt: now, updatedAt: now },
+      { kecamatan_id: 4, name: "Pantan Lues", createdAt: now, updatedAt: now },
+      { kecamatan_id: 4, name: "Pante Karya", createdAt: now, updatedAt: now },
+      { kecamatan_id: 4, name: "Meriah Jaya", createdAt: now, updatedAt: now },
+      { kecamatan_id: 4, name: "Reronga", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 4,
+        name: "Simpang Rahmat",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 4, name: "Timang Gajah", createdAt: now, updatedAt: now },
+      { kecamatan_id: 4, name: "Umah Besi", createdAt: now, updatedAt: now },
+
+      // …continued next message due to length… (232 entries total)
+      // =====================
+      // Kecamatan Mesidah (id:5)
+      // =====================
+      { kecamatan_id: 5, name: "Amor", createdAt: now, updatedAt: now },
+      { kecamatan_id: 5, name: "Buntul Gayo", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 5,
+        name: "Cemparam Jaya",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 5,
+        name: "Cemparam Lama",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 5,
+        name: "Cemparam Pakat Jeroh",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 5,
+        name: "Gunung Sayang",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 5,
+        name: "Hakim Peteri Pintu",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 5,
+        name: "Jamur Atu Jaya",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 5, name: "Pantan Kuli", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 5,
+        name: "Perumpaken Benjadi",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 5,
+        name: "Pintu Wih Resap",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 5,
+        name: "Simpang Renggali",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 5, name: "Simpur", createdAt: now, updatedAt: now },
+      { kecamatan_id: 5, name: "Sosial", createdAt: now, updatedAt: now },
+      { kecamatan_id: 5, name: "Wer Tingkem", createdAt: now, updatedAt: now },
+
+      // =====================
+      // Kecamatan Permata (id:6)
+      // =====================
+      { kecamatan_id: 6, name: "Ayu Ara", createdAt: now, updatedAt: now },
+      { kecamatan_id: 6, name: "Bale Musara", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 6,
+        name: "Bale Purnama",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 6,
+        name: "Bener Pepanyi",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 6,
+        name: "Bintang Bener",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 6,
+        name: "Bintang Permata",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 6,
+        name: "Buntul Peteri",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 6, name: "Burni Pase", createdAt: now, updatedAt: now },
+      { kecamatan_id: 6, name: "Ceding Ayu", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 6,
+        name: "Darul Aman Ramung",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 6,
+        name: "Gelampang Wih Tenang Uken",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 6, name: "Jelobok", createdAt: now, updatedAt: now },
+      { kecamatan_id: 6, name: "Jungke", createdAt: now, updatedAt: now },
+      { kecamatan_id: 6, name: "Kepies", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 6,
+        name: "Pantan Tengah Jaya",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 6,
+        name: "Penosan Jaya",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 6,
+        name: "Ramung Jaya",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 6,
+        name: "Rikit Musara",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 6, name: "Seni Antara", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 6,
+        name: "Suku Sara Tangke",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 6, name: "Tawar Bengi", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 6,
+        name: "Temas Mumanang",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 6, name: "Timur Jaya", createdAt: now, updatedAt: now },
+      { kecamatan_id: 6, name: "Uning Sejuk", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 6,
+        name: "Wih Tenang Toa",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 6,
+        name: "Wih Tenang Uken",
+        createdAt: now,
+        updatedAt: now,
+      },
+
+      // ==============================
+      // Kecamatan Pintu Rime Gayo (id:7)
+      // ==============================
+      { kecamatan_id: 7, name: "Arul Cincin", createdAt: now, updatedAt: now },
+      { kecamatan_id: 7, name: "Arul Gading", createdAt: now, updatedAt: now },
+      { kecamatan_id: 7, name: "Bener Meriah", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 7,
+        name: "Bintang Berangun",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 7, name: "Blang Ara", createdAt: now, updatedAt: now },
+      { kecamatan_id: 7, name: "Blang Rakal", createdAt: now, updatedAt: now },
+      { kecamatan_id: 7, name: "Gemasih", createdAt: now, updatedAt: now },
+      { kecamatan_id: 7, name: "Musaba", createdAt: now, updatedAt: now },
+      { kecamatan_id: 7, name: "Musara Pakat", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 7,
+        name: "Negeri Antara",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 7,
+        name: "Pancar Jelobok",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 7, name: "Pantan Lah", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 7,
+        name: "Pantan Sinaku",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 7, name: "Perdamaian", createdAt: now, updatedAt: now },
+      { kecamatan_id: 7, name: "Pulo Intan", createdAt: now, updatedAt: now },
+      { kecamatan_id: 7, name: "Rata Ara", createdAt: now, updatedAt: now },
+      { kecamatan_id: 7, name: "Rimba Raya", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 7,
+        name: "Simpang Lancang",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 7, name: "Singah Mulo", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 7,
+        name: "Taman Firdaus",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 7, name: "Ulu Naron", createdAt: now, updatedAt: now },
+      { kecamatan_id: 7, name: "Uning Mas", createdAt: now, updatedAt: now },
+      { kecamatan_id: 7, name: "Wih Porak", createdAt: now, updatedAt: now },
+
+      // =========================
+      // Kecamatan Syiah Utama (id:8)
+      // =========================
+      { kecamatan_id: 8, name: "Blang Panu", createdAt: now, updatedAt: now },
+      { kecamatan_id: 8, name: "Gerpa", createdAt: now, updatedAt: now },
+      { kecamatan_id: 8, name: "Goneng", createdAt: now, updatedAt: now },
+      { kecamatan_id: 8, name: "Kutelah Lane", createdAt: now, updatedAt: now },
+      { kecamatan_id: 8, name: "Pasir Putih", createdAt: now, updatedAt: now },
+      { kecamatan_id: 8, name: "Payung", createdAt: now, updatedAt: now },
+      { kecamatan_id: 8, name: "Rusip", createdAt: now, updatedAt: now },
+      { kecamatan_id: 8, name: "Tembolon", createdAt: now, updatedAt: now },
+      { kecamatan_id: 8, name: "Uning", createdAt: now, updatedAt: now },
+      { kecamatan_id: 8, name: "Wihni Durin", createdAt: now, updatedAt: now },
+      { kecamatan_id: 8, name: "Rata Mulie", createdAt: now, updatedAt: now },
+      { kecamatan_id: 8, name: "Tempen Baru", createdAt: now, updatedAt: now },
+      { kecamatan_id: 8, name: "Geruti Jaya", createdAt: now, updatedAt: now },
+
+      // =========================
+      // Kecamatan Timang Gajah (id:9)
+      // =========================
+      {
+        kecamatan_id: 9,
+        name: "Bandar Lampahan",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 9, name: "Blang Rongka", createdAt: now, updatedAt: now },
+      { kecamatan_id: 9, name: "Bukit Mulie", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 9,
+        name: "Bukit Tunyang",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 9, name: "Bumi Ayu", createdAt: now, updatedAt: now },
+      { kecamatan_id: 9, name: "Cekal Baru", createdAt: now, updatedAt: now },
+      { kecamatan_id: 9, name: "Damaran Baru", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 9,
+        name: "Datu Beru Tunyang",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 9,
+        name: "Fajar Harapan",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 9,
+        name: "Gegur Sepakat",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 9,
+        name: "Gunung Tunyang",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 9, name: "Kampung Baru", createdAt: now, updatedAt: now },
+      { kecamatan_id: 9, name: "Karang Jadi", createdAt: now, updatedAt: now },
+      { kecamatan_id: 9, name: "Kenine", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 9,
+        name: "Kolam Para Kanis",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 9, name: "Lampahan", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 9,
+        name: "Lampahan Barat",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 9,
+        name: "Lampahan Timur",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 9, name: "Linung Bale", createdAt: now, updatedAt: now },
+      { kecamatan_id: 9, name: "Mekar Ayu", createdAt: now, updatedAt: now },
+      { kecamatan_id: 9, name: "Mude Benara", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 9,
+        name: "Pantan Kemuning",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 9,
+        name: "Pantan Pediangen",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 9, name: "Rembune", createdAt: now, updatedAt: now },
+      { kecamatan_id: 9, name: "Setie", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 9,
+        name: "Simpang Layang",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 9, name: "Suka Damai", createdAt: now, updatedAt: now },
+      { kecamatan_id: 9, name: "Sumber Jaya", createdAt: now, updatedAt: now },
+      { kecamatan_id: 9, name: "Timang Rasa", createdAt: now, updatedAt: now },
+      { kecamatan_id: 9, name: "Tunyang", createdAt: now, updatedAt: now },
+
+      // =====================
+      // Kecamatan Wih Pesam (id:10)
+      // =====================
+      { kecamatan_id: 10, name: "Bener Ayu", createdAt: now, updatedAt: now },
+      { kecamatan_id: 10, name: "Bener Mulie", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 10,
+        name: "Blang Benara",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 10, name: "Blang Kucak", createdAt: now, updatedAt: now },
+      { kecamatan_id: 10, name: "Blang Paku", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 10,
+        name: "Bukit Pepanyi",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 10,
+        name: "Burni Telong",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 10, name: "Cinta Damai", createdAt: now, updatedAt: now },
+      { kecamatan_id: 10, name: "Gegerung", createdAt: now, updatedAt: now },
+      { kecamatan_id: 10, name: "Jamur Ujung", createdAt: now, updatedAt: now },
+      { kecamatan_id: 10, name: "Jamur Uluh", createdAt: now, updatedAt: now },
+      { kecamatan_id: 10, name: "Kebun Baru", createdAt: now, updatedAt: now },
+      { kecamatan_id: 10, name: "Lut Kucak", createdAt: now, updatedAt: now },
+      { kecamatan_id: 10, name: "Merie Satu", createdAt: now, updatedAt: now },
+      { kecamatan_id: 10, name: "Pante Raya", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 10,
+        name: "Simpang Antara",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 10,
+        name: "Simpang Balek",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 10,
+        name: "Simpang Teritit",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 10, name: "Suka Jadi", createdAt: now, updatedAt: now },
+      { kecamatan_id: 10, name: "Suka Makmur", createdAt: now, updatedAt: now },
+      {
+        kecamatan_id: 10,
+        name: "Suka Makmur Timur",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 10,
+        name: "Suka Ramai Atas",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        kecamatan_id: 10,
+        name: "Suka Ramai Bawah",
+        createdAt: now,
+        updatedAt: now,
+      },
+      { kecamatan_id: 10, name: "Syurajadi", createdAt: now, updatedAt: now },
+      { kecamatan_id: 10, name: "Wih Pesam", createdAt: now, updatedAt: now },
+      { kecamatan_id: 10, name: "Wonosobo", createdAt: now, updatedAt: now },
+    ]);
   },
 
   async down(queryInterface, Sequelize) {
