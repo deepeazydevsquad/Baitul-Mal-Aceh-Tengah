@@ -11,7 +11,7 @@ const router = express.Router();
 router.get(
   "/daftar_keanggotaan/daftar_kecamatan",
   authenticateTokenAdministrator,
-  controllers.daftar_kecamatan
+  controllers.daftar_kecamatan,
 );
 
 router.post(
@@ -23,7 +23,7 @@ router.post(
       .withMessage("kecamatan_id tidak boleh kosong.")
       .custom(validation.check_id_kecamatan),
   ],
-  controllers.daftar_desa
+  controllers.daftar_desa,
 );
 
 router.post(
@@ -31,15 +31,19 @@ router.post(
   authenticateTokenAdministrator,
   [
     body("perpage")
-      .notEmpty().withMessage("Perpage Tidak Boleh Kosong")
-      .isInt().withMessage("Perpage Harus Angka"),
+      .notEmpty()
+      .withMessage("Perpage Tidak Boleh Kosong")
+      .isInt()
+      .withMessage("Perpage Harus Angka"),
     body("pageNumber")
-      .notEmpty().withMessage("Page Number Tidak Boleh Kosong")
-      .isInt().withMessage("Page Number Harus Angka"),
+      .notEmpty()
+      .withMessage("Page Number Tidak Boleh Kosong")
+      .isInt()
+      .withMessage("Page Number Harus Angka"),
     body("search").optional().isString().withMessage("Search Harus String"),
     body("type").optional().isString().withMessage("Type Harus String"),
   ],
-  controllers.daftar_keanggotaan
+  controllers.daftar_keanggotaan,
 );
 
 router.post(
@@ -48,12 +52,12 @@ router.post(
   [
     body("id")
       .notEmpty()
-.withMessage("ID Tidak Boleh Kosong")
+      .withMessage("ID Tidak Boleh Kosong")
       .isInt()
-.withMessage("ID Harus Angka")
+      .withMessage("ID Harus Angka")
       .custom(validation.check_id_keanggotaan),
   ],
-  controllers.daftar_keanggotaan
+  controllers.daftar_keanggotaan,
 );
 
 router.post(
@@ -61,44 +65,49 @@ router.post(
   authenticateTokenAdministrator,
   [
     body("tipeAkun")
-      .notEmpty().withMessage("Tipe Akun Tidak Boleh Kosong")
-      .isIn(["perorangan", "instansi"]).withMessage("Tipe Akun Harus Perorangan atau Instansi"),
+      .notEmpty()
+      .withMessage("Tipe Akun Tidak Boleh Kosong")
+      .isIn(["perorangan", "instansi"])
+      .withMessage("Tipe Akun Harus Perorangan atau Instansi"),
     body("kecamatan_id")
       .optional()
-      .isInt().withMessage("Kecamatan ID Harus Angka")
+      .isInt()
+      .withMessage("Kecamatan ID Harus Angka")
       .custom(validation.check_id_kecamatan),
     body("desa_id")
       .optional()
-      .isInt().withMessage("Desa ID Harus Angka")
+      .isInt()
+      .withMessage("Desa ID Harus Angka")
       .custom(validation.check_id_desa),
     body("fullname")
-      .notEmpty().withMessage("Nama Lengkap Tidak Boleh Kosong")
-      .isString().withMessage("Nama Lengkap Harus String"),
+      .notEmpty()
+      .withMessage("Nama Lengkap Tidak Boleh Kosong")
+      .isString()
+      .withMessage("Nama Lengkap Harus String"),
     body("username")
-      .notEmpty().withMessage("Nama Pengguna Tidak Boleh Kosong")
-      .isString().withMessage("Nama Pengguna Harus String")
+      .notEmpty()
+      .withMessage("Nama Pengguna Tidak Boleh Kosong")
+      .isString()
+      .withMessage("Nama Pengguna Harus String")
       .custom(validation.check_username),
     body("nomor_ktp")
       .optional()
-      .isString().withMessage("Nomor KTP Harus String"),
-    body("nomor_kk")
-      .optional()
-      .isString().withMessage("Nomor KK Harus String"),
+      .isString()
+      .withMessage("Nomor KTP Harus String"),
+    body("nomor_kk").optional(),
     body("wa_number")
       .optional()
-      .isString().withMessage("Nomor Whatsapp Harus String"),
-    body("alamat")
-      .optional()
-      .isString().withMessage("Alamat Harus String"),
+      .isString()
+      .withMessage("Nomor Whatsapp Harus String"),
+    body("alamat").optional().isString().withMessage("Alamat Harus String"),
     body("birth_date")
       .optional()
-      .isString().withMessage("Tanggal Lahir Harus String"),
-    body("password")
-      .optional()
-      .custom(validation.check_password),
+      .isString()
+      .withMessage("Tanggal Lahir Harus String"),
+    body("password").optional().custom(validation.check_password),
   ],
   validation.validateData,
-  controllers.add
+  controllers.add,
 );
 
 router.post(
@@ -112,56 +121,63 @@ router.post(
       .withMessage("ID Harus Angka")
       .custom(validation.check_id_keanggotaan),
   ],
-  controllers.get_info_edit_daftar_keanggotaan
-)
+  controllers.get_info_edit_daftar_keanggotaan,
+);
 
 router.post(
   "/daftar_keanggotaan/edit",
   authenticateTokenAdministrator,
   [
     body("id")
-      .notEmpty().withMessage("ID Tidak Boleh Kosong")
-      .isInt().withMessage("ID Harus Angka")
+      .notEmpty()
+      .withMessage("ID Tidak Boleh Kosong")
+      .isInt()
+      .withMessage("ID Harus Angka")
       .custom(validation.check_id_keanggotaan),
     body("tipeAkun")
-      .notEmpty().withMessage("Tipe Akun Tidak Boleh Kosong")
-      .isIn(["perorangan", "instansi"]).withMessage("Tipe Akun Harus Perorangan atau Instansi"),
+      .notEmpty()
+      .withMessage("Tipe Akun Tidak Boleh Kosong")
+      .isIn(["perorangan", "instansi"])
+      .withMessage("Tipe Akun Harus Perorangan atau Instansi"),
     body("kecamatan_id")
       .optional()
-      .isInt().withMessage("Kecamatan ID Harus Angka")
+      .isInt()
+      .withMessage("Kecamatan ID Harus Angka")
       .custom(validation.check_id_kecamatan),
     body("desa_id")
       .optional()
-      .isInt().withMessage("Desa ID Harus Angka")
+      .isInt()
+      .withMessage("Desa ID Harus Angka")
       .custom(validation.check_id_desa),
     body("fullname")
-      .notEmpty().withMessage("Nama Lengkap Tidak Boleh Kosong")
-      .isString().withMessage("Nama Lengkap Harus String"),
+      .notEmpty()
+      .withMessage("Nama Lengkap Tidak Boleh Kosong")
+      .isString()
+      .withMessage("Nama Lengkap Harus String"),
     body("username")
-      .notEmpty().withMessage("Nama Pengguna Tidak Boleh Kosong")
-      .isString().withMessage("Nama Pengguna Harus String")
+      .notEmpty()
+      .withMessage("Nama Pengguna Tidak Boleh Kosong")
+      .isString()
+      .withMessage("Nama Pengguna Harus String")
       .custom(validation.check_username),
     body("nomor_ktp")
       .optional()
-      .isString().withMessage("Nomor KTP Harus String"),
-    body("nomor_kk")
-      .optional()
-      .isString().withMessage("Nomor KK Harus String"),
+      .isString()
+      .withMessage("Nomor KTP Harus String"),
+    body("nomor_kk").optional(),
     body("wa_number")
       .optional()
-      .isString().withMessage("Nomor Whatsapp Harus String"),
-    body("alamat")
-      .optional()
-      .isString().withMessage("Alamat Harus String"),
+      .isString()
+      .withMessage("Nomor Whatsapp Harus String"),
+    body("alamat").optional().isString().withMessage("Alamat Harus String"),
     body("birth_date")
       .optional()
-      .isString().withMessage("Tanggal Lahir Harus String"),
-    body("password")
-      .optional()
-      .custom(validation.check_password),
+      .isString()
+      .withMessage("Tanggal Lahir Harus String"),
+    body("password").optional().custom(validation.check_password),
   ],
   validation.validateData,
-  controllers.edit
+  controllers.edit,
 );
 
 router.post(
@@ -175,7 +191,7 @@ router.post(
       .withMessage("ID Harus Angka")
       .custom(validation.check_id_keanggotaan),
   ],
-  controllers.delete
+  controllers.delete,
 );
 
 module.exports = router;

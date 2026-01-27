@@ -1,15 +1,15 @@
 <script setup lang="ts">
 // Library
-import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'
-import Notification from '@/components/Modal/Notification.vue'
-import BaseButton from '@/components/Button/BaseButton.vue'
-import InputText from '@/components/Form/InputText.vue'
-import InputDate from '@/components/Form/InputDate.vue'
-import SelectField from '@/components/Form/SelectField.vue'
-import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue'
+import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue';
+import Notification from '@/components/Modal/Notification.vue';
+import BaseButton from '@/components/Button/BaseButton.vue';
+import InputText from '@/components/Form/InputText.vue';
+import InputDate from '@/components/Form/InputDate.vue';
+import SelectField from '@/components/Form/SelectField.vue';
+import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 
 // Composable
-import { useNotification } from '@/composables/useNotification'
+import { useNotification } from '@/composables/useNotification';
 
 // Service
 import {
@@ -17,30 +17,30 @@ import {
   get_info_edit_keanggotaan,
   get_daftar_kecamatan,
   get_daftar_desa,
-} from '@/service/daftar_keanggotaan'
+} from '@/service/daftar_keanggotaan';
 
 // Composable: notification
 const { showNotification, notificationType, notificationMessage, displayNotification } =
-  useNotification()
+  useNotification();
 
 interface Props {
-  isModalOpen: boolean
-  selectedKeanggotaan: any
+  isModalOpen: boolean;
+  selectedKeanggotaan: any;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  (e: 'close'): void
-  (e: 'status', payload: { error_msg?: string; error?: boolean }): void
-}>()
+  (e: 'close'): void;
+  (e: 'status', payload: { error_msg?: string; error?: boolean }): void;
+}>();
 
 // Function: Close modal
 const closeModal = () => {
-  if (isSubmitting.value) return
-  resetForm()
-  emit('close')
-}
+  if (isSubmitting.value) return;
+  resetForm();
+  emit('close');
+};
 
 // Function: Reset form
 const resetForm = () => {
@@ -57,120 +57,120 @@ const resetForm = () => {
     birth_date: '',
     password: null,
     confirm_password: null,
-  }
-  errors.value = {}
-}
+  };
+  errors.value = {};
+};
 
 // Function: Validate form
-const errors = ref<Record<string, string>>({})
+const errors = ref<Record<string, string>>({});
 
 const validateForm = () => {
-  const Error: Record<string, string> = {}
+  const Error: Record<string, string> = {};
 
   if (!form.value.tipeAkun || form.value.tipeAkun === '') {
-    Error.tipeAkun = 'Tipe Akun tidak boleh kosong.'
+    Error.tipeAkun = 'Tipe Akun tidak boleh kosong.';
   }
 
   if (!form.value.fullname) {
-    Error.fullname = 'Nama tidak boleh kosong.'
+    Error.fullname = 'Nama tidak boleh kosong.';
   }
 
   if (form.value.tipeAkun === 'instansi') {
     if (!form.value.kecamatan_id) {
-      Error.kecamatan_id = 'Kecamatan tidak boleh kosong.'
+      Error.kecamatan_id = 'Kecamatan tidak boleh kosong.';
     }
     if (!form.value.desa_id) {
-      Error.desa_id = 'Desa tidak boleh kosong.'
+      Error.desa_id = 'Desa tidak boleh kosong.';
     }
   } else if (form.value.tipeAkun === 'perorangan') {
     if (!form.value.nomor_ktp) {
-      Error.nomor_ktp = 'Nomor KTP tidak boleh kosong.'
+      Error.nomor_ktp = 'Nomor KTP tidak boleh kosong.';
     }
-    if (!form.value.nomor_kk) {
-      Error.nomor_kk = 'Nomor KK tidak boleh kosong.'
-    }
+    // if (!form.value.nomor_kk) {
+    //   Error.nomor_kk = 'Nomor KK tidak boleh kosong.'
+    // }
     if (!form.value.birth_date) {
-      Error.birth_date = 'Tanggal Lahir tidak boleh kosong.'
+      Error.birth_date = 'Tanggal Lahir tidak boleh kosong.';
     }
     if (!form.value.kecamatan_id) {
-      Error.kecamatan_id = 'Kecamatan tidak boleh kosong.'
+      Error.kecamatan_id = 'Kecamatan tidak boleh kosong.';
     }
     if (!form.value.desa_id) {
-      Error.desa_id = 'Desa tidak boleh kosong.'
+      Error.desa_id = 'Desa tidak boleh kosong.';
     }
   }
 
   if (!form.value.wa_number) {
-    Error.wa_number = 'Nomor Whatsapp tidak boleh kosong.'
+    Error.wa_number = 'Nomor Whatsapp tidak boleh kosong.';
   }
 
   if (!form.value.alamat) {
-    Error.alamat = 'Alamat tidak boleh kosong.'
+    Error.alamat = 'Alamat tidak boleh kosong.';
   }
 
   if (!form.value.username) {
-    Error.username = 'Username tidak boleh kosong.'
+    Error.username = 'Username tidak boleh kosong.';
   }
 
   if (form.value.password !== form.value.confirm_password) {
-    Error.confirm_password = 'Password tidak sama dengan Konfirmasi Password.'
+    Error.confirm_password = 'Password tidak sama dengan Konfirmasi Password.';
   }
 
-  errors.value = Error
+  errors.value = Error;
 
-  console.log(errors.value)
-  return Object.keys(Error).length === 0
-}
+  console.log(errors.value);
+  return Object.keys(Error).length === 0;
+};
 
 // State: Data Eksternal
-const kecamatan = ref<{ id: string; name: string }[]>([])
-const desa = ref<{ id: string; name: string }[]>([])
+const kecamatan = ref<{ id: string; name: string }[]>([]);
+const desa = ref<{ id: string; name: string }[]>([]);
 
 // State: Loading
-const isLoading = ref(true)
+const isLoading = ref(true);
 
 // Function: Fetch Data
 const fetchData = async () => {
-  if (!props.selectedKeanggotaan || !props.selectedKeanggotaan.id) return
+  if (!props.selectedKeanggotaan || !props.selectedKeanggotaan.id) return;
   try {
-    const response = await get_info_edit_keanggotaan(props.selectedKeanggotaan.id)
-    form.value.tipeAkun = response.data.tipe
-    form.value.kecamatan_id = response.data.kecamatan_id
-    form.value.desa_id = response.data.desa_id
-    form.value.fullname = response.data.fullname
-    form.value.username = response.data.username
-    form.value.nomor_ktp = response.data.nomor_ktp
-    form.value.nomor_kk = response.data.nomor_kk
-    form.value.wa_number = response.data.whatsapp_number
-    form.value.alamat = response.data.alamat
-    form.value.birth_date = response.data.birth_date
+    const response = await get_info_edit_keanggotaan(props.selectedKeanggotaan.id);
+    form.value.tipeAkun = response.data.tipe;
+    form.value.kecamatan_id = response.data.kecamatan_id;
+    form.value.desa_id = response.data.desa_id;
+    form.value.fullname = response.data.fullname;
+    form.value.username = response.data.username;
+    form.value.nomor_ktp = response.data.nomor_ktp;
+    form.value.nomor_kk = response.data.nomor_kk;
+    form.value.wa_number = response.data.whatsapp_number;
+    form.value.alamat = response.data.alamat;
+    form.value.birth_date = response.data.birth_date;
 
-    const responseKecamatan = await get_daftar_kecamatan()
-    kecamatan.value = responseKecamatan.data
-    console.log(response)
-    console.log(responseKecamatan)
+    const responseKecamatan = await get_daftar_kecamatan();
+    kecamatan.value = responseKecamatan.data;
+    console.log(response);
+    console.log(responseKecamatan);
   } catch (error) {
-    displayNotification('Gagal mengambil data keanggotaan', 'error')
+    displayNotification('Gagal mengambil data keanggotaan', 'error');
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 
 // Function: Handle submit
-const isSubmitting = ref(false)
+const isSubmitting = ref(false);
 const form = ref<{
-  tipeAkun: string
-  kecamatan_id?: number | null
-  desa_id?: number | null
-  fullname: string
-  username: string
-  nomor_ktp: string
-  nomor_kk: string
-  wa_number: string
-  alamat: string
-  birth_date?: string
-  password?: string | null
-  confirm_password?: string | null
+  tipeAkun: string;
+  kecamatan_id?: number | null;
+  desa_id?: number | null;
+  fullname: string;
+  username: string;
+  nomor_ktp: string;
+  nomor_kk: string;
+  wa_number: string;
+  alamat: string;
+  birth_date?: string;
+  password?: string | null;
+  confirm_password?: string | null;
 }>({
   tipeAkun: '',
   kecamatan_id: null,
@@ -184,12 +184,12 @@ const form = ref<{
   birth_date: '',
   password: null,
   confirm_password: null,
-})
+});
 
 const handleSubmit = async () => {
-  if (!validateForm()) return
+  if (!validateForm()) return;
 
-  console.log(form.value)
+  console.log(form.value);
 
   const formData = JSON.parse(
     JSON.stringify(
@@ -199,68 +199,72 @@ const handleSubmit = async () => {
         ),
       ),
     ),
-  )
-  formData.id = props.selectedKeanggotaan.id
-  console.log(formData)
+  );
+  formData.id = props.selectedKeanggotaan.id;
+  console.log(formData);
 
-  isSubmitting.value = true
+  isSubmitting.value = true;
 
   try {
-    const response = await edit_keanggotaan(formData)
-    console.log(response)
-    emit('status', { error_msg: response.error_msg, error: response.error })
+    const response = await edit_keanggotaan(formData);
+    console.log(response);
+    emit('status', { error_msg: response.error_msg, error: response.error });
   } catch (error: any) {
-    console.error(error)
-    displayNotification(error.response.data.error_msg || error.response.data.message, 'error', 5000)
+    console.error(error);
+    displayNotification(
+      error.response.data.error_msg || error.response.data.message,
+      'error',
+      5000,
+    );
   } finally {
-    isSubmitting.value = false
-    closeModal()
+    isSubmitting.value = false;
+    closeModal();
   }
-}
+};
 
 // Function: Handle escape & Fetch Data
 const handleEscape = (e: KeyboardEvent) => {
-  if (e.key === 'Escape' && props.isModalOpen) closeModal()
-}
+  if (e.key === 'Escape' && props.isModalOpen) closeModal();
+};
 onMounted(async () => {
-  await fetchData()
-  document.addEventListener('keydown', handleEscape)
-})
+  await fetchData();
+  document.addEventListener('keydown', handleEscape);
+});
 
 onBeforeUnmount(async () => {
-  await fetchData()
-  document.removeEventListener('keydown', handleEscape)
-})
+  await fetchData();
+  document.removeEventListener('keydown', handleEscape);
+});
 
 // Watch: Data State
 watch(
   () => props.selectedKeanggotaan,
   (val) => {
-    console.log(val)
-    if (props.isModalOpen && val?.id) fetchData()
+    console.log(val);
+    if (props.isModalOpen && val?.id) fetchData();
   },
-)
+);
 
 watch(
   () => form.value.kecamatan_id,
   async (val) => {
     if (!val) {
-      form.value.desa_id = null
-      return
+      form.value.desa_id = null;
+      return;
     }
-    isLoading.value = true
+    isLoading.value = true;
     try {
-      console.log(val)
-      const response = await get_daftar_desa(val)
-      console.log(response)
-      desa.value = response.data
+      console.log(val);
+      const response = await get_daftar_desa(val);
+      console.log(response);
+      desa.value = response.data;
     } catch (error) {
-      console.error('Gagal fetch desa:', error)
+      console.error('Gagal fetch desa:', error);
     } finally {
-      isLoading.value = false
+      isLoading.value = false;
     }
   },
-)
+);
 </script>
 
 <template>
@@ -364,7 +368,6 @@ watch(
               label="Nomor KK"
               placeholder="Nomor KK"
               :error="errors.nomor_kk"
-              :required="true"
             />
             <InputDate
               v-model="form.birth_date"
