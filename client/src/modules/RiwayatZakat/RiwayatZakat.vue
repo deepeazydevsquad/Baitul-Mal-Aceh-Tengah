@@ -20,7 +20,7 @@ import FormUploadBuktiTransfer from '@/modules/RiwayatZakat/widgets/FormUploadBu
 import { getCurrentInstance, onMounted, ref } from 'vue';
 import { API_URL } from '@/config/config';
 
-import ziwahImg from '@/assets/images/brand/ziwah.png';
+// import ziwahImg from '@/assets/images/brand/ziwah.png';
 
 // import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -304,7 +304,7 @@ async function cetakSuratSerahTerimaZakat(id: number) {
     const BASE_URL = API_URL;
     const logo = BASE_URL + '/uploads/img/logos/site_logo.png';
     const logoBase64 = await loadImageAsBase64(logo);
-    const footerBase64 = await loadImageAsBase64(ziwahImg);
+    const footerBase64 = await loadImageAsBase64(BASE_URL + '/uploads/img/logos/ziwah.png');
 
     // Inisialisasi PDF
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });

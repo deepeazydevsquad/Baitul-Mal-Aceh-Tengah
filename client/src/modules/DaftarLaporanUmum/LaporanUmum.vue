@@ -219,8 +219,7 @@ async function cetakLaporanHarian() {
 
     const logo = BASE_URL + '/uploads/img/logos/site_logo.png';
     const logoBase64 = await loadImageAsBase64(logo);
-    // const footer = '/images/ziwah.png';
-    const footerBase64 = await loadImageAsBase64(ziwahImg);
+    const footerBase64 = await loadImageAsBase64(BASE_URL + '/uploads/img/logos/ziwah.png');
 
     // Inisialisasi PDF
     const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
