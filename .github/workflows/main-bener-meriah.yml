@@ -58,7 +58,7 @@ jobs:
             done
 
             echo "🗑 Dropping and creating database..."
-            docker exec -i mysql_container_baitulmal_bener_meriah mysql -uroot -p"qhwgebsf6y12t3123jh126" -e "DROP DATABASE IF EXISTS baitulmalbenermeriah_db; CREATE DATABASE baitulmalbenermeriah_db;"
+            # docker exec -i mysql_container_baitulmal_bener_meriah mysql -uroot -p"qhwgebsf6y12t3123jh126" -e "DROP DATABASE IF EXISTS baitulmalbenermeriah_db; CREATE DATABASE baitulmalbenermeriah_db;"
 
             echo "📜 Running Sequelize migrations..."
             # if docker exec -i Container_server_baitulmal_bener_meriah npx sequelize-cli db:migrate; then
