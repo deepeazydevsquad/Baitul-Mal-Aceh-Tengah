@@ -7,6 +7,32 @@ const {
 
 const controllers = {};
 
+controllers.list_desa = async (req, res) => {
+  try {
+    const model = new Model_r(req);
+    const data = await model.list_desa();
+    res.status(200).json({
+      error: false,
+      data,
+    });
+  } catch (error) {
+    return handleServerError(res, error); // kasih full error object
+  }
+};
+
+controllers.list_kecamatan = async (req, res) => {
+  try {
+    const model = new Model_r(req);
+    const data = await model.list_kecamatan();
+    res.status(200).json({
+      error: false,
+      data,
+    });
+  } catch (error) {
+    return handleServerError(res, error); // kasih full error object
+  }
+};
+
 controllers.list_member = async (req, res) => {
   try {
     const model = new Model_r(req);

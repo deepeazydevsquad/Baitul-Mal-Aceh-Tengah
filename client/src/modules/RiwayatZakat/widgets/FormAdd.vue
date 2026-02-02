@@ -10,7 +10,7 @@ import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 import { useNotification } from '@/composables/useNotification';
 
 // Service
-import { list_member, add_riwayat_zakat } from '@/service/riwayat_zakat';
+import { list_member, list_desa, list_kecamatan, add_riwayat_zakat } from '@/service/riwayat_zakat';
 import SelectField from '@/components/Form/SelectField.vue';
 
 // Composable: notification
@@ -28,6 +28,15 @@ const emit = defineEmits<{
   (e: 'status', payload: { error_msg?: string; error?: boolean }): void;
 }>();
 
+interface List {
+  id: string;
+  name: string;
+}
+
+const optionKecamatan = ref<List[]>([{ id: '0', name: '--- Pilih Kecamatan ---' }]);
+const optionDesa = ref<List[]>([{ id: '0', name: '--- Pilih Desa ---' }]);
+const optionMember = ref<List[]>([{ id: '0', name: '--- Pilih Muzakki ---' }]);
+
 // Function: Close modal
 const closeModal = () => {
   if (isSubmitting.value) return;
@@ -38,7 +47,7 @@ const closeModal = () => {
 // Function: Reset form
 const resetForm = () => {
   form.value = {
-    member_id: null,
+    member_id: 0,
     nominal: 0,
     tipe_zakat: '',
     tipe_pembayaran: '',
@@ -46,22 +55,48 @@ const resetForm = () => {
 
   // Reset errors
   errors.value = {};
+
+  optionKecamatan.value = [{ id: '0', name: '--- Pilih Kecamatan ---' }];
+  optionDesa.value = [{ id: '0', name: '--- Pilih Desa ---' }];
+  optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }];
+
+  selectKecamatanId.value = 0;
+  selectDesaId.value = 0;
 };
 
 // Function: Fetch data
 const isLoading = ref(false);
-const optionsMember = ref([]);
+
+const selectKecamatanId = ref(0);
+const selectDesaId = ref(0);
 
 async function fetchData() {
   isLoading.value = true;
   try {
-    const responseMember = await list_member();
-
-    optionsMember.value = responseMember.data;
+    const response = await list_kecamatan();
+    optionKecamatan.value = [{ id: '0', name: '--- Pilih Kecamatan ---' }, ...response.data];
   } catch (error) {
     displayNotification('Terjadi kesalahan saat memuat data.', 'error');
   } finally {
     isLoading.value = false;
+  }
+}
+
+async function fetchDesa() {
+  try {
+    const response = await list_desa({ kecamatan_id: selectKecamatanId.value });
+    optionDesa.value = [{ id: '0', name: '--- Pilih Desa ---' }, ...response.data];
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function fetchMember() {
+  try {
+    const response = await list_member({ desa_id: selectDesaId.value });
+    optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }, ...response.data];
+  } catch (error) {
+    console.error(error);
   }
 }
 
@@ -102,12 +137,12 @@ const validateForm = () => {
 // Function: Handle submit
 const isSubmitting = ref(false);
 const form = ref<{
-  member_id: number | null;
+  member_id: number;
   nominal: number;
   tipe_zakat: string;
   tipe_pembayaran: string;
 }>({
-  member_id: null,
+  member_id: 0,
   nominal: 0,
   tipe_zakat: '',
   tipe_pembayaran: '',
@@ -158,6 +193,34 @@ watch(
     }
   },
 );
+
+watch(
+  () => selectKecamatanId.value,
+  (val) => {
+    if (val != 0) {
+      fetchDesa();
+    } else {
+      selectDesaId.value = 0;
+      form.value.member_id = 0;
+      optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }];
+      optionDesa.value = [{ id: '0', name: '--- Pilih Desa ---' }];
+    }
+  },
+);
+
+watch(
+  () => selectDesaId.value,
+  (val) => {
+    if (val != 0) {
+      fetchMember();
+    } else {
+      form.value.member_id = 0;
+      optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }];
+    }
+  },
+);
+
+// fetchMember
 </script>
 
 <template>
@@ -192,12 +255,32 @@ watch(
 
         <div>
           <SelectField
+            v-model="selectKecamatanId"
+            id="kecamatan_id"
+            label="Daftar Kecamatan"
+            placeholder="Pilih Kecamatan"
+            :options="optionKecamatan"
+            :required="true"
+          />
+        </div>
+        <div>
+          <SelectField
+            v-model="selectDesaId"
+            id="desa_id"
+            label="Daftar Desa"
+            placeholder="Pilih Desa"
+            :options="optionDesa"
+            :required="true"
+          />
+        </div>
+
+        <div>
+          <SelectField
             v-model="form.member_id"
             id="member_id"
             label="Daftar Muzakki"
-            placeholder="Pilih Member"
-            :error="errors.member_id"
-            :options="[{ id: null, name: '-- Pilih Daftar Muzakki --' }, ...optionsMember]"
+            placeholder="Pilih Muzakki"
+            :options="optionMember"
             :required="true"
           />
         </div>

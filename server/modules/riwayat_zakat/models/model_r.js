@@ -1,4 +1,11 @@
-const { Op, Riwayat_pengumpulan, Member, Setting } = require("../../../models");
+const {
+  Op,
+  Riwayat_pengumpulan,
+  Member,
+  Setting,
+  Kecamatan,
+  Desa,
+} = require("../../../models");
 const moment = require("moment");
 const { get_info_lokasi } = require("../../../helper/locationHelper");
 
@@ -7,8 +14,34 @@ class Model_r {
     this.req = req;
   }
 
+  async list_desa() {
+    const result = await Desa.findAndCountAll({
+      where: { kecamatan_id: this.req.body.kecamatan_id },
+    });
+
+    const data = result.rows.map((e) => ({
+      id: e.id,
+      name: e.name,
+    }));
+
+    return data;
+  }
+
+  async list_kecamatan() {
+    const result = await Kecamatan.findAndCountAll();
+
+    const data = result.rows.map((e) => ({
+      id: e.id,
+      name: e.name,
+    }));
+
+    return data;
+  }
+
   async list_member() {
-    const result = await Member.findAndCountAll();
+    const result = await Member.findAndCountAll({
+      where: { desa_id: this.req.body.desa_id },
+    });
 
     const data = result.rows.map((e) => ({
       id: e.id,
@@ -141,7 +174,7 @@ class Model_r {
             ) {
               pembayaran_online_dikirim = pembayaran_online_dikirim + 1;
             }
-          })
+          }),
         );
       });
 
@@ -201,7 +234,7 @@ class Model_r {
       ]);
 
       const settingMap = Object.fromEntries(
-        settings.map((s) => [s.name, s.value])
+        settings.map((s) => [s.name, s.value]),
       );
 
       return {
@@ -272,7 +305,7 @@ class Model_r {
     do {
       // 4 huruf random (A-Z)
       const letters = Array.from({ length: 4 }, () =>
-        String.fromCharCode(65 + Math.floor(Math.random() * 26))
+        String.fromCharCode(65 + Math.floor(Math.random() * 26)),
       ).join("");
 
       // 6 angka random

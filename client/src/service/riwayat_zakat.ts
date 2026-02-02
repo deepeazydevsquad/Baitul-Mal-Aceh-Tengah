@@ -1,11 +1,31 @@
 import api from '@/service/api_administrator';
 
-export const list_member = async () => {
+export const list_desa = async (param: { kecamatan_id: number }) => {
   try {
-    const response = await api.get('/riwayat_zakat/list_member');
+    const response = await api.post('/riwayat_zakat/list_desa', param);
     return response.data;
   } catch (error) {
-    console.error('Gagal memperbarui riwayat zakat', error);
+    console.error('Gagal mendapatkan data desa', error);
+    throw error;
+  }
+};
+
+export const list_kecamatan = async () => {
+  try {
+    const response = await api.get('/riwayat_zakat/list_kecamatan');
+    return response.data;
+  } catch (error) {
+    console.error('Gagal mendapatkan data kecamatan', error);
+    throw error;
+  }
+};
+
+export const list_member = async (param: { desa_id: number }) => {
+  try {
+    const response = await api.post('/riwayat_zakat/list_member', param);
+    return response.data;
+  } catch (error) {
+    console.error('Gagal mendapatkan data member', error);
     throw error;
   }
 };
@@ -15,7 +35,7 @@ export const list = async (param: any) => {
     const response = await api.post('/riwayat_zakat/list', param);
     return response.data;
   } catch (error) {
-    console.error('Gagal memperbarui riwayat zakat', error);
+    console.error('Gagal mendapatkan daftar zakat', error);
     throw error;
   }
 };
