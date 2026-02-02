@@ -12,14 +12,14 @@ dotenv.config();
 
 // ===== INITIALIZE =====
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3033;
 const SESSION_DURATION = 3600000; // 1 hour
 
 // ===== ALLOWED ORIGINS =====
 const ALLOWED_ORIGINS = [
   // Development
   "http://localhost:5173",
-  "http://localhost:3000",
+  "http://localhost:3033",
   "http://localhost:8080",
   // Production
   "http://ziwahbenermeriah.org",
