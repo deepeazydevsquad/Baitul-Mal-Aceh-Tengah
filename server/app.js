@@ -1,52 +1,89 @@
+// ===== IMPORTS =====
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
-const process = require("process");
 const express = require("express");
 const path = require("path");
 const session = require("express-session");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
+// Load environment variables
 dotenv.config();
 
+// ===== INITIALIZE =====
 const app = express();
-const port = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3001;
+const SESSION_DURATION = 3600000; // 1 hour
 
-// CORS dinamis, izinkan semua origin yang datang
+// ===== ALLOWED ORIGINS =====
+const ALLOWED_ORIGINS = [
+  "http://localhost:5173",
+  "http://ziwahbenermeriah.org",
+  "https://ziwahbenermeriah.org",
+  "http://api.ziwahbenermeriah.org",
+  "https://api.ziwahbenermeriah.org",
+];
+
+// ===== MIDDLEWARES =====
+
+/**
+ * CORS Configuration
+ */
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // untuk Postman, curl, dll.
-      return callback(null, origin); // izinkan semua origin
+    origin: (origin, callback) => {
+      // Allow requests without origin (Postman, curl, server-to-server)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (ALLOWED_ORIGINS.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
-  })
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
 );
 
+/**
+ * Body Parser
+ */
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const sessionDuration = 3600000; // 1 jam
-
+/**
+ * Session Configuration
+ */
 app.use(
   session({
-    secret: "OutletTacob4",
+    secret: process.env.SESSION_SECRET || "OutletTacob4",
     name: "amra_sessid",
     resave: false,
     saveUninitialized: false,
     cookie: {
-      expires: new Date(Date.now() + sessionDuration),
-      maxAge: sessionDuration,
+      expires: new Date(Date.now() + SESSION_DURATION),
+      maxAge: SESSION_DURATION,
     },
-  })
+  }),
 );
 
+/**
+ * Static files
+ */
 app.set("view engine", "ejs");
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Load router dinamis
-const arr_router = [
+// ===== ROUTES =====
+
+/**
+ * Load routers dynamically
+ */
+const ROUTER_LIST = [
   "auth",
   "administrator",
   "syarat",
@@ -94,7 +131,6 @@ const arr_router = [
   "permohonan_bantuan",
   "validasi_permohonan_bantuan",
   "kriteria",
-  "permohonan_bantuan",
   "laporan_pengumpulan",
   "laporan_perencanaan",
   "laporan_kesekretariatan",
@@ -111,40 +147,72 @@ const arr_router = [
   "member_area",
 ];
 
-const arr = {};
-arr_router.forEach((e) => {
-  if (typeof e === "object" && Object.keys(e.list).length > 0) {
-    for (let x in e.list) {
-      arr[
-        "router_" + e.list[x]
-      ] = require(`./router/${e.folder}/${e.list[x]}/index`);
-    }
+const routers = {};
+
+ROUTER_LIST.forEach((routerName) => {
+  if (
+    typeof routerName === "object" &&
+    Object.keys(routerName.list).length > 0
+  ) {
+    routerName.list.forEach((item) => {
+      routers[`router_${item}`] = require(
+        `./router/${routerName.folder}/${item}/index`,
+      );
+    });
   } else {
-    arr["router_" + e] = require(`./router/router_${e}`);
+    routers[`router_${routerName}`] = require(`./router/router_${routerName}`);
   }
 });
 
-// Load model dan sync
+// Register all routers
+Object.values(routers).forEach((router) => {
+  app.use(router);
+});
+
+// ===== DATABASE =====
+
+/**
+ * Initialize database
+ */
 const db = require("./models");
 
 (async () => {
-  await db.sequelize.sync();
+  try {
+    await db.sequelize.sync();
+    console.log("Database synchronized");
+  } catch (error) {
+    console.error("Database sync error:", error);
+  }
 })();
 
-// Gunakan semua router yang sudah dimuat
-for (let x in arr) {
-  app.use(arr[x]);
-}
+// ===== ERROR HANDLING =====
 
-// Middleware untuk error handler
+/**
+ * Global error handler middleware
+ */
 app.use((err, req, res, next) => {
   console.error("Internal Server Error:", err.stack);
-  res.status(500).json({ message: "Something went wrong!" });
+  res.status(err.status || 500).json({
+    message: err.message || "Something went wrong!",
+    status: err.status || 500,
+  });
 });
 
-// Start server
-app.listen(port, () => {
-  console.log("Server Running On Port " + port);
+/**
+ * 404 Not Found handler
+ */
+app.use((req, res) => {
+  res.status(404).json({
+    message: "Route not found",
+    status: 404,
+  });
 });
 
-// module.exports = app;
+// ===== START SERVER =====
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
+});
+
+module.exports = app;
