@@ -165,6 +165,7 @@ async function onSubmit(e: Event) {
       nomor_ktp: form.nomor_ktp || null,
       nomor_kk: form.nomor_kk || null,
       whatsapp_number: form.whatsapp_number,
+      otp: form.otp,
       birth_date: form.birth_date || null,
       alamat: form.alamat || '', // tambahin input alamat di form kalau belum ada
       username: form.username,
@@ -208,7 +209,7 @@ onMounted(async () => {
         <SelectField
           v-model="tipeAkun"
           id="tipe_akun"
-          label="Tipe Akun"
+          label="Tipe Akun (Stage)"
           placeholder="Pilih Tipe Akun"
           :error="errors.tipe_akun"
           :options="[

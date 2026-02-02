@@ -52,7 +52,7 @@ validation.check_username = async (value, { req }) => {
 
     if (check) {
       throw new Error(
-        "Member dengan nama yang sama sudah terdaftar di pangkalan data"
+        "Member dengan nama yang sama sudah terdaftar di pangkalan data",
       );
     }
   } else {
@@ -64,7 +64,7 @@ validation.check_username = async (value, { req }) => {
 
     if (check) {
       throw new Error(
-        "Member dengan nama yang sama sudah terdaftar di pangkalan data"
+        "Member dengan nama yang sama sudah terdaftar di pangkalan data",
       );
     }
   }
@@ -99,9 +99,9 @@ validation.validateData = (req, res, next) => {
     if (!form.nomor_ktp) {
       throw new Error("Nomor KTP tidak boleh kosong.");
     }
-    if (!form.nomor_kk) {
-      throw new Error("Nomor KK tidak boleh kosong.");
-    }
+    // if (!form.nomor_kk) {
+    //   throw new Error("Nomor KK tidak boleh kosong.");
+    // }
     if (!form.birth_date) {
       throw new Error("Tanggal Lahir tidak boleh kosong.");
     }
