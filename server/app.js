@@ -17,9 +17,15 @@ const SESSION_DURATION = 3600000; // 1 hour
 
 // ===== ALLOWED ORIGINS =====
 const ALLOWED_ORIGINS = [
+  // Development
   "http://localhost:5173",
+  "http://localhost:3000",
+  "http://localhost:8080",
+  // Production
   "http://ziwahbenermeriah.org",
   "https://ziwahbenermeriah.org",
+  "http://www.ziwahbenermeriah.org",
+  "https://www.ziwahbenermeriah.org",
   "http://api.ziwahbenermeriah.org",
   "https://api.ziwahbenermeriah.org",
 ];
@@ -37,15 +43,24 @@ app.use(
         return callback(null, true);
       }
 
+      // Development: allow all origins
+      if (process.env.NODE_ENV === "development") {
+        return callback(null, true);
+      }
+
+      // Production: check against allowed origins
       if (ALLOWED_ORIGINS.includes(origin)) {
         return callback(null, true);
       }
 
+      console.warn(`CORS blocked request from origin: ${origin}`);
       return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    exposedHeaders: ["Content-Range", "X-Content-Range"],
+    maxAge: 86400, // 24 hours
   }),
 );
 
@@ -53,8 +68,13 @@ app.use(
  * Body Parser
  */
 app.use(cookieParser());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+/**
+ * Preflight requests handler
+ */
+app.options("*", cors());
 
 /**
  * Session Configuration
@@ -188,9 +208,19 @@ const db = require("./models");
 // ===== ERROR HANDLING =====
 
 /**
- * Global error handler middleware
+ * Global error handler middleware (CORS and other errors)
  */
 app.use((err, req, res, next) => {
+  // Handle CORS errors
+  if (err.message === "Not allowed by CORS") {
+    return res.status(403).json({
+      message: "CORS Error: Origin not allowed",
+      status: 403,
+      origin: req.get("origin"),
+    });
+  }
+
+  // Handle other errors
   console.error("Internal Server Error:", err.stack);
   res.status(err.status || 500).json({
     message: err.message || "Something went wrong!",
@@ -205,14 +235,25 @@ app.use((req, res) => {
   res.status(404).json({
     message: "Route not found",
     status: 404,
+    path: req.path,
   });
 });
 
 // ===== START SERVER =====
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
+const server = app.listen(PORT, () => {
+  console.log(`\n✅ Server running on port ${PORT}`);
+  console.log(`📝 Environment: ${process.env.NODE_ENV || "development"}`);
+  console.log(`🌐 Allowed Origins: ${ALLOWED_ORIGINS.join(", ")}\n`);
+});
+
+// Handle graceful shutdown
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received, shutting down gracefully...");
+  server.close(() => {
+    console.log("Server closed");
+    process.exit(0);
+  });
 });
 
 module.exports = app;
