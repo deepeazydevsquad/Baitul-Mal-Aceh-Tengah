@@ -39,6 +39,7 @@ app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests without origin (Postman, curl, server-to-server)
+
       if (!origin) {
         return callback(null, true);
       }
@@ -47,6 +48,13 @@ app.use(
       if (process.env.NODE_ENV === "development") {
         return callback(null, true);
       }
+
+      console.log("ALLOWED_ORIGINS");
+      console.log(ALLOWED_ORIGINS);
+      console.log("ALLOWED_ORIGINS");
+      console.log("Origin");
+      console.log(origin);
+      console.log("Origin");
 
       // Production: check against allowed origins
       if (ALLOWED_ORIGINS.includes(origin)) {
