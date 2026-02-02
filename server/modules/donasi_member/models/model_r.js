@@ -251,7 +251,7 @@ class Model_r {
 
       if (!userSession || !userSession.username) {
         throw new Error(
-          "Sesi pengguna tidak valid atau tidak mengandung username."
+          "Sesi pengguna tidak valid atau tidak mengandung username.",
         );
       }
 
@@ -262,7 +262,7 @@ class Model_r {
 
       if (!memberProfile) {
         throw new Error(
-          `Profil untuk username '${userSession.username}' tidak ditemukan.`
+          `Profil untuk username '${userSession.username}' tidak ditemukan.`,
         );
       }
 
@@ -301,7 +301,7 @@ class Model_r {
         invoice: data.invoice,
         nominal: data.nominal,
         nominal_rupiah: Number(data.nominal + data.kode).toLocaleString(
-          "id-ID"
+          "id-ID",
         ),
         status: data.status,
         createdAt: data.createdAt,

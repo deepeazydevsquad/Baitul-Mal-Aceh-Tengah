@@ -1,104 +1,139 @@
 const { Request_member, Member, sequelize } = require("../../../models");
+const { generateKodeKeanggotaan } = require("../../../helper/randomHelper");
 const { writeLog } = require("../../../helper/writeLogHelper");
-
 const moment = require("moment");
+const bcryptjs = require("bcryptjs");
 
+// Constants
+const BCRYPT_ROUNDS = 10;
+const ACTION_APPROVE = "approve";
+const ACTION_REJECT = "reject";
+const STATUS_VERIFIED = "verified";
+const STATUS_UNVERIFIED = "unverified";
+
+/**
+ * Model_cud - Class untuk menangani operasi Create, Update, Delete request keanggotaan
+ */
 class Model_cud {
+  /**
+   * Constructor
+   * @param {Object} req - Express request object
+   */
   constructor(req) {
     this.req = req;
-    this.state = false; // default gagal
-    this.message = null; // pesan default
-    this.t = null; // simpan transaction
+    this.state = false;
+    this.message = null;
+    this.transaction = null;
   }
 
-  async generate_kode() {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let result = "";
-    for (let i = 0; i < 4; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-  }
-
+  /**
+   * Approve atau reject request keanggotaan
+   * @returns {Promise<void>}
+   */
   async approve_request() {
-    const { id, action } = this.req.body; // action bisa 'approve' atau 'reject'
-    const date = moment().format("YYYY-MM-DD HH:mm:ss");
+    const { id, action } = this.req.body;
+    const currentDate = moment().format("YYYY-MM-DD HH:mm:ss");
 
-    this.t = await sequelize.transaction();
+    this.transaction = await sequelize.transaction();
 
     try {
-      // Ambil data request
-      const request = await Request_member.findOne({
+      // Validasi action
+      if (![ACTION_APPROVE, ACTION_REJECT].includes(action)) {
+        throw new Error("Action tidak valid (gunakan 'approve' atau 'reject')");
+      }
+
+      // Ambil data request member
+      const requestMember = await Request_member.findOne({
         where: { id },
-        transaction: this.t,
+        transaction: this.transaction,
       });
 
-      if (!request) {
+      if (!requestMember) {
         throw new Error("Request member tidak ditemukan");
       }
 
-      if (action === "approve") {
-        // Update request jadi approved
-        await Request_member.update(
-          {
-            status: "verified",
-            updated_at: date,
-          },
-          { where: { id }, transaction: this.t }
+      if (action === ACTION_APPROVE) {
+        // Hash password sebelum disimpan
+        const hashedPassword = await bcryptjs.hash(
+          requestMember.password,
+          BCRYPT_ROUNDS,
         );
 
-        // Insert ke Member
+        // Generate kode anggota unik
+        const memberCode = await generateKodeKeanggotaan();
+
+        // Update request status menjadi verified
+        await Request_member.update(
+          {
+            status: STATUS_VERIFIED,
+            updated_at: currentDate,
+          },
+          { where: { id }, transaction: this.transaction },
+        );
+
+        // Insert data ke tabel Member
         await Member.create(
           {
-            desa_id: request.desa_id,
-            kode: await this.generate_kode(),
-            tipe: request.tipe,
-            fullname: request.fullname,
-            nomor_ktp: request.nomor_ktp,
-            nomor_kk: request.nomor_kk,
-            whatsapp_number: request.whatsapp_number,
-            birth_date: request.birth_date,
-            alamat: request.alamat,
-            username: request.username,
-            password: request.password, // ⚠️ sebaiknya di-hash
-            created_at: date,
-            updated_at: date,
+            kode: memberCode,
+            desa_id: requestMember.desa_id,
+            tipe: requestMember.tipe,
+            fullname: requestMember.fullname,
+            nomor_ktp: requestMember.nomor_ktp,
+            nomor_kk: requestMember.nomor_kk,
+            whatsapp_number: requestMember.whatsapp_number,
+            birth_date: requestMember.birth_date,
+            alamat: requestMember.alamat,
+            username: requestMember.username,
+            password: hashedPassword,
+            created_at: currentDate,
+            updated_at: currentDate,
           },
-          { transaction: this.t }
+          { transaction: this.transaction },
         );
 
         this.state = true;
         this.message = "Request approved & data dipindahkan ke member";
-      } else if (action === "reject") {
-        // Update request jadi unverified
+      } else if (action === ACTION_REJECT) {
+        // Update request status menjadi unverified
         await Request_member.update(
           {
-            status: "unverified",
-            updated_at: date,
+            status: STATUS_UNVERIFIED,
+            updated_at: currentDate,
           },
-          { where: { id }, transaction: this.t }
+          { where: { id }, transaction: this.transaction },
         );
 
         this.state = true;
         this.message = "Request ditolak (status: unverified)";
-      } else {
-        throw new Error("Action tidak valid (gunakan 'approve' atau 'reject')");
       }
     } catch (error) {
+      console.error("Error saat approve request:", error);
       this.state = false;
-      this.message = error.message;
+      this.message =
+        error.message || "Terjadi kesalahan saat memproses request";
     }
   }
 
+  /**
+   * Handle response dan commit/rollback transaction
+   * @returns {Promise<boolean>} Status sukses atau gagal
+   */
   async response() {
-    if (this.state) {
-      await writeLog(this.req, this.t, {
-        msg: this.message,
-      });
-      await this.t.commit();
-      return true;
-    } else {
-      await this.t.rollback();
+    try {
+      if (this.state) {
+        await writeLog(this.req, this.transaction, {
+          msg: this.message,
+        });
+        await this.transaction.commit();
+        return true;
+      } else {
+        if (this.transaction) {
+          await this.transaction.rollback();
+        }
+        return false;
+      }
+    } catch (error) {
+      console.error("Error saat commit/rollback transaction:", error);
       return false;
     }
   }

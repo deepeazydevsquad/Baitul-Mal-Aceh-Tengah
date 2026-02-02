@@ -6,7 +6,7 @@ import InputDate from '@/components/Form/InputDate.vue';
 import SelectField from '@/components/Form/SelectField.vue';
 import Register from '@/service/register';
 import Notification from '@/components/Modal/Notification.vue';
-import Otp from '@/service/otp';
+import { send_otp } from '@/service/otp';
 
 const router = useRouter();
 const timeoutId = ref<number | null>(null);
@@ -34,6 +34,7 @@ const tipeAkun = ref<'instansi' | 'perorangan' | ''>('');
 
 const kecamatan = ref<any[]>([]);
 const desa = ref<any[]>([]);
+const errors = ref<Record<string, string>>({});
 
 // form gabungan
 const form = reactive({
@@ -71,7 +72,7 @@ watch(
 );
 
 // errors
-const errors = reactive<Record<string, string | null>>({});
+// const errors = reactive<Record<string, string | null>>({});
 
 // sync select tipe akun ke form
 watch(tipeAkun, (v) => {
@@ -79,21 +80,19 @@ watch(tipeAkun, (v) => {
 });
 
 async function getOtp() {
-  errors.whatsapp_number = null;
+  // errors.whatsapp_number = null;
 
-  if (!form.whatsapp_number || form.whatsapp_number.length < 9) {
-    errors.whatsapp_number = 'Nomor Whatsapp nggak valid';
-    return;
-  }
+  // if (!form.whatsapp_number || form.whatsapp_number.length < 9) {
+  //   errors.whatsapp_number = 'Nomor Whatsapp nggak valid';
+  //   return;
+  // }
 
   try {
-    const payload = {
+    // panggil service backend
+    const res = await send_otp({
       whatsappNumber: form.whatsapp_number,
       otpType: form.tipe_akun === 'instansi' ? 'instansi' : 'perorangan', // optional
-    };
-
-    // panggil service backend
-    const res = await Otp.send_otp(payload);
+    });
 
     displayNotification('OTP berhasil dikirim ke WhatsApp kamu 🚀', 'success');
     console.log('Respon backend OTP:', res);
@@ -103,59 +102,70 @@ async function getOtp() {
   }
 }
 
-async function onSubmit(e: Event) {
-  e.preventDefault();
-  Object.keys(errors).forEach((k) => (errors[k] = null));
-  let ok = true;
+// Validasi
+const validateForm = () => {
+  let isValid = true;
+  errors.value = {};
 
   if (!form.tipe_akun) {
-    errors.tipe_akun = 'Tipe akun wajib dipilih';
-    ok = false;
+    errors.value.tipe_akun = 'Tipe akun wajib dipilih';
+    isValid = false;
   }
 
   if (form.tipe_akun === 'instansi') {
     if (!form.fullname) {
-      errors.fullname = 'Nama instansi wajib diisi';
-      ok = false;
+      errors.value.fullname = 'Nama instansi wajib diisi';
+      isValid = false;
     }
     if (!form.kecamatan_id) {
-      errors.kecamatan_id = 'Pilih kecamatan';
-      ok = false;
+      errors.value.kecamatan_id = 'Pilih kecamatan';
+      isValid = false;
     }
   } else if (form.tipe_akun === 'perorangan') {
     if (!form.fullname) {
-      errors.fullname = 'Nama lengkap wajib diisi';
-      ok = false;
+      errors.value.fullname = 'Nama lengkap wajib diisi';
+      isValid = false;
     }
     if (!form.nomor_ktp) {
-      errors.nomor_ktp = 'Nomor KTP wajib diisi';
-      ok = false;
+      errors.value.nomor_ktp = 'Nomor KTP wajib diisi';
+      isValid = false;
     }
     if (!form.birth_date) {
-      errors.birth_date = 'Tanggal lahir wajib diisi';
-      ok = false;
+      errors.value.birth_date = 'Tanggal lahir wajib diisi';
+      isValid = false;
     }
+  } else {
+    errors.value.tipe_akun = 'Tipe akun wajib diisi';
+    isValid = false;
   }
 
   if (!form.whatsapp_number) {
-    errors.whatsapp_number = 'Nomor Whatsapp wajib diisi';
-    ok = false;
+    errors.value.whatsapp = 'Nomor Whatsapp wajib diisi';
+    isValid = false;
   }
 
   if (!form.username) {
-    errors.username = 'Username wajib diisi';
-    ok = false;
+    errors.value.username = 'Username wajib diisi';
+    isValid = false;
   }
   if (!form.password) {
-    errors.password = 'Password wajib diisi';
-    ok = false;
+    errors.value.password = 'Password wajib diisi';
+    isValid = false;
   }
   if (form.password !== form.confirm_password) {
-    errors.confirm_password = 'Password konfirmasi tidak cocok';
-    ok = false;
+    errors.value.confirm_password = 'Password konfirmasi tidak cocok';
+    isValid = false;
   }
 
-  if (!ok) return;
+  return isValid;
+};
+
+async function onSubmit(e: Event) {
+  e.preventDefault();
+  // Object.keys(errors).forEach((k) => (errors[k] = null));
+
+  // if (!ok) return;
+  if (!validateForm()) return;
 
   try {
     const payload = {
@@ -181,8 +191,7 @@ async function onSubmit(e: Event) {
 
     console.log('Respon server:', res);
   } catch (err) {
-    displayNotification('Pendaftaran gagal, coba lagi!', 'error');
-    console.error('Error register:', err);
+    displayNotification(err?.response?.data.message, 'error');
   }
 }
 
@@ -207,9 +216,10 @@ onMounted(async () => {
       <form @submit="onSubmit" class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Select tipe akun -->
         <SelectField
+          :required="true"
           v-model="tipeAkun"
           id="tipe_akun"
-          label="Tipe Akun (Stage)"
+          label="Tipe Akun"
           placeholder="Pilih Tipe Akun"
           :error="errors.tipe_akun"
           :options="[
@@ -229,9 +239,11 @@ onMounted(async () => {
             placeholder="Nama Instansi / Organisasi"
             :error="errors.nama_instansi"
             class="md:col-span-2"
+            :required="true"
           />
           <SelectField
             v-model="form.kecamatan_id"
+            :required="true"
             id="kecamatan_instansi"
             label="Kecamatan"
             placeholder="Pilih Kecamatan"
@@ -240,6 +252,7 @@ onMounted(async () => {
           />
           <SelectField
             v-model="form.desa_id"
+            :required="true"
             id="desa_instansi"
             label="Desa"
             placeholder="Pilih Desa"
@@ -256,9 +269,11 @@ onMounted(async () => {
             placeholder="Nama Lengkap"
             :error="errors.nama_lengkap"
             class="md:col-span-2"
+            :required="true"
           />
           <Input
             v-model="form.nomor_ktp"
+            :required="true"
             id="nomor_ktp"
             label="Nomor KTP"
             placeholder="Nomor KTP"
@@ -266,6 +281,7 @@ onMounted(async () => {
           />
           <Input
             v-model="form.nomor_kk"
+            :required="true"
             id="nomor_kk"
             label="Nomor KK"
             placeholder="Nomor KK"
@@ -273,6 +289,7 @@ onMounted(async () => {
           />
           <InputDate
             v-model="form.birth_date"
+            :required="true"
             id="birth_date"
             label="Tanggal Lahir"
             placeholder="mm/dd/yyyy"
@@ -281,6 +298,7 @@ onMounted(async () => {
           />
           <SelectField
             v-model="form.kecamatan_id"
+            :required="true"
             id="kecamatan_instansi"
             label="Kecamatan"
             placeholder="Pilih Kecamatan"
@@ -289,6 +307,7 @@ onMounted(async () => {
           />
           <SelectField
             v-model="form.desa_id"
+            :required="true"
             id="desa_instansi"
             label="Desa"
             placeholder="Pilih Desa"
@@ -304,10 +323,12 @@ onMounted(async () => {
           placeholder="Nomor Whatsapp"
           :error="errors.whatsapp"
           class="md:col-span-2"
+          :required="true"
           :note="`Silakan masukkan nomor yang valid, karena semua informasi terkait bantuan akan dikirim melalui nomor ini.`"
         />
         <div class="md:col-span-2 grid grid-cols-3 gap-4 items-end align-top flex items-start">
           <Input
+            :required="true"
             v-model="form.otp"
             id="otp"
             label="OTP"
@@ -336,11 +357,13 @@ onMounted(async () => {
           id="username"
           label="Username"
           placeholder="Username"
+          :required="true"
           :error="errors.username"
           class="md:col-span-2"
         />
         <Input
           v-model="form.password"
+          :required="true"
           id="password"
           type="password"
           label="Password"
@@ -349,6 +372,7 @@ onMounted(async () => {
         />
         <Input
           v-model="form.confirm_password"
+          :required="true"
           id="confirm_password"
           type="password"
           label="Konfirmasi Password"
