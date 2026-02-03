@@ -30,6 +30,16 @@ export const list_member = async (param: { desa_id: number }) => {
   }
 };
 
+export const list_wakalah = async (param: { desa_id: number }) => {
+  try {
+    const response = await api.post('/riwayat_zakat/list_wakalah', param);
+    return response.data;
+  } catch (error) {
+    console.error('Gagal mendapatkan data wakalah', error);
+    throw error;
+  }
+};
+
 export const list = async (param: any) => {
   try {
     const response = await api.post('/riwayat_zakat/list', param);
@@ -110,7 +120,7 @@ export const delete_riwayat_zakat = async (id: number) => {
   }
 };
 
-export const info_bukti_setoran = async (id: number) => {
+export const info_bukti_setoran = async (id: any) => {
   try {
     const response = await api.post('/riwayat_zakat/info_bukti_setoran', { id: id });
     return response.data;

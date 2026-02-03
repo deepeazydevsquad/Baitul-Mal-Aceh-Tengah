@@ -5,6 +5,7 @@ const {
   Setting,
   Kecamatan,
   Desa,
+  Wakalah,
 } = require("../../../models");
 const moment = require("moment");
 const { get_info_lokasi } = require("../../../helper/locationHelper");
@@ -36,6 +37,19 @@ class Model_r {
     }));
 
     return data;
+  }
+
+  async list_wakalah() {
+    const result = await Wakalah.findAndCountAll({
+      where: { desa_id: this.req.body.desa_id },
+    });
+
+    const data = result.rows.map((e) => ({
+      id: e.id,
+      name: e.fullname,
+    }));
+
+    return { data };
   }
 
   async list_member() {
@@ -206,6 +220,8 @@ class Model_r {
       const [buktiData, settings] = await Promise.all([
         Riwayat_pengumpulan.findByPk(body.id, {
           attributes: [
+            "wakalah_id",
+            "invoice",
             "kode",
             "nominal",
             "tipe",
@@ -217,6 +233,11 @@ class Model_r {
               model: Member,
               attributes: ["fullname", "desa_id", "alamat", "whatsapp_number"],
               required: true,
+            },
+            {
+              model: Wakalah,
+              attributes: ["fullname", "jabatan"],
+              required: false,
             },
           ],
           raw: true,
@@ -245,9 +266,12 @@ class Model_r {
           tahun_lng: moment().format("YYYY"),
           tahun_shrt: moment().format("YY"),
         },
+        invoice: buktiData.invoice,
         member_fullname: buktiData.Member.fullname,
         alamat: buktiData.Member.alamat,
         whatsapp_number: buktiData.Member.whatsapp_number,
+        wakalah: buktiData.Wakalah?.fullname,
+        jabatan_wakalah: buktiData.Wakalah?.jabatan,
         bukti_setoran: buktiData.bukti_setoran,
         kode: String(buktiData.kode),
         tipe: buktiData.tipe,

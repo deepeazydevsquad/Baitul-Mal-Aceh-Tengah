@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Desa extends Model {
     /**
@@ -30,14 +28,21 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "desa_id",
         onDelete: "CASCADE",
       });
+      Desa.hasMany(models.Wakalah, {
+        foreignKey: "desa_id",
+        onDelete: "CASCADE",
+      });
     }
   }
-  Desa.init({
-    kecamatan_id: DataTypes.INTEGER,
-    name: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'Desa',
-  });
+  Desa.init(
+    {
+      kecamatan_id: DataTypes.INTEGER,
+      name: DataTypes.STRING,
+    },
+    {
+      sequelize,
+      modelName: "Desa",
+    },
+  );
   return Desa;
 };

@@ -491,8 +491,17 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        {
+          name: "Wakalah",
+          title: "Wakalah",
+          icon: "fa-solid fa-user-tie",
+          path: "wakalah",
+          desc: "Wakalah adalah daftar perwakilan (wakil) yang ditunjuk oleh muzaki dalam penyetoran zakat, infaq, atau donasi.",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ],
-      {}
+      {},
     );
   },
 

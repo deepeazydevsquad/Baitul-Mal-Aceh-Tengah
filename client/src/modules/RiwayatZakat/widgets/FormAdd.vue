@@ -10,7 +10,13 @@ import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 import { useNotification } from '@/composables/useNotification';
 
 // Service
-import { list_member, list_desa, list_kecamatan, add_riwayat_zakat } from '@/service/riwayat_zakat';
+import {
+  list_member,
+  list_desa,
+  list_kecamatan,
+  add_riwayat_zakat,
+  list_wakalah,
+} from '@/service/riwayat_zakat';
 import SelectField from '@/components/Form/SelectField.vue';
 
 // Composable: notification
@@ -36,6 +42,7 @@ interface List {
 const optionKecamatan = ref<List[]>([{ id: '0', name: '--- Pilih Kecamatan ---' }]);
 const optionDesa = ref<List[]>([{ id: '0', name: '--- Pilih Desa ---' }]);
 const optionMember = ref<List[]>([{ id: '0', name: '--- Pilih Muzakki ---' }]);
+const optionWakalah = ref<List[]>([{ id: '0', name: '--- Pilih Wakalah ---' }]);
 
 // Function: Close modal
 const closeModal = () => {
@@ -48,6 +55,7 @@ const closeModal = () => {
 const resetForm = () => {
   form.value = {
     member_id: 0,
+    wakalah_id: 0,
     nominal: 0,
     tipe_zakat: '',
     tipe_pembayaran: '',
@@ -59,6 +67,7 @@ const resetForm = () => {
   optionKecamatan.value = [{ id: '0', name: '--- Pilih Kecamatan ---' }];
   optionDesa.value = [{ id: '0', name: '--- Pilih Desa ---' }];
   optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }];
+  optionWakalah.value = [{ id: '0', name: '--- Pilih Wakalah ---' }];
 
   selectKecamatanId.value = 0;
   selectDesaId.value = 0;
@@ -95,6 +104,8 @@ async function fetchMember() {
   try {
     const response = await list_member({ desa_id: selectDesaId.value });
     optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }, ...response.data];
+    const response2 = await list_wakalah({ desa_id: selectDesaId.value });
+    optionWakalah.value = [{ id: '0', name: '--- Pilih Wakalah ---' }, ...response2.data];
   } catch (error) {
     console.error(error);
   }
@@ -138,11 +149,13 @@ const validateForm = () => {
 const isSubmitting = ref(false);
 const form = ref<{
   member_id: number;
+  wakalah_id: number;
   nominal: number;
   tipe_zakat: string;
   tipe_pembayaran: string;
 }>({
   member_id: 0,
+  wakalah_id: 0,
   nominal: 0,
   tipe_zakat: '',
   tipe_pembayaran: '',
@@ -154,12 +167,13 @@ const handleSubmit = async () => {
 
   const formData = {
     member_id: form.value.member_id,
+    wakalah_id: form.value.wakalah_id,
     nominal: form.value.nominal,
     tipe_zakat: form.value.tipe_zakat,
     tipe_pembayaran: form.value.tipe_pembayaran,
   };
 
-  console.log(formData);
+  // console.log(formData);
 
   try {
     const response = await add_riwayat_zakat(formData);
@@ -278,6 +292,15 @@ watch(
             placeholder="Pilih Muzakki"
             :options="optionMember"
             :required="true"
+          />
+        </div>
+        <div>
+          <SelectField
+            v-model="form.wakalah_id"
+            id="wakalah_id"
+            label="Daftar Wakalah"
+            placeholder="Pilih Wakalah"
+            :options="optionWakalah"
           />
         </div>
 

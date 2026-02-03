@@ -43,6 +43,21 @@ router.post(
   controllers.list_member,
 );
 
+//
+router.post(
+  "/riwayat_zakat/list_wakalah",
+  authenticateTokenAdministrator,
+  [
+    body("desa_id")
+      .notEmpty()
+      .withMessage("Desa ID Tidak Boleh Kosong")
+      .isInt()
+      .withMessage("Perpage Harus Angka")
+      .custom((value) => validation.checkIdDesa(value)),
+  ],
+  controllers.list_wakalah,
+);
+
 router.post(
   "/riwayat_zakat/list",
   authenticateTokenAdministrator,
@@ -75,6 +90,9 @@ router.post(
       .isInt()
       .withMessage("Member ID Harus Angka")
       .custom((value) => validation.checkIdMember(value)),
+    body("wakalah_id")
+      .optional()
+      .custom((value) => validation.checkIdWakalah(value)),
     body("nominal")
       .notEmpty()
       .withMessage("Nominal Tidak Boleh Kosong")

@@ -920,7 +920,7 @@ async function displayBukti(param: Displaybuktiparam) {
                         data.tipe_pembayaran == 'cash' ||
                         (data.tipe_pembayaran == 'transfer' && data.status == 'success')
                       "
-                      title="Cetak Surat Serah Terima Infaq"
+                      title="Cetak Surat Serah Terima Donasi"
                       @click="cetakSuratSerahTerima(data.id)"
                     >
                       <font-awesome-icon icon="fa-solid fa-print" />

@@ -25,6 +25,15 @@ module.exports = {
         },
         onDelete: "CASCADE",
       },
+      wakalah_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: "Wakalahs",
+          key: "id",
+        },
+        onDelete: "CASCADE",
+      },
       invoice: {
         type: Sequelize.STRING,
       },

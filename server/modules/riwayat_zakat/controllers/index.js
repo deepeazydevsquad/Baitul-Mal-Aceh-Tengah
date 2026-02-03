@@ -29,7 +29,7 @@ controllers.list_kecamatan = async (req, res) => {
       data,
     });
   } catch (error) {
-    return handleServerError(res, error); // kasih full error object
+    return handleServerError(res, error);
   }
 };
 
@@ -43,9 +43,24 @@ controllers.list_member = async (req, res) => {
       total: feedBack.total,
     });
   } catch (error) {
-    return handleServerError(res, error); // kasih full error object
+    return handleServerError(res, error);
   }
 };
+
+controllers.list_wakalah = async (req, res) => {
+  try {
+    const model = new Model_r(req);
+    const feedBack = await model.list_wakalah();
+    res.status(200).json({
+      error: false,
+      data: feedBack.data,
+    });
+  } catch (error) {
+    return handleServerError(res, error);
+  }
+};
+
+//
 
 // list agen
 controllers.list = async (req, res) => {

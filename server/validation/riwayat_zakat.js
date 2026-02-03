@@ -4,12 +4,29 @@ const {
   Member,
   Kecamatan,
   Desa,
+  Wakalah,
 } = require("../models");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
 class RiwayatZakatValidation {
+  /**
+   * Validasi ID Wakalah
+   * @param {string|number} value - ID Wakalah yang akan divalidasi
+   * @returns {Promise<boolean>}
+   * @throws {Error} Jika Wakalah tidak ditemukan
+   */
+  async checkIdWakalah(value) {
+    if (value != "") {
+      const check = await Wakalah.findByPk(value);
+      if (!check) {
+        throw new Error("ID Wakalah tidak terdaftar di pangkalan data");
+      }
+    }
+    return true;
+  }
+
   /**
    * Validasi ID Desa
    * @param {string|number} value - ID Desa yang akan divalidasi

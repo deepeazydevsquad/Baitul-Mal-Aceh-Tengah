@@ -4,6 +4,9 @@ import LaporanPengumpulan from '@/modules/Cetak/LaporanPengumpulan.vue';
 import LaporanPerencanaan from '@/modules/Cetak/LaporanPerencanaan.vue';
 import LaporanTahunan from '@/modules/Cetak/LaporanTahunan.vue';
 import LaporanUmum from '@/modules/Cetak/LaporanUmum.vue';
+import BuktiSetoranZakat from '@/modules/Cetak/BuktiSetoranZakat.vue';
+import BuktiSetoranInfaq from '@/modules/Cetak/BuktiSetoranInfaq.vue';
+import BuktiSetoranDonasi from '@/modules/Cetak/BuktiSetoranDonasi.vue';
 import CetakLaporanAsnafFakir from '@/modules/LaporanAsnaf/CetakAsnaf/CetakLaporanAsnafFakir.vue';
 import CetakLaporanAsnafFilsabilillah from '@/modules/LaporanAsnaf/CetakAsnaf/CetakLaporanAsnafFilsabilillah.vue';
 import CetakLaporanAsnafGharim from '@/modules/LaporanAsnaf/CetakAsnaf/CetakLaporanAsnafGharim.vue';
@@ -24,6 +27,10 @@ import SurveyLapanganView from '@/views/SurveyLapanganView.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import Kalkulator from '@/modules/Kalkulator/Kalkulator.vue';
 
+// console.log('=====BASE_URL');
+// console.log(import.meta.env.BASE_URL);
+// console.log('=====BASE_URL');
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -34,7 +41,7 @@ const router = createRouter({
       meta: {
         title: 'Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah merupakan platform digital yang dirancang untuk mempermudah pengelolaan data penerima manfaat (mustahik) dan pemberi zakat (muzaki). Melalui aplikasi ini, proses pendataan, penyaluran, dan pelaporan zakat, infak, serta sedekah dapat dilakukan dengan lebih transparan, cepat, dan akurat. Aplikasi ini juga mendukung visi Baitul Mal Kabupaten Bener Meriah dalam mewujudkan tata kelola zakat yang religius, mandiri, dan sejahtera bagi masyarakat.',
+          'Platform digital untuk mengelola data mustahik dan muzaki, memfasilitasi pendataan, penyaluran, dan pelaporan zakat secara transparan, aman, dan efisien.',
       },
     },
     {
@@ -44,7 +51,7 @@ const router = createRouter({
       meta: {
         title: 'Login Area || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah untuk registrasi, pendataan, dan layanan zakat secara mudah, cepat, dan transparan.',
+          'Masuk ke panel admin untuk mengelola data, verifikasi, dan laporan zakat secara terpusat dan aman.',
       },
     },
     {
@@ -54,7 +61,7 @@ const router = createRouter({
       meta: {
         title: 'Registrasi Area || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Daftar sekarang di Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah. Nikmati kemudahan layanan zakat online, mulai dari registrasi hingga pendataan, dengan sistem yang aman, transparan, dan terpercaya.',
+          'Formulir registrasi untuk mustahik dan muzaki — pendaftaran cepat, aman, dan tercatat.',
       },
     },
     {
@@ -64,7 +71,7 @@ const router = createRouter({
       meta: {
         title: 'Member Area || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Akses pribadi untuk melihat data, status permohonan, dan riwayat transaksi zakat secara aman dan tercatat.',
       },
     },
     {
@@ -74,7 +81,7 @@ const router = createRouter({
       meta: {
         title: 'Administrator Area || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Panel admin untuk manajemen data, distribusi bantuan, dan pembuatan laporan operasional zakat.',
       },
     },
     {
@@ -82,9 +89,39 @@ const router = createRouter({
       name: 'survey-lapangan',
       component: SurveyLapanganView,
       meta: {
-        title: 'Apakah Anda Suka dengan Survey Lapangan ini?',
+        title: 'Survey Lapangan || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Form survei lapangan untuk verifikasi kondisi mustahik dan kelengkapan data prioritas penyaluran.',
+      },
+    },
+    {
+      path: '/bukti-setoran-zakat/:id',
+      name: 'bukti-setoran-zakat',
+      component: BuktiSetoranZakat,
+      meta: {
+        title: 'Bukti Setoran Zakat || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
+        description:
+          'Menampilkan bukti setoran zakat yang tercatat dalam sistem untuk keperluan administrasi dan pelaporan.',
+      },
+    },
+    {
+      path: '/bukti-setoran-infaq/:id',
+      name: 'bukti-setoran-infaq',
+      component: BuktiSetoranInfaq,
+      meta: {
+        title: 'Bukti Setoran Infaq || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
+        description:
+          'Menampilkan bukti setoran infaq yang tercatat dalam sistem untuk keperluan administrasi dan pelaporan.',
+      },
+    },
+    {
+      path: '/bukti-setoran-donasi/:id',
+      name: 'bukti-setoran-donasi',
+      component: BuktiSetoranDonasi,
+      meta: {
+        title: 'Bukti Setoran Donasi || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
+        description:
+          'Menampilkan bukti setoran donasi yang tercatat dalam sistem untuk keperluan administrasi dan pelaporan.',
       },
     },
     {
@@ -94,7 +131,7 @@ const router = createRouter({
       meta: {
         title: 'Laporan Tahunan || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Laporan tahunan pengumpulan dan penyaluran zakat untuk evaluasi kinerja dan akuntabilitas.',
       },
     },
     {
@@ -103,8 +140,7 @@ const router = createRouter({
       component: LaporanPengumpulan,
       meta: {
         title: 'Laporan Pengumpulan || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
-        description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+        description: 'Laporan pengumpulan zakat, infaq, dan donasi untuk periode tertentu.',
       },
     },
     {
@@ -114,11 +150,9 @@ const router = createRouter({
       meta: {
         title: 'Laporan Umum || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Laporan umum yang merangkum data pengumpulan dan penyaluran untuk kepentingan publik dan stakeholder.',
       },
     },
-
-    // laporan-umum
     {
       path: '/laporan-perencanaan/:tahun/:program/:perpage/:currentpage',
       name: 'laporan-perencanaan',
@@ -126,7 +160,7 @@ const router = createRouter({
       meta: {
         title: 'Laporan Perencanaan || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Laporan perencanaan program dan anggaran untuk penyaluran manfaat berdasarkan prioritas.',
       },
     },
     {
@@ -136,7 +170,7 @@ const router = createRouter({
       meta: {
         title: 'Beranda || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Ringkasan informasi, statistik, dan akses cepat ke fitur utama aplikasi pengelolaan zakat.',
       },
     },
     {
@@ -144,8 +178,9 @@ const router = createRouter({
       name: 'cetak-laporan-asnaf-fakir',
       component: CetakLaporanAsnafFakir,
       meta: {
-        title: 'Cetak Laporan Asnaf Fakir || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriahh',
-        description: '',
+        title: 'Cetak Laporan Asnaf Fakir || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
+        description:
+          'Cetak laporan data asnaf kategori fakir untuk keperluan administrasi dan distribusi.',
       },
     },
     {
@@ -155,7 +190,8 @@ const router = createRouter({
       meta: {
         title:
           'Cetak Laporan Asnaf Filsabilillah || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
-        description: '',
+        description:
+          'Cetak laporan data asnaf kategori filsabilillah untuk keperluan administrasi dan distribusi.',
       },
     },
     {
@@ -164,7 +200,8 @@ const router = createRouter({
       component: CetakLaporanAsnafGharim,
       meta: {
         title: 'Cetak Laporan Asnaf Gharim || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
-        description: '',
+        description:
+          'Cetak laporan data asnaf kategori gharim untuk keperluan administrasi dan distribusi.',
       },
     },
     {
@@ -172,9 +209,9 @@ const router = createRouter({
       name: 'cetak-laporan-asnaf-miskin',
       component: CetakLaporanAsnafMiskin,
       meta: {
-        title:
-          'Cetak Laporan Asnaf MiskinCetakLaporanAsnafMiskin || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
-        description: '',
+        title: 'Cetak Laporan Asnaf Miskin || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
+        description:
+          'Cetak laporan data asnaf kategori miskin untuk keperluan administrasi dan distribusi.',
       },
     },
     {
@@ -183,8 +220,9 @@ const router = createRouter({
       component: CetakLaporanAsnafIbnuSabil,
       meta: {
         title:
-          'Cetak Laporan Asnaf Ibnu Sabil || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriahh',
-        description: '',
+          'Cetak Laporan Asnaf Ibnu Sabil || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
+        description:
+          'Cetak laporan data asnaf kategori ibnu sabil untuk keperluan administrasi dan distribusi.',
       },
     },
     {
@@ -193,7 +231,8 @@ const router = createRouter({
       component: CetakLaporanAsnafMualaf,
       meta: {
         title: 'Cetak Laporan Asnaf Mualaf || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
-        description: '',
+        description:
+          'Cetak laporan data asnaf kategori mualaf untuk keperluan administrasi dan distribusi.',
       },
     },
     {
@@ -202,8 +241,7 @@ const router = createRouter({
       component: CetakRekapDistribusiPerAsnaf,
       meta: {
         title: 'Cetak Rekap Per Asnaf || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
-        description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+        description: 'Rekap distribusi bantuan per kategori asnaf untuk periode yang dipilih.',
       },
     },
     {
@@ -213,7 +251,7 @@ const router = createRouter({
       meta: {
         title:
           'Rekap Distribusi Perkecamatan || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
-        description: '',
+        description: 'Rekap distribusi bantuan per kecamatan untuk analisis jangkauan program.',
       },
     },
     {
@@ -224,7 +262,7 @@ const router = createRouter({
         title:
           'Cetak Laporan Kesekretariatan || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Cetak laporan administrasi kesekretariatan untuk keperluan internal dan arsip.',
       },
     },
     {
@@ -234,6 +272,7 @@ const router = createRouter({
       meta: {
         title:
           'Rekap Pengumpulan Perkecamatan || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
+        description: 'Rekap pengumpulan zakat dan donasi per kecamatan untuk periode tertentu.',
       },
     },
     {
@@ -243,7 +282,7 @@ const router = createRouter({
       meta: {
         title: 'Cetak Rekap Pengumpulan || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Cetak rekap pengumpulan zakat dan donasi untuk keperluan pelaporan dan akuntabilitas.',
       },
     },
     {
@@ -254,7 +293,7 @@ const router = createRouter({
         title:
           'Cetak Rekap Distribusi Per Kode Asnaf || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Cetak rekap distribusi berdasarkan kode asnaf untuk audit dan analisis distribusi.',
       },
     },
     {
@@ -264,7 +303,7 @@ const router = createRouter({
       meta: {
         title: 'Kalkulator Zakat || Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah',
         description:
-          'Member Area Aplikasi Mustahik dan Muzaki Kabupaten Bener Meriah memberikan akses mudah untuk melihat data zakat, status permohonan, serta laporan transaksi secara aman dan transparan',
+          'Alat bantu menghitung kewajiban zakat sesuai jenis harta dan nisab yang berlaku.',
       },
     },
   ],

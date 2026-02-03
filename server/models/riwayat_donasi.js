@@ -15,12 +15,16 @@ module.exports = (sequelize, DataTypes) => {
       Riwayat_donasi.belongsTo(models.Member, {
         foreignKey: "member_id",
       });
+      Riwayat_donasi.belongsTo(models.Wakalah, {
+        foreignKey: "wakalah_id",
+      });
     }
   }
   Riwayat_donasi.init(
     {
       program_donasi_id: DataTypes.INTEGER,
       member_id: DataTypes.INTEGER,
+      wakalah_id: DataTypes.INTEGER,
       invoice: DataTypes.STRING,
       nominal: DataTypes.INTEGER,
       kode: DataTypes.INTEGER,
@@ -39,7 +43,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Riwayat_donasi",
-    }
+    },
   );
   return Riwayat_donasi;
 };

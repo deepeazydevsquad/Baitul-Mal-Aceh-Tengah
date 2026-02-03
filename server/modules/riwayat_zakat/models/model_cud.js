@@ -30,6 +30,7 @@ class Model_cud {
       const insert = await Riwayat_pengumpulan.create(
         {
           member_id: body.member_id,
+          wakalah_id: body.wakalah_id,
           invoice: invoice,
           tipe: body.tipe_zakat,
           nominal: body.nominal,
@@ -45,7 +46,7 @@ class Model_cud {
         },
         {
           transaction: this.t,
-        }
+        },
       );
 
       this.message = `Menambahkan Riwayat pengumpulan Baru dengan Invoice Riwayat pengumpulan: ${invoice} dan ID Riwayat pengumpulan: ${insert.id}`;
@@ -77,7 +78,7 @@ class Model_cud {
         {
           where: { id: body.id },
           transaction: this.t,
-        }
+        },
       );
 
       this.message = `Menyetujui Pembayaran Zakat Secara Online dengan Nama member Riwayat_pengumpulan: ${info_riwayat_zakat.member_name} dan ID Riwayat pengumpulan: ${info_riwayat_zakat.id}`;
@@ -109,7 +110,7 @@ class Model_cud {
         {
           where: { id: body.id },
           transaction: this.t,
-        }
+        },
       );
 
       this.message = `Menolak Pembayaran Zakat Secara Online  dengan Nama member Riwayat_pengumpulan: ${info_riwayat_zakat.member_name} dan ID Riwayat pengumpulan: ${info_riwayat_zakat.id}`;
@@ -134,13 +135,13 @@ class Model_cud {
 
       if (info_riwayat_zakat.bukti_transfer) {
         this.filesToDelete.push(
-          path.resolve(process.cwd(), info_riwayat_zakat.bukti_transfer)
+          path.resolve(process.cwd(), info_riwayat_zakat.bukti_transfer),
         );
       }
 
       if (info_riwayat_zakat.bukti_setoran) {
         this.filesToDelete.push(
-          path.resolve(process.cwd(), info_riwayat_zakat.bukti_setoran)
+          path.resolve(process.cwd(), info_riwayat_zakat.bukti_setoran),
         );
       }
 
@@ -169,7 +170,7 @@ class Model_cud {
         {
           where: { id: body.id },
           transaction: this.t,
-        }
+        },
       );
 
       this.message = `Mengunggah Bukti Transfer untuk Riwayat pengumpulan dengan Nama member Riwayat_pengumpulan: ${info_riwayat_zakat.member_name} dan ID Riwayat pengumpulan: ${info_riwayat_zakat.id}`;
@@ -198,7 +199,7 @@ class Model_cud {
         {
           where: { id: body.id },
           transaction: this.t,
-        }
+        },
       );
 
       this.message = `Mengunggah Bukti Transfer untuk Riwayat pengumpulan dengan Nama member Riwayat_pengumpulan: ${info_riwayat_zakat.member_name} dan ID Riwayat pengumpulan: ${info_riwayat_zakat.id}`;

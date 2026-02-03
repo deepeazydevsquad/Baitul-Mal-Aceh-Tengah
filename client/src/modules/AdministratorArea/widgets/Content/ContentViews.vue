@@ -21,7 +21,7 @@ import BankPengumpulan from '@/modules/BankPengumpulan/BankPengumpulan.vue';
 import Beranda from '@/modules/Beranda/Beranda.vue';
 import DaftarAsnaf from '@/modules/DaftarAsnaf/DaftarAsnaf.vue';
 import DaftarKeanggotaan from '@/modules/DaftarKeanggotaan/DaftarKeanggotaan.vue';
-import LaporanUmum from '@/modules/DaftarLaporanUmum/LaporanUmum.vue';
+import LaporanUmum from '@/modules/LaporanUmum/LaporanUmum.vue';
 import DaftarPengguna from '@/modules/DaftarPengguna/DaftarPengguna.vue';
 import DaftarProgram from '@/modules/DaftarProgram/DaftarProgram.vue';
 import DaftarTab from '@/modules/DaftarTab/DaftarTab.vue';
