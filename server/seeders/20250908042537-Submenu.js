@@ -6,7 +6,7 @@ module.exports = {
     // Ambil semua menu dari tabel Menus
     const menus = await queryInterface.sequelize.query(
       "SELECT id FROM Menus;",
-      { type: Sequelize.QueryTypes.SELECT }
+      { type: Sequelize.QueryTypes.SELECT },
     );
 
     if (menus.length === 0) return;
@@ -57,7 +57,7 @@ module.exports = {
           menu_id: menus[2].id,
           name: "Keanggotaan",
           path: "keanggotaan",
-          tab: `[{"id":"${tabs[15].id}"},{"id":"${tabs[38].id}"}]`,
+          tab: `[{"id":"${tabs[15].id}"}]`,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -190,7 +190,7 @@ module.exports = {
           updatedAt: new Date(),
         },
       ],
-      {}
+      {},
     );
   },
 
