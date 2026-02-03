@@ -12,7 +12,7 @@ const router = express.Router();
 router.get(
   "/riwayat_infaq/list_member",
   authenticateTokenAdministrator,
-  controllers.list_member
+  controllers.list_member,
 );
 
 router.post(
@@ -34,7 +34,7 @@ router.post(
     body("konfirmasi_pembayaran").optional(),
     body("tipe_pembayaran").optional(),
   ],
-  controllers.list
+  controllers.list,
 );
 
 router.post(
@@ -58,7 +58,7 @@ router.post(
       .isIn(["transfer", "cash"])
       .withMessage("Tipe Pembayaran tidak valid"),
   ],
-  controllers.add
+  controllers.add,
 );
 
 router.post(
@@ -72,7 +72,7 @@ router.post(
       .withMessage("ID Harus Angka")
       .custom(validation.check_id_riwayat_infaq),
   ],
-  controllers.approve_online
+  controllers.approve_online,
 );
 
 router.post(
@@ -87,7 +87,7 @@ router.post(
       .custom(validation.check_id_riwayat_infaq),
     body("alasan").notEmpty().withMessage("Alasan Tidak Boleh Kosong"),
   ],
-  controllers.reject_online
+  controllers.reject_online,
 );
 
 router.post(
@@ -101,7 +101,7 @@ router.post(
       .withMessage("ID Harus Angka")
       .custom(validation.check_id_riwayat_infaq),
   ],
-  controllers.delete
+  controllers.delete,
 );
 
 router.post(
@@ -122,7 +122,7 @@ router.post(
       .withMessage("Jumlah Nominal Transfer Harus Angka"),
   ],
   validationHelper.handleFileErrors,
-  controllers.upload_bukti_transfer
+  controllers.upload_bukti_transfer,
 );
 
 router.post(
@@ -143,7 +143,7 @@ router.post(
       .withMessage("Jumlah Nominal Setoran Harus Angka"),
   ],
   validationHelper.handleFileErrors,
-  controllers.upload_bukti_setoran
+  controllers.upload_bukti_setoran,
 );
 
 router.post(
@@ -157,7 +157,7 @@ router.post(
       .withMessage("ID Harus Angka")
       .custom(validation.check_id_riwayat_infaq_cash_or_transfer),
   ],
-  controllers.info_bukti_setoran
+  controllers.info_bukti_setoran,
 );
 
 module.exports = router;
