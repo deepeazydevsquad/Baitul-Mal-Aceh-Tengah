@@ -50,7 +50,7 @@ const resetForm = () => {
 
   optionKecamatan.value = [{ id: '0', name: '--- Pilih Kecamatan ---' }];
   optionDesa.value = [{ id: '0', name: '--- Pilih Desa ---' }];
-  optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }];
+  optionMember.value = [{ id: '0', name: '--- Pilih Munfiq ---' }];
 
   selectKecamatanId.value = 0;
   selectDesaId.value = 0;
@@ -95,7 +95,7 @@ async function fetchDesa() {
 async function fetchMember() {
   try {
     const response = await list_member({ desa_id: selectDesaId.value });
-    optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }, ...response.data];
+    optionMember.value = [{ id: '0', name: '--- Pilih Munfiq ---' }, ...response.data];
   } catch (error) {
     console.error(error);
   }
@@ -195,7 +195,7 @@ watch(
     } else {
       selectDesaId.value = 0;
       form.value.member_id = 0;
-      optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }];
+      optionMember.value = [{ id: '0', name: '--- Pilih Munfiq ---' }];
       optionDesa.value = [{ id: '0', name: '--- Pilih Desa ---' }];
     }
   },
@@ -208,7 +208,7 @@ watch(
       fetchMember();
     } else {
       form.value.member_id = 0;
-      optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }];
+      optionMember.value = [{ id: '0', name: '--- Pilih Munfiq ---' }];
     }
   },
 );
@@ -267,8 +267,8 @@ watch(
           <SelectField
             v-model="form.member_id"
             id="member_id"
-            label="Daftar Muzakki"
-            placeholder="Pilih Muzakki"
+            label="Daftar Munfiq"
+            placeholder="Pilih Munfiq"
             :options="optionMember"
             :required="true"
           />

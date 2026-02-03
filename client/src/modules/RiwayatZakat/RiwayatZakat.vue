@@ -270,14 +270,8 @@ interface BuktiSetoranData {
 async function cetakSuratSerahTerimaZakat(id: number) {
   isLoading.value = true;
   try {
-    console.log(id);
     const response = await info_bukti_setoran(id);
     const buktiData: BuktiSetoranData = response.data;
-
-    console.log('--------response');
-    console.log(response);
-    console.log('--------response');
-
     const invalidFields: string[] = [];
 
     for (const key in buktiData) {
@@ -338,30 +332,6 @@ async function cetakSuratSerahTerimaZakat(id: number) {
     const alamatKantorWrapped = doc.splitTextToSize(alamat, 70);
     doc.text(alamatKantorWrapped, pageWidth - 85, y, { align: 'left' });
     y += alamatKantorWrapped.length * 2;
-
-    // // Box Nomor Bukti (Kanan)
-    // y += 8;
-    // const boxX = pageWidth - 85;
-    // const boxWidth = 70;
-    // const boxHeight = 10;
-    // doc.setDrawColor(255, 0, 0); // Border merah
-    // doc.setLineWidth(0.5);
-    // doc.rect(boxX, y, boxWidth, boxHeight);
-
-    // doc.setFont('times', 'bold');
-    // doc.setFontSize(11);
-    // doc.text(
-    //   `${buktiData.waktu.tanggal} / ${buktiData.waktu.bulan_num} / ${buktiData.waktu.tahun_shrt}`,
-    //   boxX + 3,
-    //   y + 6,
-    // );
-
-    // // Background merah untuk periodekan
-    // doc.setFont('times', 'normal');
-    // doc.setFontSize(11);
-    // // doc.text(buktiData.kode, boxX + 45, y + 6, { align: 'center' }); // Ini direvisi sebelumnya
-    // doc.text('/ ...... / ...... /', boxX + 45, y + 6, { align: 'center' });
-    // doc.setTextColor(0, 0, 0); // Reset warna text
 
     // ==================== JUDUL BAGIAN UTAMA ====================
     y += 18;
@@ -553,9 +523,6 @@ const nominal_zakat = ref(0);
 const bukti = ref('');
 const nominal_bukti = ref(0);
 async function displayBukti(param: Displaybuktiparam) {
-  console.log('----');
-  console.log(param);
-  console.log('----');
   isModalDisplayBuktiOpen.value = true;
   tipe_pembayaran.value = param.tipe_pembayaran;
   nominal_zakat.value = param.nominal_zakat;
@@ -868,7 +835,9 @@ async function displayBukti(param: Displaybuktiparam) {
                     >
                       <font-awesome-icon icon="fa-solid fa-print" />
                     </YellowButton>
-                    <DangerButton @click="deleteData(riwayat_zakat.id)"
+                    <DangerButton
+                      @click="deleteData(riwayat_zakat.id)"
+                      title="Hapus riwayat pembayaran zakat"
                       ><DeleteIcon
                     /></DangerButton>
                   </div>

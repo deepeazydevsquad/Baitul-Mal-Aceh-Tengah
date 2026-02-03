@@ -1,32 +1,32 @@
 <script setup lang="ts">
 // Library
-import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
-import Notification from '@/components/Modal/Notification.vue'
-import BaseButton from '@/components/Button/BaseButton.vue'
-import InputText from '@/components/Form/InputText.vue'
-import SelectField from '@/components/Form/SelectField.vue'
-import InputDate from '@/components/Form/InputDate.vue'
+import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue';
+import Notification from '@/components/Modal/Notification.vue';
+import BaseButton from '@/components/Button/BaseButton.vue';
+import InputText from '@/components/Form/InputText.vue';
+import SelectField from '@/components/Form/SelectField.vue';
+import InputDate from '@/components/Form/InputDate.vue';
 
 // Composable
-import { useNotification } from '@/composables/useNotification'
+import { useNotification } from '@/composables/useNotification';
 
 // Service
-import { add_program } from '@/service/program_donasi'
-import InputFile from '@/components/Form/InputFile.vue'
+import { add_program } from '@/service/program_donasi';
+import InputFile from '@/components/Form/InputFile.vue';
 
 // Notification
 const { showNotification, notificationType, notificationMessage, displayNotification } =
-  useNotification()
+  useNotification();
 
 interface Props {
-  isModalOpen: boolean
+  isModalOpen: boolean;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 const emit = defineEmits<{
-  (e: 'close'): void
-  (e: 'status', payload: { error_msg?: string; error?: boolean }): void
-}>()
+  (e: 'close'): void;
+  (e: 'status', payload: { error_msg?: string; error?: boolean }): void;
+}>();
 
 // Form state
 const form = ref({
@@ -36,14 +36,10 @@ const form = ref({
   deskripsi: '',
   target_donasi_terkumpul: '',
   waktu_donasi: '',
-})
+});
 
 // Errors
-const errors = ref<Record<string, string>>({})
-
-// Fetch kecamatan
-
-// Fetch desa sesuai kecamatan
+const errors = ref<Record<string, string>>({});
 
 // Reset form
 const resetForm = () => {
@@ -54,105 +50,112 @@ const resetForm = () => {
     deskripsi: '',
     target_donasi_terkumpul: '',
     waktu_donasi: '',
-  }
-  errors.value = {}
-}
+  };
+  errors.value = {};
+
+  optionKecamatan.value = [{ id: '0', name: '--- Pilih Kecamatan ---' }];
+  optionDesa.value = [{ id: '0', name: '--- Pilih Desa ---' }];
+  optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }];
+
+  selectKecamatanId.value = 0;
+  selectDesaId.value = 0;
+};
 
 // Close modal
 const closeModal = () => {
-  if (isSubmitting.value) return
-  resetForm()
-  emit('close')
-}
+  if (isSubmitting.value) return;
+  resetForm();
+  emit('close');
+};
 
 // Validation
 const validateForm = () => {
-  errors.value = {}
-  let isValid = true
+  errors.value = {};
+  let isValid = true;
 
   if (!form.value.name) {
-    errors.value.name = 'Nama program wajib diisi'
-    isValid = false
+    errors.value.name = 'Nama program wajib diisi';
+    isValid = false;
   }
   if (!form.value.banner) {
-    errors.value.banner = 'banner  wajib diisi'
-    isValid = false
+    errors.value.banner = 'banner  wajib diisi';
+    isValid = false;
   }
   if (!form.value.tahun) {
-    errors.value.tahun = 'tahun  wajib dipilih'
-    isValid = false
+    errors.value.tahun = 'tahun  wajib dipilih';
+    isValid = false;
   }
   if (!form.value.deskripsi) {
-    errors.value.deskripsi = 'deskripsi wajib dipilih'
-    isValid = false
+    errors.value.deskripsi = 'deskripsi wajib dipilih';
+    isValid = false;
   }
 
   if (!form.value.waktu_donasi) {
-    errors.value.waktu_donasi = 'waktu  wajib diisi'
-    isValid = false
+    errors.value.waktu_donasi = 'waktu  wajib diisi';
+    isValid = false;
   }
 
-  return isValid
-}
+  return isValid;
+};
 
 // Submit
-const isSubmitting = ref(false)
+const isSubmitting = ref(false);
 const handleSubmit = async () => {
-  if (!validateForm()) return
+  if (!validateForm()) return;
 
-  const formData = new FormData()
-  formData.append('name', form.value.name)
-  formData.append('banner', form.value.banner)
-  formData.append('tahun', form.value.tahun)
-  formData.append('deskripsi', form.value.deskripsi)
-  formData.append('target_donasi_terkumpul', String(nominalRaw.value || 0))
-  formData.append('waktu_donasi', form.value.waktu_donasi)
+  const formData = new FormData();
+  formData.append('name', form.value.name);
+  formData.append('banner', form.value.banner);
+  formData.append('tahun', form.value.tahun);
+  formData.append('deskripsi', form.value.deskripsi);
+  formData.append('target_donasi_terkumpul', String(nominalRaw.value || 0));
+  formData.append('waktu_donasi', form.value.waktu_donasi);
 
-  isSubmitting.value = true
+  isSubmitting.value = true;
 
   try {
-    const response = await add_program(formData)
-    console.log(response)
-    emit('status', { error_msg: response.message || response, error: response.error })
-    closeModal()
+    const response = await add_program(formData);
+    console.log(response);
+    emit('status', { error_msg: response.message || response, error: response.error });
+    closeModal();
   } catch (error: any) {
-    console.error(error)
-    displayNotification(error.response.data.error_msg || error.response.data.message, 'error')
+    console.error(error);
+    displayNotification(error.response.data.error_msg || error.response.data.message, 'error');
   } finally {
-    isSubmitting.value = false
-    closeModal()
+    isSubmitting.value = false;
+    closeModal();
   }
-}
+};
 
 // Escape
 const handleEscape = (e: KeyboardEvent) => {
-  if (e.key === 'Escape' && props.isModalOpen) closeModal()
-}
+  if (e.key === 'Escape' && props.isModalOpen) closeModal();
+};
 onMounted(() => {
-  document.addEventListener('keydown', handleEscape)
-})
-onBeforeUnmount(() => document.removeEventListener('keydown', handleEscape))
+  document.addEventListener('keydown', handleEscape);
+});
+onBeforeUnmount(() => document.removeEventListener('keydown', handleEscape));
 
-const nominalRaw = ref<number | null>(null)
+const nominalRaw = ref<number | null>(null);
 
 const handleFile = (file: File | null) => {
   if (!file) {
-    form.value.banner = ''
-    return
+    form.value.banner = '';
+    return;
   }
-  form.value.banner = file
-}
+  form.value.banner = file;
+};
 
 const nominalFormatted = computed({
   get: () => {
-    if (nominalRaw.value == null) return ''
-    return 'Rp ' + nominalRaw.value.toLocaleString('id-ID')
+    if (nominalRaw.value == null) return '';
+    return 'Rp ' + nominalRaw.value.toLocaleString('id-ID');
   },
   set: (val: string) => {
-    const angka = val.replace(/\D/g, '')
-    nominalRaw.value = angka ? parseInt(angka) : null
+    const angka = val.replace(/\D/g, '');
+    nominalRaw.value = angka ? parseInt(angka) : null;
   },
-})
+});
 </script>
 
 <template>

@@ -270,7 +270,6 @@ watch(
             :required="true"
           />
         </div>
-
         <div>
           <SelectField
             v-model="form.member_id"

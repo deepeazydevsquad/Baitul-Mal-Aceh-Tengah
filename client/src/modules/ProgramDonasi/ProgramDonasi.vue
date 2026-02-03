@@ -291,22 +291,22 @@ function formatToRupiah(angka: number | string) {
                   <div class="flex flex-col items-center gap-1 px-0 py-4">
                     <!-- Kalau belum ditutup -->
                     <template v-if="data.status !== 'ditutup'">
-                      <LightButton @click="openModalEdit(data.id)">
+                      <LightButton @click="openModalEdit(data.id)" title="Edit Program Donasi">
                         <EditIcon />
                       </LightButton>
-                      <LightButton @click="openModalDonasi(data.id)">
+                      <LightButton @click="openModalDonasi(data.id)" title="Tambah Donatur">
                         <IconMoney />
                       </LightButton>
-                      <DangerButton @click="tutup_program(data.id)">
+                      <DangerButton @click="tutup_program(data.id)" title="Tutup Program Donasi">
                         <LockIcon />
                       </DangerButton>
-                      <DangerButton @click="deleteData(data.id)">
+                      <DangerButton @click="deleteData(data.id)" title="Hapus Program">
                         <DeleteIcon />
                       </DangerButton>
                     </template>
                     <!-- Kalau sudah ditutup -->
                     <template v-else>
-                      <DangerButton @click="deleteData(data.id)">
+                      <DangerButton @click="deleteData(data.id)" title="Hapus Program">
                         <DeleteIcon />
                       </DangerButton>
                     </template>

@@ -4,11 +4,13 @@ import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue';
 import Notification from '@/components/Modal/Notification.vue';
 import BaseButton from '@/components/Button/BaseButton.vue';
 import InputText from '@/components/Form/InputText.vue';
+import InputCurrency from '@/components/Form/InputCurrency.vue';
 // Composable
 import { useNotification } from '@/composables/useNotification';
 
 // Service
 import { add_donasi, daftar_member } from '@/service/program_donasi';
+import { list_member, list_desa, list_kecamatan } from '@/service/riwayat_zakat';
 import SelectField from '@/components/Form/SelectField.vue';
 import { formatRupiah } from '@/libs/formatRupiah';
 
@@ -34,13 +36,36 @@ const emit = defineEmits<{
 }>();
 
 // Form state
+// const form = ref({
+//   donasi_id: '',
+//   member_id: 0,
+//   nominal: '',
+//   tipe_pembayaran: '',
+// });
 
-const form = ref({
-  donasi_id: '',
-  member_id: '',
-  nominal: '',
+const form = ref<{
+  donasi_id: number;
+  member_id: number;
+  nominal: number;
+  tipe_pembayaran: string;
+}>({
+  donasi_id: 0,
+  member_id: 0,
+  nominal: 0,
   tipe_pembayaran: '',
 });
+
+interface List {
+  id: string;
+  name: string;
+}
+
+const optionKecamatan = ref<List[]>([{ id: '0', name: '--- Pilih Kecamatan ---' }]);
+const optionDesa = ref<List[]>([{ id: '0', name: '--- Pilih Desa ---' }]);
+const optionMember = ref<List[]>([{ id: '0', name: '--- Pilih Muzakki ---' }]);
+
+const selectKecamatanId = ref(0);
+const selectDesaId = ref(0);
 
 const errors = ref<Record<string, string>>({});
 const isSubmitting = ref(false);
@@ -48,8 +73,15 @@ const isLoading = ref(false);
 
 // Reset form
 const resetForm = () => {
-  form.value = { donasi_id: '', member_id: '', nominal: '', tipe_pembayaran: '' };
+  form.value = { donasi_id: 0, member_id: 0, nominal: 0, tipe_pembayaran: '' };
   errors.value = {};
+
+  optionKecamatan.value = [{ id: '0', name: '--- Pilih Kecamatan ---' }];
+  optionDesa.value = [{ id: '0', name: '--- Pilih Desa ---' }];
+  optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }];
+
+  selectKecamatanId.value = 0;
+  selectDesaId.value = 0;
 };
 
 // Validasi
@@ -83,19 +115,35 @@ interface Member {
 const member = ref<Member[]>([]);
 
 // Ambil data syarat untuk edit
-const fetchData = async () => {
+async function fetchData() {
   isLoading.value = true;
   try {
-    const response = await daftar_member();
-    member.value = response;
+    const response = await list_kecamatan();
+    optionKecamatan.value = [{ id: '0', name: '--- Pilih Kecamatan ---' }, ...response.data];
   } catch (error) {
-    displayNotification('Gagal mengambil data member', 'error');
+    displayNotification('Terjadi kesalahan saat memuat data.', 'error');
   } finally {
     isLoading.value = false;
   }
-};
+}
 
-onMounted(fetchData);
+async function fetchDesa() {
+  try {
+    const response = await list_desa({ kecamatan_id: selectKecamatanId.value });
+    optionDesa.value = [{ id: '0', name: '--- Pilih Desa ---' }, ...response.data];
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function fetchMember() {
+  try {
+    const response = await list_member({ desa_id: selectDesaId.value });
+    optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }, ...response.data];
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 const handleSubmit = async () => {
   if (!validateForm()) return;
@@ -158,13 +206,48 @@ onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleEscape);
 });
 
-const nominalDisplay = computed({
-  get: () => (form.value.nominal ? formatRupiah(form.value.nominal) : ''),
-  set: (val: string) => {
-    // ambil angka murni doang, buang selain digit
-    form.value.nominal = val.replace(/[^0-9]/g, '');
+// const nominalDisplay = computed({
+//   get: () => (form.value.nominal ? formatRupiah(form.value.nominal) : ''),
+//   set: (val: string) => {
+//     // ambil angka murni doang, buang selain digit
+//     form.value.nominal = val.replace(/[^0-9]/g, '');
+//   },
+// });
+
+watch(
+  () => props.isModalOpen,
+  (val) => {
+    if (val) {
+      fetchData();
+    }
   },
-});
+);
+
+watch(
+  () => selectKecamatanId.value,
+  (val) => {
+    if (val != 0) {
+      fetchDesa();
+    } else {
+      selectDesaId.value = 0;
+      form.value.member_id = 0;
+      optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }];
+      optionDesa.value = [{ id: '0', name: '--- Pilih Desa ---' }];
+    }
+  },
+);
+
+watch(
+  () => selectDesaId.value,
+  (val) => {
+    if (val != 0) {
+      fetchMember();
+    } else {
+      form.value.member_id = 0;
+      optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }];
+    }
+  },
+);
 </script>
 
 <template>
@@ -195,25 +278,46 @@ const nominalDisplay = computed({
             <font-awesome-icon icon="fa-solid fa-xmark" />
           </button>
         </div>
-
-        <!-- Input -->
-        <!-- pilih member -->
-        <SelectField
-          id="member"
-          v-model="form.member_id"
-          :options="[{ id: '', name: '-- Pilih Donatur --' }, ...member]"
-          label="Pilih Donatur"
-          :error="errors.member_id"
-        />
-
+        <div>
+          <SelectField
+            v-model="selectKecamatanId"
+            id="kecamatan_id"
+            label="Daftar Kecamatan"
+            placeholder="Pilih Kecamatan"
+            :options="optionKecamatan"
+            :required="true"
+          />
+        </div>
+        <div>
+          <SelectField
+            v-model="selectDesaId"
+            id="desa_id"
+            label="Daftar Desa"
+            placeholder="Pilih Desa"
+            :options="optionDesa"
+            :required="true"
+          />
+        </div>
+        <div>
+          <SelectField
+            v-model="form.member_id"
+            id="member_id"
+            label="Daftar Donatur"
+            placeholder="Pilih Donatur"
+            :options="optionMember"
+            :required="true"
+          />
+        </div>
         <!-- nominal -->
-        <InputText
-          id="nominal"
-          v-model="nominalDisplay"
-          label="Nominal"
-          placeholder="Masukkan nominal"
-          :error="errors.nominal"
-        />
+        <div>
+          <InputCurrency
+            id="nominal"
+            v-model="form.nominal"
+            label="Nominal"
+            placeholder="Masukkan nominal"
+            :error="errors.nominal"
+          />
+        </div>
 
         <!-- Tipe Pembayaran -->
         <div>
