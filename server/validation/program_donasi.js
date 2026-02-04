@@ -43,7 +43,10 @@ validation.upload = multer({
 });
 
 validation.checkIdWakalah = async (value) => {
-  if (value != "") {
+  if (value != "0") {
+    console.log("+++++++");
+    console.log(value);
+    console.log("+++++++");
     const check = await Wakalah.findByPk(value);
     if (!check) {
       throw new Error("ID Wakalah tidak terdaftar di pangkalan data");
