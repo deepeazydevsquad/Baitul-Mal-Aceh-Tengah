@@ -173,6 +173,7 @@ const ROUTER_LIST = [
   "bakal_penerima_bantuan",
   "logo",
   "member_area",
+  "wakalah",
 ];
 
 const routers = {};
