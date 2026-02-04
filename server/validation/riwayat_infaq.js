@@ -1,10 +1,20 @@
-const { Op, Riwayat_pengumpulan, Member } = require("../models");
+const { Op, Riwayat_pengumpulan, Member, Wakalah } = require("../models");
 const multer = require("multer");
 const sharp = require("sharp");
 const path = require("path");
 const fs = require("fs");
 
 const validation = {};
+
+validation.checkIdWakalah = async (value) => {
+  if (value != "") {
+    const check = await Wakalah.findByPk(value);
+    if (!check) {
+      throw new Error("ID Wakalah tidak terdaftar di pangkalan data");
+    }
+  }
+  return true;
+};
 
 // Validasi id member apakah sudah ada di database
 validation.check_id_member = async (value) => {

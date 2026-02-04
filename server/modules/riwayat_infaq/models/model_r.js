@@ -1,4 +1,10 @@
-const { Op, Riwayat_pengumpulan, Member, Setting } = require("../../../models");
+const {
+  Op,
+  Riwayat_pengumpulan,
+  Member,
+  Wakalah,
+  Setting,
+} = require("../../../models");
 const moment = require("moment");
 const { get_info_lokasi } = require("../../../helper/locationHelper");
 
@@ -18,7 +24,7 @@ class Model_r {
     do {
       // 4 huruf random (A-Z)
       const letters = Array.from({ length: 4 }, () =>
-        String.fromCharCode(65 + Math.floor(Math.random() * 26))
+        String.fromCharCode(65 + Math.floor(Math.random() * 26)),
       ).join("");
 
       // 6 angka random
@@ -108,6 +114,11 @@ class Model_r {
             where: where,
             required: true,
           },
+          {
+            model: Wakalah,
+            attributes: ["fullname", "jabatan"],
+            required: false,
+          },
         ],
       });
 
@@ -131,7 +142,7 @@ class Model_r {
             ) {
               pembayaran_online_dikirim = pembayaran_online_dikirim + 1;
             }
-          })
+          }),
         );
       });
 
@@ -157,7 +168,8 @@ class Model_r {
             posisi_uang: e.posisi_uang,
             nama_petugas: e.nama_petugas,
             jabatan_petugas: e.jabatan_petugas,
-
+            wakalah: e.Wakalah?.fullname,
+            jabatan_wakalah: e.Wakalah?.jabatan,
             datetimes: moment(e.updatedAt).format("YYYY-MM-DD HH:mm:ss"),
           })),
           total_saldo_dikantor: total_saldo_dikantor,
@@ -179,6 +191,7 @@ class Model_r {
         Riwayat_pengumpulan.findByPk(body.id, {
           attributes: [
             "kode",
+            "invoice",
             "nominal",
             "tipe",
             "nama_petugas",
@@ -189,6 +202,11 @@ class Model_r {
               model: Member,
               attributes: ["fullname", "desa_id", "alamat", "whatsapp_number"],
               required: true,
+            },
+            {
+              model: Wakalah,
+              attributes: ["fullname", "jabatan"],
+              required: false,
             },
           ],
           raw: true,
@@ -206,7 +224,7 @@ class Model_r {
       ]);
 
       const settingMap = Object.fromEntries(
-        settings.map((s) => [s.name, s.value])
+        settings.map((s) => [s.name, s.value]),
       );
 
       return {
@@ -217,6 +235,7 @@ class Model_r {
           tahun_lng: moment().format("YYYY"),
           tahun_shrt: moment().format("YY"),
         },
+        invoice: buktiData.invoice,
         member_fullname: buktiData.Member.fullname,
         alamat: buktiData.Member.alamat,
         whatsapp_number: buktiData.Member.whatsapp_number,
@@ -231,6 +250,8 @@ class Model_r {
           nama_kabupaten_kota: settingMap.nama_kabupaten_kota,
           alamat: settingMap.alamat,
         },
+        wakalah: buktiData.Wakalah?.fullname,
+        jabatan_wakalah: buktiData.Wakalah?.jabatan,
       };
     } catch (error) {
       console.error("Error fetching riwayat zakat data:", error);

@@ -79,6 +79,8 @@ interface RiwayatZakat {
   member_id: number;
   member_name: string;
   member_nik: string;
+  wakalah?: string;
+  jabatan_wakalah?: string;
   invoice: string;
   type: string;
   nominal: number;
@@ -228,44 +230,6 @@ async function uploadBuktiTransfer(idl: number, nominalZakat: number) {
   id.value = idl;
   nominal.value = nominalZakat;
 }
-
-// async function loadImageAsBase64(url) {
-//   const res = await fetch(url);
-//   const blob = await res.blob();
-//   return new Promise((resolve) => {
-//     const reader = new FileReader();
-//     reader.onloadend = () => resolve(reader.result);
-//     reader.readAsDataURL(blob);
-//   });
-// }
-
-// interface BuktiSetoranData {
-//   waktu: {
-//     tanggal: string;
-//     bulan_str: string;
-//     bulan_num: string;
-//     tahun_lng: string;
-//     tahun_shrt: string;
-//   };
-//   member_fullname: string;
-//   alamat: string;
-//   whatsapp_number: string;
-//   kode: string;
-//   tipe: string;
-//   nominal: number;
-//   nama_petugas: string;
-//   jabatan_petugas: string;
-//   lokasi: {
-//     id: number;
-//     desa_name: string;
-//     kecamatan_id: number;
-//     kecamatan_name: string;
-//   };
-//   lokasi_kantor: {
-//     nama_kabupaten_kota: string;
-//     alamat: string;
-//   };
-// }
 
 async function cetakSuratSerahTerimaZakat(id: number) {
   isLoading.value = true;
@@ -478,6 +442,15 @@ async function displayBukti(param: Displaybuktiparam) {
                         <td class="bg-gray-100 px-4 py-2 font-medium">Tipe Pembayaran</td>
                         <td class="px-4 py-2 font-medium w-full text-right">
                           {{ riwayat_zakat.tipe_pembayaran }}
+                        </td>
+                      </tr>
+                      <tr
+                        class="border border-gray-300 bg-green-300"
+                        v-if="riwayat_zakat.wakalah != undefined"
+                      >
+                        <td class="bg-green-400 px-4 py-2 font-medium">Wakalah</td>
+                        <td class="px-4 py-2 font-medium w-full text-right">
+                          {{ riwayat_zakat.wakalah }} ({{ riwayat_zakat.jabatan_wakalah }})
                         </td>
                       </tr>
                       <tr class="border border-gray-300" v-if="riwayat_zakat.status == 'failed'">

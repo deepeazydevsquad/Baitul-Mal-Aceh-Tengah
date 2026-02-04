@@ -28,26 +28,30 @@ class Model_cud {
 
     try {
       console.log(body);
-      const insert = await Riwayat_pengumpulan.create(
-        {
-          member_id: body.member_id,
-          invoice: invoice,
-          tipe: "infaq",
-          nominal: body.nominal,
-          kode: "000",
-          tipe_pembayaran: body.tipe_pembayaran,
-          konfirmasi_pembayaran: "belum_dikirim",
-          posisi_uang:
-            body.tipe_pembayaran == "cash" ? "kantor_baitulmal" : "bank",
-          nama_petugas: decoded.name,
-          jabatan_petugas: decoded.jabatan,
-          createdAt: myDate,
-          updatedAt: myDate,
-        },
-        {
-          transaction: this.t,
-        }
-      );
+
+      const payload = {
+        member_id: body.member_id,
+        invoice: invoice,
+        tipe: "infaq",
+        nominal: body.nominal,
+        kode: "000",
+        tipe_pembayaran: body.tipe_pembayaran,
+        konfirmasi_pembayaran: "belum_dikirim",
+        posisi_uang:
+          body.tipe_pembayaran == "cash" ? "kantor_baitulmal" : "bank",
+        nama_petugas: decoded.name,
+        jabatan_petugas: decoded.jabatan,
+        createdAt: myDate,
+        updatedAt: myDate,
+      };
+
+      if (body.wakalah_id && body.wakalah_id != 0) {
+        payload["wakalah_id"] = body.wakalah_id ?? null;
+      }
+
+      const insert = await Riwayat_pengumpulan.create(payload, {
+        transaction: this.t,
+      });
 
       this.message = `Menambahkan Riwayat Infaq Baru dengan Invoice Riwayat Infaq: ${body.name} dan ID Riwayat Infaq: ${insert.id}`;
     } catch (error) {
@@ -78,7 +82,7 @@ class Model_cud {
         {
           where: { id: body.id, tipe: "infaq" },
           transaction: this.t,
-        }
+        },
       );
 
       this.message = `Menyetujui Pembayaran Infaq Secara Online dengan Nama member Riwayat_pengumpulan: ${info_riwayat_infaq.member_name} dan ID Riwayat pengumpulan: ${info_riwayat_infaq.id}`;
@@ -110,7 +114,7 @@ class Model_cud {
         {
           where: { id: body.id, tipe: "infaq" },
           transaction: this.t,
-        }
+        },
       );
 
       this.message = `Menolak Pembayaran Infaq Secara Online  dengan Nama member Riwayat_pengumpulan: ${info_riwayat_infaq.member_name} dan ID Riwayat pengumpulan: ${info_riwayat_infaq.id}`;
@@ -136,13 +140,13 @@ class Model_cud {
 
       if (info_riwayat_zakat.bukti_transfer) {
         this.filesToDelete.push(
-          path.resolve(process.cwd(), info_riwayat_zakat.bukti_transfer)
+          path.resolve(process.cwd(), info_riwayat_zakat.bukti_transfer),
         );
       }
 
       if (info_riwayat_zakat.bukti_setoran) {
         this.filesToDelete.push(
-          path.resolve(process.cwd(), info_riwayat_zakat.bukti_setoran)
+          path.resolve(process.cwd(), info_riwayat_zakat.bukti_setoran),
         );
       }
 
@@ -171,7 +175,7 @@ class Model_cud {
         {
           where: { id: body.id },
           transaction: this.t,
-        }
+        },
       );
 
       this.message = `Mengunggah Bukti Transfer untuk Riwayat pengumpulan dengan Nama member Riwayat_pengumpulan: ${info_riwayat_infaq.member_name} dan ID Riwayat pengumpulan: ${info_riwayat_infaq.id}`;
@@ -200,7 +204,7 @@ class Model_cud {
         {
           where: { id: body.id, tipe: "infaq" },
           transaction: this.t,
-        }
+        },
       );
 
       this.message = `Mengunggah Bukti Transfer untuk Riwayat pengumpulan dengan Nama member Riwayat_pengumpulan: ${info_riwayat_infaq.member_name} dan ID Riwayat pengumpulan: ${info_riwayat_infaq.id}`;

@@ -27,27 +27,29 @@ class Model_cud {
     const decoded = jwt.decode(token);
 
     try {
-      const insert = await Riwayat_pengumpulan.create(
-        {
-          member_id: body.member_id,
-          wakalah_id: body.wakalah_id,
-          invoice: invoice,
-          tipe: body.tipe_zakat,
-          nominal: body.nominal,
-          kode: "000",
-          tipe_pembayaran: body.tipe_pembayaran,
-          konfirmasi_pembayaran: "belum_dikirim",
-          posisi_uang:
-            body.tipe_pembayaran == "cash" ? "kantor_baitulmal" : "bank",
-          nama_petugas: decoded.name,
-          jabatan_petugas: decoded.jabatan,
-          createdAt: myDate,
-          updatedAt: myDate,
-        },
-        {
-          transaction: this.t,
-        },
-      );
+      const payload = {
+        member_id: body.member_id,
+        invoice: invoice,
+        tipe: body.tipe_zakat,
+        nominal: body.nominal,
+        kode: "000",
+        tipe_pembayaran: body.tipe_pembayaran,
+        konfirmasi_pembayaran: "belum_dikirim",
+        posisi_uang:
+          body.tipe_pembayaran == "cash" ? "kantor_baitulmal" : "bank",
+        nama_petugas: decoded.name,
+        jabatan_petugas: decoded.jabatan,
+        createdAt: myDate,
+        updatedAt: myDate,
+      };
+
+      if (body.wakalah_id && body.wakalah_id != 0) {
+        payload["wakalah_id"] = body.wakalah_id ?? null;
+      }
+
+      const insert = await Riwayat_pengumpulan.create(payload, {
+        transaction: this.t,
+      });
 
       this.message = `Menambahkan Riwayat pengumpulan Baru dengan Invoice Riwayat pengumpulan: ${invoice} dan ID Riwayat pengumpulan: ${insert.id}`;
     } catch (error) {

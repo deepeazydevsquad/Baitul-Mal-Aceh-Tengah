@@ -134,6 +134,11 @@ class Model_r {
           attributes: ["id", "fullname", "nomor_ktp"],
           where: memberWhere,
         },
+        {
+          model: Wakalah,
+          attributes: ["fullname", "jabatan"],
+          required: false,
+        },
       ],
       where,
     };
@@ -165,6 +170,8 @@ class Model_r {
           member_id: row.Member?.id,
           member_name: row.Member?.fullname,
           member_nik: row.Member?.nomor_ktp,
+          wakalah: row.Wakalah?.fullname,
+          jabatan_wakalah: row.Wakalah?.jabatan,
         };
       });
 

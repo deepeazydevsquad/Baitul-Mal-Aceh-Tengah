@@ -47,6 +47,7 @@ router.post(
       .isInt()
       .withMessage("Member ID Harus Angka")
       .custom(validation.check_id_member),
+    body("wakalah_id").optional().custom(validation.checkIdWakalah),
     body("nominal")
       .notEmpty()
       .withMessage("Nominal Tidak Boleh Kosong")
