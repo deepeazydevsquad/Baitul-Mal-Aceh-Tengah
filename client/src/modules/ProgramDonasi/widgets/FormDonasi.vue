@@ -10,7 +10,7 @@ import { useNotification } from '@/composables/useNotification';
 
 // Service
 import { add_donasi, daftar_member } from '@/service/program_donasi';
-import { list_member, list_desa, list_kecamatan } from '@/service/riwayat_zakat';
+import { list_member, list_desa, list_kecamatan, list_wakalah } from '@/service/riwayat_zakat';
 import SelectField from '@/components/Form/SelectField.vue';
 import { formatRupiah } from '@/libs/formatRupiah';
 
@@ -46,11 +46,13 @@ const emit = defineEmits<{
 const form = ref<{
   donasi_id: number;
   member_id: number;
+  wakalah_id: number;
   nominal: number;
   tipe_pembayaran: string;
 }>({
   donasi_id: 0,
   member_id: 0,
+  wakalah_id: 0,
   nominal: 0,
   tipe_pembayaran: '',
 });
@@ -62,7 +64,8 @@ interface List {
 
 const optionKecamatan = ref<List[]>([{ id: '0', name: '--- Pilih Kecamatan ---' }]);
 const optionDesa = ref<List[]>([{ id: '0', name: '--- Pilih Desa ---' }]);
-const optionMember = ref<List[]>([{ id: '0', name: '--- Pilih Muzakki ---' }]);
+const optionMember = ref<List[]>([{ id: '0', name: '--- Pilih Donatur ---' }]);
+const optionWakalah = ref<List[]>([{ id: '0', name: '--- Pilih Wakalah ---' }]);
 
 const selectKecamatanId = ref(0);
 const selectDesaId = ref(0);
@@ -73,12 +76,13 @@ const isLoading = ref(false);
 
 // Reset form
 const resetForm = () => {
-  form.value = { donasi_id: 0, member_id: 0, nominal: 0, tipe_pembayaran: '' };
+  form.value = { donasi_id: 0, member_id: 0, wakalah_id: 0, nominal: 0, tipe_pembayaran: '' };
   errors.value = {};
 
   optionKecamatan.value = [{ id: '0', name: '--- Pilih Kecamatan ---' }];
   optionDesa.value = [{ id: '0', name: '--- Pilih Desa ---' }];
-  optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }];
+  optionMember.value = [{ id: '0', name: '--- Pilih Donatur ---' }];
+  optionWakalah.value = [{ id: '0', name: '--- Pilih Wakalah ---' }];
 
   selectKecamatanId.value = 0;
   selectDesaId.value = 0;
@@ -139,7 +143,9 @@ async function fetchDesa() {
 async function fetchMember() {
   try {
     const response = await list_member({ desa_id: selectDesaId.value });
-    optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }, ...response.data];
+    optionMember.value = [{ id: '0', name: '--- Pilih Donatur ---' }, ...response.data];
+    const response2 = await list_wakalah({ desa_id: selectDesaId.value });
+    optionWakalah.value = [{ id: '0', name: '--- Pilih Wakalah ---' }, ...response2.data];
   } catch (error) {
     console.error(error);
   }
@@ -160,6 +166,7 @@ const handleSubmit = async () => {
     const payload = {
       program_donasi_id: Number(props.id_donasi),
       member_id: String(form.value.member_id),
+      wakalah_id: String(form.value.wakalah_id),
       nominal: String(form.value.nominal),
       tipe_pembayaran: String(form.value.tipe_pembayaran),
     };
@@ -206,14 +213,6 @@ onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleEscape);
 });
 
-// const nominalDisplay = computed({
-//   get: () => (form.value.nominal ? formatRupiah(form.value.nominal) : ''),
-//   set: (val: string) => {
-//     // ambil angka murni doang, buang selain digit
-//     form.value.nominal = val.replace(/[^0-9]/g, '');
-//   },
-// });
-
 watch(
   () => props.isModalOpen,
   (val) => {
@@ -231,7 +230,8 @@ watch(
     } else {
       selectDesaId.value = 0;
       form.value.member_id = 0;
-      optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }];
+      optionMember.value = [{ id: '0', name: '--- Pilih Donatur ---' }];
+      optionWakalah.value = [{ id: '0', name: '--- Pilih Wakalah ---' }];
       optionDesa.value = [{ id: '0', name: '--- Pilih Desa ---' }];
     }
   },
@@ -244,7 +244,8 @@ watch(
       fetchMember();
     } else {
       form.value.member_id = 0;
-      optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }];
+      optionMember.value = [{ id: '0', name: '--- Pilih Donatur ---' }];
+      optionWakalah.value = [{ id: '0', name: '--- Pilih Wakalah ---' }];
     }
   },
 );
@@ -308,7 +309,15 @@ watch(
             :required="true"
           />
         </div>
-        <!-- nominal -->
+        <div>
+          <SelectField
+            v-model="form.wakalah_id"
+            id="wakalah_id"
+            label="Daftar Wakalah"
+            placeholder="Pilih Wakalah"
+            :options="optionWakalah"
+          />
+        </div>
         <div>
           <InputCurrency
             id="nominal"

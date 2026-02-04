@@ -217,6 +217,7 @@ watch(
       selectDesaId.value = 0;
       form.value.member_id = 0;
       optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }];
+      optionWakalah.value = [{ id: '0', name: '--- Pilih Wakalah ---' }];
       optionDesa.value = [{ id: '0', name: '--- Pilih Desa ---' }];
     }
   },
@@ -230,6 +231,7 @@ watch(
     } else {
       form.value.member_id = 0;
       optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }];
+      optionWakalah.value = [{ id: '0', name: '--- Pilih Wakalah ---' }];
     }
   },
 );

@@ -68,7 +68,7 @@ onMounted(async () => {
     await fetchData();
     await nextTick();
     const oldTitle = document.title;
-    document.title = `Bukti Setoran Zakat`;
+    document.title = `Bukti Setoran Infaq`;
     const styleId = 'print-style';
     if (!document.getElementById(styleId)) {
       const style = document.createElement('style');

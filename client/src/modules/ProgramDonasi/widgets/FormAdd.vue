@@ -52,13 +52,6 @@ const resetForm = () => {
     waktu_donasi: '',
   };
   errors.value = {};
-
-  optionKecamatan.value = [{ id: '0', name: '--- Pilih Kecamatan ---' }];
-  optionDesa.value = [{ id: '0', name: '--- Pilih Desa ---' }];
-  optionMember.value = [{ id: '0', name: '--- Pilih Muzakki ---' }];
-
-  selectKecamatanId.value = 0;
-  selectDesaId.value = 0;
 };
 
 // Close modal

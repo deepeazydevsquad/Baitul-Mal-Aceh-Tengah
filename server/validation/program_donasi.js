@@ -1,4 +1,4 @@
-const { Bank } = require("../models");
+const { Bank, Wakalah } = require("../models");
 const multer = require("multer");
 const sharp = require("sharp");
 const path = require("path");
@@ -7,7 +7,6 @@ const fs = require("fs");
 const validation = {};
 
 const uploadPath = path.join(__dirname, "../uploads/img/program_donasi");
-
 if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath, { recursive: true });
 }
@@ -42,5 +41,15 @@ validation.upload = multer({
   fileFilter,
   limits: { fileSize: 1 * 1024 * 1024 },
 });
+
+validation.checkIdWakalah = async (value) => {
+  if (value != "") {
+    const check = await Wakalah.findByPk(value);
+    if (!check) {
+      throw new Error("ID Wakalah tidak terdaftar di pangkalan data");
+    }
+  }
+  return true;
+};
 
 module.exports = validation;

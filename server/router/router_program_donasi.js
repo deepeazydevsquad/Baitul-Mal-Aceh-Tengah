@@ -35,7 +35,7 @@ router.post(
       .notEmpty()
       .withMessage("Waktu Donasi Tidak Boleh Kosong"),
   ],
-  controllers.add
+  controllers.add,
 );
 
 router.post(
@@ -59,7 +59,7 @@ router.post(
       .notEmpty()
       .withMessage("Waktu Donasi Tidak Boleh Kosong"),
   ],
-  controllers.edit
+  controllers.edit,
 );
 
 router.post(
@@ -72,7 +72,7 @@ router.post(
       .isInt()
       .withMessage("ID Harus Angka"),
   ],
-  controllers.detail
+  controllers.detail,
 );
 
 router.post(
@@ -85,7 +85,7 @@ router.post(
       .isInt()
       .withMessage("ID Harus Angka"),
   ],
-  controllers.tutup
+  controllers.tutup,
 );
 
 router.post(
@@ -98,7 +98,7 @@ router.post(
       .isInt()
       .withMessage("ID Harus Angka"),
   ],
-  controllers.delete
+  controllers.delete,
 );
 
 router.post(
@@ -117,7 +117,7 @@ router.post(
       .withMessage("Page Number Harus Angka"),
     body("search").optional().isString().withMessage("Search Harus String"),
   ],
-  controllers.daftar_program_donasi
+  controllers.daftar_program_donasi,
 );
 
 router.post(
@@ -128,6 +128,7 @@ router.post(
       .notEmpty()
       .withMessage("program donasi Tidak Boleh Kosong"),
     body("member_id").notEmpty().withMessage("Member Tidak Boleh Kosong"),
+    body("wakalah_id").optional().custom(validation.checkIdWakalah),
     body("nominal").notEmpty().withMessage("Nominal Tidak Boleh Kosong"),
     body("tipe_pembayaran")
       .notEmpty()
@@ -135,13 +136,13 @@ router.post(
       .isIn(["transfer", "cash"])
       .withMessage("Tipe Pembayaran tidak valid"),
   ],
-  controllers.add_donasi
+  controllers.add_donasi,
 );
 
 router.get(
   "/program_donasi/daftar_member",
   authenticateTokenAdministrator,
-  controllers.daftar_member
+  controllers.daftar_member,
 );
 
 module.exports = router;

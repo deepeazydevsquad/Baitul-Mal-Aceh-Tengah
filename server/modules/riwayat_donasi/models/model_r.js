@@ -4,6 +4,7 @@ const {
   Riwayat_donasi,
   Member,
   Setting,
+  Wakalah,
 } = require("../../../models");
 const moment = require("moment");
 const { get_info_lokasi } = require("../../../helper/locationHelper");
@@ -68,6 +69,11 @@ class Model_r {
               "updatedAt",
             ],
           },
+          {
+            model: Wakalah,
+            attributes: ["fullname", "jabatan"],
+            required: false,
+          },
         ],
         order: [["createdAt", "DESC"]],
         limit,
@@ -101,6 +107,8 @@ class Model_r {
           posisi_uang: row.posisi_uang,
           nama_petugas: row.nama_petugas,
           jabatan_petugas: row.jabatan_petugas,
+          wakalah: row.Wakalah?.fullname,
+          jabatan_wakalah: row.Wakalah?.jabatan,
           datetimes: moment(row.updatedAt).format("YYYY-MM-DD HH:mm:ss"),
         };
       });
@@ -121,7 +129,7 @@ class Model_r {
             ) {
               pembayaran_online_dikirim = pembayaran_online_dikirim + 1;
             }
-          })
+          }),
         );
       });
 
@@ -190,12 +198,28 @@ class Model_r {
     try {
       const [buktiData, settings] = await Promise.all([
         Riwayat_donasi.findByPk(body.id, {
-          attributes: ["kode", "nominal", "nama_petugas", "jabatan_petugas"],
+          attributes: [
+            "kode",
+            "invoice",
+            "nominal",
+            "nama_petugas",
+            "jabatan_petugas",
+          ],
           include: [
             {
               model: Member,
               attributes: ["fullname", "desa_id", "alamat", "whatsapp_number"],
               required: true,
+            },
+            {
+              model: Wakalah,
+              attributes: ["fullname", "jabatan"],
+              required: false,
+            },
+            {
+              model: Program_donasi,
+              attributes: ["name"],
+              required: false,
             },
           ],
           raw: true,
@@ -213,7 +237,7 @@ class Model_r {
       ]);
 
       const settingMap = Object.fromEntries(
-        settings.map((s) => [s.name, s.value])
+        settings.map((s) => [s.name, s.value]),
       );
 
       return {
@@ -224,6 +248,8 @@ class Model_r {
           tahun_lng: moment().format("YYYY"),
           tahun_shrt: moment().format("YY"),
         },
+        program: buktiData.Program_donasi.name,
+        invoice: buktiData.invoice,
         member_fullname: buktiData.Member.fullname,
         alamat: buktiData.Member.alamat,
         whatsapp_number: buktiData.Member.whatsapp_number,
@@ -238,6 +264,8 @@ class Model_r {
           nama_kabupaten_kota: settingMap.nama_kabupaten_kota,
           alamat: settingMap.alamat,
         },
+        wakalah: buktiData.Wakalah?.fullname,
+        jabatan_wakalah: buktiData.Wakalah?.jabatan,
       };
     } catch (error) {
       console.error("Error fetching riwayat zakat data:", error);

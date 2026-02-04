@@ -19,11 +19,6 @@ import FormuploadBuktiSetoranInfaq from '@/modules/RiwayatInfaq/widgets/FormUplo
 import FormUploadBuktiTransfer from '@/modules/RiwayatInfaq/widgets/FormUploadBuktiTransfer.vue';
 import { getCurrentInstance, onMounted, ref } from 'vue';
 
-// import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
-
-import ziwahImg from '@/assets/images/brand/ziwah.png';
-
 // Composable
 import { useConfirmation } from '@/composables/useConfirmation';
 import { useDynamicLabel } from '@/composables/useDynamicLabel';
@@ -39,9 +34,7 @@ import {
 } from '@/service/riwayat_infaq';
 
 // Store
-import { API_URL } from '@/config/config';
 import { MessageTabInfaq } from '@/stores/message';
-const BASE_URL = API_URL;
 
 // Global Properties
 const { appContext } = getCurrentInstance()!;
@@ -226,44 +219,6 @@ async function uploadBuktiTransfer(idl: number, nominalInfaq: number) {
   isModalUploadBuktiTransferOpen.value = true;
   id.value = idl;
   nominal.value = nominalInfaq;
-}
-
-async function loadImageAsBase64(url) {
-  const res = await fetch(url);
-  const blob = await res.blob();
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.readAsDataURL(blob);
-  });
-}
-
-interface BuktiSetoranData {
-  waktu: {
-    tanggal: string;
-    bulan_str: string;
-    bulan_num: string;
-    tahun_lng: string;
-    tahun_shrt: string;
-  };
-  member_fullname: string;
-  alamat: string;
-  whatsapp_number: string;
-  kode: string;
-  tipe: string;
-  nominal: number;
-  nama_petugas: string;
-  jabatan_petugas: string;
-  lokasi: {
-    id: number;
-    desa_name: string;
-    kecamatan_id: number;
-    kecamatan_name: string;
-  };
-  lokasi_kantor: {
-    nama_kabupaten_kota: string;
-    alamat: string;
-  };
 }
 
 async function cetakSuratSerahTerimaInfaq(id: number) {

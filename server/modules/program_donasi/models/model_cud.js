@@ -47,7 +47,7 @@ class Model_cud {
         },
         {
           transaction: this.t,
-        }
+        },
       );
       this.message = `Menambahkan Program Donasi Baru dengan Nama Program Donasi: ${body.name} dan ID Program Donasi: ${insert.id}`;
     } catch (error) {
@@ -77,7 +77,7 @@ class Model_cud {
           const oldFile = path.join(
             __dirname,
             "../../../uploads/img/program_donasi/",
-            program.banner
+            program.banner,
           );
           if (fs.existsSync(oldFile)) fs.unlinkSync(oldFile);
         }
@@ -88,7 +88,7 @@ class Model_cud {
         const oldPath = path.join(
           __dirname,
           "../../../uploads/img/program_donasi/",
-          program.banner
+          program.banner,
         );
         const ext = path.extname(program.banner);
         const safeName = body.name.toLowerCase().replace(/\s+/g, "_");
@@ -96,7 +96,7 @@ class Model_cud {
         const newPath = path.join(
           __dirname,
           "../../../uploads/img/program_donasi/",
-          newFilename
+          newFilename,
         );
 
         if (fs.existsSync(oldPath)) {
@@ -118,7 +118,7 @@ class Model_cud {
           waktu_donasi: body.waktu_donasi,
           updatedAt: myDate,
         },
-        { transaction: this.t }
+        { transaction: this.t },
       );
 
       this.message = `Memperbaharui Program Donasi dengan ID: ${body.id}, Nama Lama: ${program.name}, menjadi Nama Baru: ${body.name}`;
@@ -158,26 +158,29 @@ class Model_cud {
     const decoded = jwt.decode(token);
 
     try {
-      const insert = await Riwayat_donasi.create(
-        {
-          program_donasi_id: body.program_donasi_id,
-          member_id: body.member_id,
-          invoice: await this.invoice(),
-          nominal: body.nominal,
-          kode: "000",
-          tipe_pembayaran: body.tipe_pembayaran,
-          konfirmasi_pembayaran: "belum_dikirim",
-          posisi_uang:
-            body.tipe_pembayaran == "cash" ? "kantor_baitulmal" : "bank",
-          nama_petugas: decoded.name,
-          jabatan_petugas: decoded.jabatan,
-          createdAt: myDate,
-          updatedAt: myDate,
-        },
-        {
-          transaction: this.t,
-        }
-      );
+      const payload = {
+        program_donasi_id: body.program_donasi_id,
+        member_id: body.member_id,
+        invoice: await this.invoice(),
+        nominal: body.nominal,
+        kode: "000",
+        tipe_pembayaran: body.tipe_pembayaran,
+        konfirmasi_pembayaran: "belum_dikirim",
+        posisi_uang:
+          body.tipe_pembayaran == "cash" ? "kantor_baitulmal" : "bank",
+        nama_petugas: decoded.name,
+        jabatan_petugas: decoded.jabatan,
+        createdAt: myDate,
+        updatedAt: myDate,
+      };
+
+      if (body.wakalah_id && body.wakalah_id != 0) {
+        payload["wakalah_id"] = body.wakalah_id ?? null;
+      }
+
+      const insert = await Riwayat_donasi.create(payload, {
+        transaction: this.t,
+      });
 
       this.message = `Menambahkan Riwayat Donasi Baru dengan Nominal Donasi: ${body.nominal} dan ID Riwayat Donasi: ${insert.id}`;
     } catch (error) {
@@ -203,7 +206,7 @@ class Model_cud {
           status: "ditutup",
           updatedAt: myDate,
         },
-        { transaction: this.t }
+        { transaction: this.t },
       );
 
       this.message = `Program Donasi dengan ID: ${body.id} berhasil ditutup`;
@@ -230,7 +233,7 @@ class Model_cud {
         const filePath = path.join(
           __dirname,
           "../../../uploads/img/program_donasi/",
-          program.banner
+          program.banner,
         );
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);

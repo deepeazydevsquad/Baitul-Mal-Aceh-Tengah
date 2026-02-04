@@ -89,13 +89,3 @@ export const info_bukti_setoran = async (id: number) => {
     throw error;
   }
 };
-
-// export const update_status = async (id: number, status: string) => {
-//   try {
-//     const response = await api.post(`/riwayat_donasi/update_status`, { id, status });
-//     return response.data;
-//   } catch (error) {
-//     console.error('Gagal mengubah status riwayat donasi:', error);
-//     throw error;
-//   }
-// };
