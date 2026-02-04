@@ -11,7 +11,7 @@ import { useNotification } from '@/composables/useNotification';
 
 // Service
 import { get_member, add_riwayat_infaq } from '@/service/riwayat_infaq';
-import { list_member, list_desa, list_kecamatan } from '@/service/riwayat_zakat';
+import { list_member, list_wakalah, list_desa, list_kecamatan } from '@/service/riwayat_zakat';
 
 import SelectField from '@/components/Form/SelectField.vue';
 
@@ -41,6 +41,7 @@ const closeModal = () => {
 const resetForm = () => {
   form.value = {
     member_id: 0,
+    wakalah_id: 0,
     nominal: 0,
     tipe_pembayaran: '',
   };
@@ -51,6 +52,7 @@ const resetForm = () => {
   optionKecamatan.value = [{ id: '0', name: '--- Pilih Kecamatan ---' }];
   optionDesa.value = [{ id: '0', name: '--- Pilih Desa ---' }];
   optionMember.value = [{ id: '0', name: '--- Pilih Munfiq ---' }];
+  optionWakalah.value = [{ id: '0', name: '--- Pilih Wakalah ---' }];
 
   selectKecamatanId.value = 0;
   selectDesaId.value = 0;
@@ -66,7 +68,8 @@ interface List {
 
 const optionKecamatan = ref<List[]>([{ id: '0', name: '--- Pilih Kecamatan ---' }]);
 const optionDesa = ref<List[]>([{ id: '0', name: '--- Pilih Desa ---' }]);
-const optionMember = ref<List[]>([{ id: '0', name: '--- Pilih Muzakki ---' }]);
+const optionMember = ref<List[]>([{ id: '0', name: '--- Pilih Munfiq ---' }]);
+const optionWakalah = ref<List[]>([{ id: '0', name: '--- Pilih Wakalah ---' }]);
 
 const selectKecamatanId = ref(0);
 const selectDesaId = ref(0);
@@ -96,6 +99,8 @@ async function fetchMember() {
   try {
     const response = await list_member({ desa_id: selectDesaId.value });
     optionMember.value = [{ id: '0', name: '--- Pilih Munfiq ---' }, ...response.data];
+    const response2 = await list_wakalah({ desa_id: selectDesaId.value });
+    optionWakalah.value = [{ id: '0', name: '--- Pilih Wakalah ---' }, ...response2.data];
   } catch (error) {
     console.error(error);
   }
@@ -110,10 +115,12 @@ const errors = ref<Record<string, string>>({
 const isSubmitting = ref(false);
 const form = ref<{
   member_id: number;
+  wakalah_id: number;
   nominal: number;
   tipe_pembayaran: string;
 }>({
   member_id: 0,
+  wakalah_id: 0,
   nominal: 0,
   tipe_pembayaran: '',
 });
@@ -148,6 +155,7 @@ const handleSubmit = async () => {
 
   const formData = {
     member_id: form.value.member_id,
+    wakalah_id: form.value.wakalah_id,
     nominal: form.value.nominal,
     tipe_pembayaran: form.value.tipe_pembayaran,
   };
@@ -271,6 +279,15 @@ watch(
             placeholder="Pilih Munfiq"
             :options="optionMember"
             :required="true"
+          />
+        </div>
+        <div>
+          <SelectField
+            v-model="form.wakalah_id"
+            id="wakalah_id"
+            label="Daftar Wakalah"
+            placeholder="Pilih Wakalah"
+            :options="optionWakalah"
           />
         </div>
         <div>
