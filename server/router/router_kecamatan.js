@@ -24,7 +24,7 @@ router.post(
       .withMessage("Page Number Harus Angka"),
     body("search").optional().isString().withMessage("Search Harus String"),
   ],
-  controllers.daftar_kecamatan
+  controllers.daftar_kecamatan,
 );
 
 router.post(
@@ -42,7 +42,7 @@ router.post(
       .isString()
       .withMessage("Name Harus String"),
   ],
-  controllers.add
+  controllers.add,
 );
 
 router.post(
@@ -65,7 +65,7 @@ router.post(
       .isString()
       .withMessage("Name Harus String"),
   ],
-  controllers.edit
+  controllers.edit,
 );
 
 router.post(
@@ -78,7 +78,7 @@ router.post(
       .isInt()
       .withMessage("ID Harus Angka"),
   ],
-  controllers.delete
+  controllers.delete,
 );
 
 router.post(
@@ -92,7 +92,26 @@ router.post(
       .isInt()
       .withMessage("ID Harus Angka"),
   ],
-  controllers.get_info_edit_kecamatan
+  controllers.get_info_edit_kecamatan,
+);
+
+router.get(
+  "/kecamatan/list_dropdown_kecamatan",
+  authenticateTokenAdministrator,
+  controllers.list_kecamatan,
+);
+
+router.post(
+  "/kecamatan/list_dropdown_desa",
+  authenticateTokenAdministrator,
+  [
+    body("kecamatan_id")
+      .notEmpty()
+      .withMessage("ID Kecamatan Tidak Boleh Kosong")
+      .isInt()
+      .withMessage("ID Kecamatan Harus Angka"),
+  ],
+  controllers.list_desa,
 );
 
 module.exports = router;

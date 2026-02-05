@@ -3,6 +3,7 @@ const {
   Riwayat_donasi,
   Riwayat_pengumpulan,
   Pembayaran_gaji,
+  Wakalah,
 } = require("../models");
 
 const helper = {};
@@ -19,6 +20,25 @@ helper.randomString = async (length, chars) => {
     result += chars[Math.floor(Math.random() * chars.length)];
   }
   return result;
+};
+
+/**
+ * Generate kode wakalah yang unik
+ * @returns {Promise<string>} Kode wakalah unik
+ */
+helper.generateKodeWakalah = async () => {
+  let rand;
+  let isExists = true;
+
+  while (isExists) {
+    rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    const check = await Wakalah.findOne({
+      where: { kode: rand },
+    });
+    isExists = !!check;
+  }
+
+  return rand;
 };
 
 /**

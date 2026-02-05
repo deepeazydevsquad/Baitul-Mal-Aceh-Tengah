@@ -1,5 +1,25 @@
 import api from '@/service/api_administrator';
 
+export const list_kecamatan = async () => {
+  try {
+    const response = await api.get('/kecamatan/list_dropdown_kecamatan');
+    return response.data;
+  } catch (error) {
+    console.error('Error daftar kecamatan', error);
+    throw error;
+  }
+};
+
+export const list_desa = async (param: any) => {
+  try {
+    const response = await api.post('/kecamatan/list_dropdown_desa', param);
+    return response.data;
+  } catch (error) {
+    console.error('Error daftar desa', error);
+    throw error;
+  }
+};
+
 export const daftar_wakalah = async (param: any) => {
   try {
     const response = await api.post('/wakalah/list', param);
@@ -10,42 +30,42 @@ export const daftar_wakalah = async (param: any) => {
   }
 };
 
-// export const detail_surveyor = async (param: any) => {
-//   try {
-//     const response = await api.post('/surveyor/detail', param);
-//     return response.data;
-//   } catch (error) {
-//     console.error('Error daftar surveyor', error);
-//     throw error;
-//   }
-// };
+export const add_wakalah = async (param: any) => {
+  try {
+    const response = await api.post('/wakalah/add', param);
+    return response.data;
+  } catch (error) {
+    console.error('Error add wakalah', error);
+    throw error;
+  }
+};
 
-// export const add_surveyor = async (param: any) => {
-//   try {
-//     const response = await api.post('/surveyor/add', param);
-//     return response.data;
-//   } catch (error) {
-//     console.error('Error add surveyor', error);
-//     throw error;
-//   }
-// };
+export const update_wakalah = async (param: any) => {
+  try {
+    const response = await api.post('/wakalah/update', param);
+    return response.data;
+  } catch (error) {
+    console.error('Error update wakalah', error);
+    throw error;
+  }
+};
 
-// export const edit_surveyor = async (param: any) => {
-//   try {
-//     const response = await api.post('/surveyor/update', param);
-//     return response.data;
-//   } catch (error) {
-//     console.error('Error edit surveyor', error);
-//     throw error;
-//   }
-// };
+export const delete_wakalah = async (param: any) => {
+  try {
+    const response = await api.post('/wakalah/delete', param);
+    return response.data;
+  } catch (error) {
+    console.error('Error delete wakalah', error);
+    throw error;
+  }
+};
 
-// export const delete_surveyor = async (param: any) => {
-//   try {
-//     const response = await api.post('/surveyor/delete', param);
-//     return response.data;
-//   } catch (error) {
-//     console.error('Error delete surveyor', error);
-//     throw error;
-//   }
-// };
+export const get_info_edit = async (param: any) => {
+  try {
+    const response = await api.post('/wakalah/get_info_edit', param);
+    return response.data;
+  } catch (error) {
+    console.error('Error mengambil data wakalah', error);
+    throw error;
+  }
+};

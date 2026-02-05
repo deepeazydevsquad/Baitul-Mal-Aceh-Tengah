@@ -1,4 +1,4 @@
-const { Op, Kecamatan } = require("../../../models");
+const { Op, Kecamatan, Desa } = require("../../../models");
 const moment = require("moment");
 
 class Model_r {
@@ -10,6 +10,40 @@ class Model_r {
     //
   }
 
+  async list_kecamatan() {
+    try {
+      const result = await Kecamatan.findAndCountAll({});
+
+      return {
+        data: result.rows.map((e) => ({
+          id: e.id,
+          name: e.name,
+        })),
+      };
+    } catch (error) {
+      console.error("Error fetching Kecamatan data:", error);
+      return { data: [] };
+    }
+  }
+
+  async list_desa() {
+    try {
+      const result = await Desa.findAndCountAll({
+        where: { kecamatan_id: this.req.body.kecamatan_id },
+      });
+
+      return {
+        data: result.rows.map((e) => ({
+          id: e.id,
+          name: e.name,
+        })),
+      };
+    } catch (error) {
+      console.error("Error fetching Kecamatan data:", error);
+      return { data: [] };
+    }
+  }
+
   async Kecamatan() {
     const body = this.req.body;
     const limit = parseInt(body.perpage, 10) || 10;
@@ -17,7 +51,7 @@ class Model_r {
       body.pageNumber && body.pageNumber !== "0"
         ? parseInt(body.pageNumber, 10)
         : 1;
-      console.log(body.search);
+    console.log(body.search);
     const where = body.search
       ? {
           [Op.or]: [{ name: { [Op.like]: `%${body.search}%` } }],
@@ -29,7 +63,7 @@ class Model_r {
         limit,
         offset: (page - 1) * limit,
         order: [["id", "ASC"]],
-        attributes: ["id", "kode","name", "updatedAt"],
+        attributes: ["id", "kode", "name", "updatedAt"],
         where,
       });
 
