@@ -179,7 +179,7 @@ class Model_cud {
           info_program.banner
         );
         const ext = path.extname(info_program.banner);
-        const safeName = body.nama_kegiatan.toLowerCase().replace(/\s+/g, "_");
+        const safeName = body.nama_kegiatan.toLowerCase().replace(/[^a-z0-9]/g, "_");
         const newFilename = `${safeName}${ext}`;
         const newPath = path.join(
           __dirname,

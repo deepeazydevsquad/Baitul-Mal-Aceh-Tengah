@@ -91,7 +91,7 @@ class Model_cud {
           program.banner
         );
         const ext = path.extname(program.banner);
-        const safeName = body.name.toLowerCase().replace(/\s+/g, "_");
+        const safeName = body.name.toLowerCase().replace(/[^a-z0-9]/g, "_");
         const newFilename = `${safeName}${ext}`;
         const newPath = path.join(
           __dirname,
