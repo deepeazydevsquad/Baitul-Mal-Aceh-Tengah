@@ -31,9 +31,9 @@ jobs:
     - name: Deploy to Ubuntu server via SSH
       uses: appleboy/ssh-action@v1
       with:
-        host: ${{ secrets.IP_SERVER_DATABASE_OUTLETPULSA }}
-        username: ${{ secrets.SSH_USER_DATABASE_OUTLETPULSA }}
-        key: ${{ secrets.SSH_PRIVATE_KEY_DATABASE_OUTLETPULSA }}
+        host: ${{ secrets.IP_SERVER_OUTLETPULSA }}
+        username: ${{ secrets.SSH_USER_OUTLETPULSA }}
+        key: ${{ secrets.SSH_PRIVATE_KEY_OUTLETPULSA }}
         script: |
           cd /home/outletpulsa/baitulmalacehtengah
 
