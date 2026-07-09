@@ -161,6 +161,7 @@ import {
   faUsers,
   faUserShield,
   faUserTie,
+  faUserPen,
 } from '@fortawesome/free-solid-svg-icons';
 
 // FontAwesome Icons - Regular
@@ -304,6 +305,7 @@ library.add(
   faEye,
   faInbox,
   faUpload,
+  faUserPen,
 );
 
 // Buat App Vue

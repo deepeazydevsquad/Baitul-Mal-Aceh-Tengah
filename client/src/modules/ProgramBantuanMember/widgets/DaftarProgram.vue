@@ -147,61 +147,69 @@ const formatRupiah = (value: number) =>
 
   <!-- Tampilkan list program jika showPermohonan false -->
   <div v-else class="p-6 bg-white rounded-lg shadow-lg">
-    <!-- Tombol kembali -->
-    <!-- <button
-      @click="emit('back')"
-      class="mb-6 bg-green-700 text-white px-5 py-2 rounded-lg hover:bg-green-800 transition-all"
-    >
-      ← Kembali
-    </button>
-
-    <h2 class="text-2xl font-extrabold text-green-900 mb-6 text-center uppercase tracking-wide">
-      {{ programName }}
-    </h2> -->
-
-    <div class="relative mb-10">
+    <div class="relative mb-12 flex flex-col md:flex-row items-center justify-center min-h-[60px] animate-fade-in-up">
       <button
         @click="emit('back')"
-        class="absolute left-0 top-1/2 -translate-y-1/2 bg-green-700 text-white px-5 py-2 rounded-lg hover:bg-green-800 transition-all"
+        class="md:absolute md:left-0 md:top-1/2 md:-translate-y-1/2 bg-white text-green-700 border border-green-600 px-5 py-2 rounded-xl hover:bg-green-50 transition-all flex items-center gap-2 shadow-sm font-semibold mb-6 md:mb-0"
       >
-        ← Kembali
+        <font-awesome-icon icon="fa-solid fa-arrow-left" />
+        <span>Kembali</span>
       </button>
 
-      <h2 class="text-2xl font-extrabold mb-15 text-green-900 text-center uppercase tracking-wide">
-        {{ programName }}
-      </h2>
+      <div class="text-center w-full md:w-auto px-4">
+        <h2 class="text-2xl md:text-3xl font-extrabold text-gray-800 uppercase tracking-wider relative inline-block">
+          {{ programName }}
+          <span class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-16 h-1.5 bg-green-600 rounded-full"></span>
+        </h2>
+      </div>
     </div>
 
-    <div class="pb-4 flex gap-3 items-end max-w-xl mx-auto mb-10">
-      <InputDateRange
-        id="date_range"
-        v-model="filter_date_range"
-        label="Filter Periode"
-        :columns="4"
-        :start-span="2"
-        :end-span="2"
-        class="w-full"
-      />
+    <div class="flex flex-col lg:flex-row items-center gap-4 max-w-4xl mx-auto mb-10 bg-white p-3 lg:p-4  animate-fade-in-up delay-100">
+      <!-- Label Inline -->
+      <div class="flex-shrink-0 font-semibold text-gray-700 pl-2 lg:pl-4 whitespace-nowrap">
+        <font-awesome-icon icon="fa-regular fa-calendar-alt" class="mr-2 text-green-600" /> Periode:
+      </div>
+      
+      <!-- Input Date Range -->
+      <div class="flex-1 w-full">
+        <InputDateRange
+          id="date_range"
+          v-model="filter_date_range"
+          :label_status="false"
+          :columns="2"
+          :start-span="1"
+          :end-span="1"
+          class="w-full font-medium"
+        />
+      </div>
 
-      <BaseButton @click="fetchData"> Cari </BaseButton>
+      <!-- Action Buttons -->
+      <div class="flex gap-2 w-full lg:w-auto pr-0 lg:pr-2">
+        <button @click="fetchData" class="flex-1 lg:flex-none flex items-center justify-center px-6 py-2.5 bg-green-700 text-white font-semibold rounded-xl lg:rounded-full hover:bg-green-800 shadow-sm transition-all duration-300">
+          <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="mr-2 lg:mr-0 xl:mr-2" /> <span class="inline lg:hidden xl:inline">Cari</span>
+        </button>
 
-      <BaseButton variant="secondary" @click="resetFilter"> Reset </BaseButton>
+        <button @click="resetFilter" class="flex-1 lg:flex-none flex items-center justify-center px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl lg:rounded-full border border-gray-200 hover:bg-gray-200 hover:text-gray-800 shadow-sm transition-all duration-300">
+          <font-awesome-icon icon="fa-solid fa-rotate-right" class="mr-2 lg:mr-0 xl:mr-2 text-gray-500" /> <span class="inline lg:hidden xl:inline">Reset</span>
+        </button>
+      </div>
     </div>
 
     <!-- Card List - Grid 4 kolom x 2 baris -->
-    <div v-if="data.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div v-if="data.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
       <div
         v-for="(item, index) in data"
         :key="index"
-        class="bg-white border border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all overflow-hidden flex flex-col"
+        class="group bg-white border border-gray-100 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] hover:shadow-[0_8px_20px_-6px_rgba(6,81,237,0.15)] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col animate-fade-in-up"
+        :style="{ animationDelay: `${200 + (index * 50)}ms` }"
       >
         <!-- Banner -->
-        <div class="w-full h-44 bg-gray-100 flex items-center justify-center relative">
+        <div class="w-full h-48 bg-gray-50 flex items-center justify-center relative overflow-hidden">
           <img
             v-if="item.banner && !imageErrors.has(index)"
             :src="`${BASE_URL}/uploads/img/program_kegiatan_bantuan/${item.banner}`"
             alt="Banner Program"
-            class="w-full h-full object-cover"
+            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             @error="handleImageError(index)"
           />
           <div
@@ -228,41 +236,50 @@ const formatRupiah = (value: number) =>
         </div>
 
         <!-- Konten -->
-        <div class="p-5 flex-1 flex flex-col justify-between">
+        <div class="p-6 flex-1 flex flex-col justify-between relative bg-white">
           <div>
-            <h3 class="font-semibold text-base text-gray-800 mb-3 leading-snug line-clamp-2">
+            <h3 class="font-bold text-lg text-gray-800 mb-4 leading-snug line-clamp-2 group-hover:text-green-700 transition-colors duration-200">
               {{ item.nama_kegiatan }}
             </h3>
 
-            <!-- Orang Terbantu -->
-            <div class="flex items-center text-sm text-gray-600 mb-3 space-x-2">
-              <font-awesome-icon icon="fa-solid fa-users" class="text-blue-500 text-base" />
-              <span>Orang terbantu:</span>
-              <span class="font-semibold text-gray-800">{{ item.orang_terbantu }}</span>
-            </div>
+            <div class="flex flex-col gap-3 mb-6">
+              <!-- Orang Terbantu -->
+              <div class="flex items-center text-sm text-gray-600 bg-blue-50/80 px-3.5 py-2.5 rounded-lg border border-blue-100">
+                <font-awesome-icon icon="fa-solid fa-users" class="text-blue-500 mr-2.5 text-base" />
+                <span class="font-medium mr-1.5 text-gray-600">Orang terbantu:</span>
+                <span class="font-bold text-gray-800">{{ item.orang_terbantu }}</span>
+              </div>
 
-            <!-- Realisasi -->
-            <div class="flex items-center text-sm text-gray-700 mt-1 space-x-2">
-              <font-awesome-icon class="fa-solid fa-money text-yellow-500 text-base" />
-              <span class="font-medium">Realisasi:</span>
-              <span class="font-semibold text-green-700">{{
-                formatRupiah(item.jumlah_realisasi)
-              }}</span>
+              <!-- Realisasi -->
+              <div class="flex items-center text-sm text-gray-600 bg-green-50/80 px-3.5 py-2.5 rounded-lg border border-green-100">
+                <font-awesome-icon icon="fa-solid fa-hand-holding-dollar" class="text-green-600 mr-2.5 text-base" />
+                <span class="font-medium mr-1.5 text-gray-600">Realisasi:</span>
+                <span class="font-bold text-green-700">{{ formatRupiah(item.jumlah_realisasi) }}</span>
+              </div>
             </div>
           </div>
 
           <button
             @click="openDetailProgram(item.id_kegiatan)"
-            class="mt-5 bg-green-600 text-white font-medium text-sm py-2.5 rounded-lg hover:bg-green-700 transition-all duration-200"
+            class="mt-auto w-full bg-white border-2 border-green-600 text-green-700 font-bold text-sm py-2.5 rounded-xl hover:bg-green-600 hover:text-white transition-all duration-300 shadow-sm focus:ring-4 focus:ring-green-100 focus:outline-none flex justify-center items-center gap-2"
           >
-            Detail Program
+            <span>Detail Program</span>
+            <font-awesome-icon icon="fa-solid fa-arrow-right" class="text-xs transition-transform group-hover:translate-x-1" />
           </button>
         </div>
       </div>
     </div>
 
-    <!-- No Data -->
-    <div v-else class="text-center text-gray-500 my-15">Belum ada data kegiatan</div>
+    <!-- Empty State -->
+    <div v-else class="flex flex-col items-center justify-center py-16 px-4 text-center bg-gray-50/50 rounded-2xl border border-dashed border-gray-200 mt-8 animate-fade-in-up delay-200">
+      <div class="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
+        <font-awesome-icon icon="fa-solid fa-folder-open" class="text-4xl text-green-500" />
+      </div>
+      <h3 class="text-xl font-bold text-gray-800 mb-2">Belum Ada Program</h3>
+      <p class="text-gray-500 max-w-md mx-auto text-sm leading-relaxed">
+        Saat ini belum ada program bantuan yang tersedia pada kategori ini. Silakan periksa kembali nanti.
+      </p>
+    </div>
 
     <!-- Pagination -->
     <div
@@ -327,3 +344,24 @@ const formatRupiah = (value: number) =>
     </div>
   </div>
 </template>
+
+<style scoped>
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+</style>

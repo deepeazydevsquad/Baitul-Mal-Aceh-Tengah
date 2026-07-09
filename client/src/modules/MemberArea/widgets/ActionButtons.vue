@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { ref, onUnmounted, onMounted, nextTick } from 'vue';
+import { ref, onUnmounted, onMounted, nextTick, watch } from 'vue';
 import { defineAsyncComponent } from 'vue';
+import ProgramBantuanMember from '@/modules/ProgramBantuanMember/ProgramBantuanMember.vue';
+import ZakatMember from '@/modules/ZakatMember/ZakatMember.vue';
+import InfaqMember from '@/modules/InfaqMember/InfaqMember.vue';
+import DonasiMember from '@/modules/DonasiMember/DonasiMember.vue';
 import Notification from '@/components/Modal/Notification.vue';
 import ModalEditProfile from '@/modules/MemberArea/widgets/ModalEditProfile.vue';
 import { initTooltips } from 'flowbite';
@@ -56,7 +60,7 @@ onMounted(() => {
   onUnmounted(() => window.removeEventListener('resize', resizeHandler));
 });
 
-// === Tab Config (sementara masih di sini, bisa dipindah ke tabConfig.ts) ===
+// === Tab Config ===
 const menuItems = [
   {
     id: 'program-bantuan',
@@ -65,9 +69,7 @@ const menuItems = [
     bg: 'bg-green-900',
     rounded: 'rounded-tl-lg rounded-bl-lg',
     lgWidth: 'lg:w-46',
-    component: defineAsyncComponent(
-      () => import('@/modules/ProgramBantuanMember/ProgramBantuanMember.vue'),
-    ),
+    component: ProgramBantuanMember,
   },
   {
     id: 'zakat',
@@ -76,7 +78,7 @@ const menuItems = [
     bg: 'bg-green-800',
     rounded: '',
     lgWidth: 'lg:w-40',
-    component: defineAsyncComponent(() => import('@/modules/ZakatMember/ZakatMember.vue')),
+    component: ZakatMember,
   },
   {
     id: 'infaq',
@@ -85,7 +87,7 @@ const menuItems = [
     bg: 'bg-green-700',
     rounded: '',
     lgWidth: 'lg:w-40',
-    component: defineAsyncComponent(() => import('@/modules/InfaqMember/InfaqMember.vue')),
+    component: InfaqMember,
   },
   {
     id: 'donasi',
@@ -94,7 +96,7 @@ const menuItems = [
     bg: 'bg-green-600',
     rounded: 'rounded-tr-lg rounded-br-lg',
     lgWidth: 'lg:w-40',
-    component: defineAsyncComponent(() => import('@/modules/DonasiMember/DonasiMember.vue')),
+    component: DonasiMember,
   },
 ];
 
@@ -109,6 +111,17 @@ const tooltips = [
 
 // === Active Tab ===
 const activeTab = ref(menuItems[0].id);
+
+import { computed } from 'vue';
+const activeComponent = computed(() => {
+  return menuItems.find((i) => i.id === activeTab.value)?.component;
+});
+
+const emit = defineEmits(['tab-change']);
+
+watch(activeTab, (newVal) => {
+  emit('tab-change', newVal);
+}, { immediate: true });
 </script>
 
 <template>
@@ -125,46 +138,51 @@ const activeTab = ref(menuItems[0].id);
   </div>
 
   <!-- Navbar Tabs -->
-  <div class="w-full flex flex-row items-center justify-between gap-8">
-    <div class="flex-1 flex justify-start"></div>
-    <div class="flex-1 flex justify-center items-center">
+  <div class="w-full flex flex-col xl:flex-row items-center justify-between gap-4 xl:gap-8">
+    
+    <!-- Spacer for balanced flex on large screens -->
+    <div class="hidden xl:flex flex-1 justify-start"></div>
+
+    <!-- Center Navigation Tabs -->
+    <div class="flex flex-wrap sm:flex-nowrap justify-center items-center p-1.5 bg-white rounded-xl shadow-sm border border-gray-100 w-full sm:w-auto">
       <button
         v-for="item in menuItems"
         :key="item.id"
         @click="activeTab = item.id"
-        class="w-12 h-10 md:w-32"
+        class="relative px-3 py-2.5 sm:px-5 lg:px-6 min-w-[3rem] sm:min-w-[6rem] lg:min-w-[8rem] flex justify-center items-center gap-2 font-semibold text-sm transition-all duration-300 rounded-lg group focus:outline-none"
         :class="[
-          item.lgWidth,
-          item.bg,
-          item.rounded,
-          'px-4 py-2.5 hover:bg-green-950 focus:bg-green-950 flex justify-center items-center gap-2 font-semibold text-white text-sm sm:text-[14px]',
-          { 'ring-2 ring-white': activeTab === item.id },
+          activeTab === item.id 
+            ? 'text-white shadow-md transform scale-[1.02]' 
+            : 'text-gray-500 hover:text-green-700 hover:bg-green-50'
         ]"
         :data-tooltip-target="`tooltip-default-${item.id}`"
       >
-        <font-awesome-icon :icon="item.icon" />
-        <span class="hidden md:inline">{{ dynamicLabel(item.label) }}</span>
+        <!-- Dynamic Background for Active Tab -->
+        <div v-if="activeTab === item.id" class="absolute inset-0 -z-10 rounded-lg transition-colors duration-300" :class="item.bg"></div>
+        
+        <font-awesome-icon :icon="item.icon" :class="{'scale-110': activeTab === item.id}" class="transition-transform duration-300" />
+        <span class="hidden md:inline relative z-10">{{ dynamicLabel(item.label) }}</span>
       </button>
     </div>
 
     <!-- Edit Profil + Logout -->
-    <div class="flex-1 flex justify-end items-center">
-      <a
+    <div class="flex xl:flex-1 justify-center xl:justify-end items-center gap-3 w-full sm:w-auto">
+      <button
         @click="openModalEditProfile"
-        class="px-4 py-2.5 h-10 bg-green-900 hover:bg-green-950 focus:bg-green-950 rounded-tl-lg rounded-bl-lg flex justify-center items-center gap-2 text-white font-semibold text-[14px]"
+        class="px-5 py-2.5 bg-white border border-gray-200 hover:border-green-300 hover:bg-green-50 hover:text-green-700 text-gray-600 rounded-xl flex justify-center items-center gap-2 font-semibold text-sm transition-all duration-300 shadow-sm hover:shadow"
         :data-tooltip-target="`tooltip-default-edit-profil`"
       >
-        <font-awesome-icon icon="fa-solid fa-gears" />
+        <font-awesome-icon icon="fa-solid fa-user-pen" />
         <span class="hidden md:inline">{{ dynamicLabel('Edit Profile') }}</span>
-      </a>
-      <a
+      </button>
+      <button
         @click="logout"
         :data-tooltip-target="`tooltip-default-logout`"
-        class="px-4 py-2.5 h-10 bg-red-500 hover:bg-red-600 focus:bg-red-600 rounded-tr-lg rounded-br-lg flex justify-center items-center gap-2 text-white font-semibold text-[14px]"
+        class="px-5 py-2.5 bg-white border border-gray-200 hover:border-red-300 hover:bg-red-50 hover:text-red-600 text-gray-600 rounded-xl flex justify-center items-center gap-2 font-semibold text-sm transition-all duration-300 shadow-sm hover:shadow"
       >
         <font-awesome-icon icon="fa-solid fa-right-from-bracket" />
         <span class="hidden md:inline">{{ dynamicLabel('Logout') }}</span>
-      </a>
+      </button>
     </div>
   </div>
 
@@ -172,23 +190,25 @@ const activeTab = ref(menuItems[0].id);
     :formStatus="isModalEditProfile"
     @cancel="isModalEditProfile = false"
     @submitted="isModalEditProfile = false"
-    @notify="
-      (payload) => {
-        showNotification = true;
-        notificationType = payload.type;
-        notificationMessage = payload.message;
-      }
-    "
+    @notify="(payload) => displayNotification(payload.message, payload.type)"
   />
 
 
   <!-- Konten Dinamis -->
-  <div class="mt-6">
-    <component
-      v-if="menuItems.find((i) => i.id === activeTab)?.component"
-      :is="menuItems.find((i) => i.id === activeTab)?.component"
-    />
-    <div v-else class="text-gray-400 italic">Halaman "{{ activeTab }}" belum tersedia.</div>
+  <div class="mt-6 md:mt-8 min-h-[400px]">
+    <transition name="fade-slide" mode="out-in">
+      <component
+        v-if="activeComponent"
+        :is="activeComponent"
+        :key="activeTab"
+      />
+      <div v-else class="text-gray-400 italic bg-white p-10 rounded-2xl text-center shadow-sm border border-gray-100 flex items-center justify-center">
+        <div class="flex flex-col items-center gap-3">
+          <font-awesome-icon icon="fa-solid fa-hammer" class="text-4xl text-gray-300" />
+          <span>Halaman "{{ activeTab }}" belum tersedia atau sedang dibangun.</span>
+        </div>
+      </div>
+    </transition>
   </div>
 
   <!-- Notifikasi -->
@@ -199,3 +219,20 @@ const activeTab = ref(menuItems[0].id);
     @close="showNotification = false"
   />
 </template>
+
+<style scoped>
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+</style>

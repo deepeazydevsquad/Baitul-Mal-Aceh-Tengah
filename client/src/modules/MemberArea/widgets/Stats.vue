@@ -1,163 +1,175 @@
 <template>
-  <div class="flex flex-col gap-6">
-    <div class="flex gap-4 max-w-[400px]">
-      <div class="justify-center text-neutral-800 text-base font-normal leading-normal">
-        Sampai Dengan Tahun Anggaran:
+  <div class="flex flex-col gap-6 w-full">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 max-w-full sm:max-w-md">
+      <div class="text-gray-700 text-sm md:text-base font-semibold whitespace-nowrap">
+        Tahun Anggaran:
       </div>
-      <select
-        class="h-fit py-3 px-4 pe-9 block w-full bg-white border border-gray-200 rounded-lg text-sm focus:border-green-900 focus:ring-green-900 disabled:opacity-50 disabled:pointer-events-none"
-      >
-        <option selected="">2025</option>
-        <option>2024</option>
-        <option>2023</option>
-        <option>2022</option>
-      </select>
+      <div class="relative w-full sm:w-auto">
+        <select
+          class="appearance-none h-fit py-2.5 pl-4 pr-10 block w-full bg-white border border-gray-200 rounded-xl text-sm md:text-base font-medium shadow-sm hover:border-green-300 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100 transition-colors disabled:opacity-50 cursor-pointer"
+        >
+          <option selected>2025</option>
+          <option>2024</option>
+          <option>2023</option>
+          <option>2022</option>
+        </select>
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </div>
+      </div>
     </div>
 
-    <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
+    <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+      <!-- Card 1 -->
       <div
-        class="flex-1 bg-yellow-400 rounded-[10px] inline-flex flex-col justify-start items-start overflow-hidden"
+        class="group flex-1 bg-gradient-to-br from-yellow-300 to-yellow-400 rounded-2xl flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 animate-fade-in-up delay-100"
       >
-        <div
-          class="self-stretch px-4 pt-5 pb-4 inline-flex justify-between items-start overflow-hidden"
-        >
-          <div class="inline-flex flex-col justify-center items-start gap-4">
-            <div class="justify-center text-neutral-800 text-2xl font-semibold leading-tight">
+        <div class="px-5 pt-6 pb-5 flex justify-between items-start">
+          <div class="flex flex-col gap-2">
+            <div class="text-neutral-900 text-3xl font-bold tracking-tight">
               1
             </div>
-            <div class="justify-center text-neutral-800 text-sm font-normal leading-tight">
+            <div class="text-neutral-800 text-sm font-medium uppercase tracking-wide opacity-90">
               Jumlah Muzakki
             </div>
           </div>
-          <img src="/images/icon_muzakki.svg" />
+          <div class="w-12 h-12 bg-white/30 rounded-full flex items-center justify-center backdrop-blur-sm shadow-inner group-hover:scale-110 transition-transform duration-300">
+            <img src="/images/icon_muzakki.svg" class="w-7 h-7" alt="Icon" />
+          </div>
         </div>
         <a
           href="#"
-          class="self-stretch p-2.5 bg-black/20 inline-flex justify-center items-center gap-2 overflow-hidden"
+          class="px-5 py-3 bg-black/10 hover:bg-black/20 flex justify-center items-center gap-2 transition-colors duration-300"
         >
-          <div class="justify-center text-neutral-800 text-sm font-normal leading-tight">
+          <span class="text-neutral-900 text-sm font-semibold">
             Info Muzakki
-          </div>
+          </span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="currentColor"
-            class="size-6"
+            class="w-5 h-5 text-neutral-900 transform group-hover:translate-x-1 transition-transform duration-300"
           >
             <path
               fill-rule="evenodd"
-              d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm4.28 10.28a.75.75 0 0 0 0-1.06l-3-3a.75.75 0 1 0-1.06 1.06l1.72 1.72H8.25a.75.75 0 0 0 0 1.5h5.69l-1.72 1.72a.75.75 0 1 0 1.06 1.06l3-3Z"
+              d="M16.28 11.47a.75.75 0 010 1.06l-7.5 7.5a.75.75 0 01-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 011.06-1.06l7.5 7.5z"
               clip-rule="evenodd"
             />
           </svg>
         </a>
       </div>
+
+      <!-- Card 2 -->
       <div
-        class="flex-1 bg-yellow-400 rounded-[10px] inline-flex flex-col justify-start items-start overflow-hidden"
+        class="group flex-1 bg-gradient-to-br from-yellow-300 to-yellow-400 rounded-2xl flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 animate-fade-in-up delay-200"
       >
-        <div
-          class="self-stretch px-4 pt-5 pb-4 inline-flex justify-between items-start overflow-hidden"
-        >
-          <div class="inline-flex flex-col justify-center items-start gap-4">
-            <div class="justify-center text-neutral-800 text-2xl font-semibold leading-tight">
+        <div class="px-5 pt-6 pb-5 flex justify-between items-start">
+          <div class="flex flex-col gap-2">
+            <div class="text-neutral-900 text-3xl font-bold tracking-tight">
               3
             </div>
-            <div class="justify-center text-neutral-800 text-sm font-normal leading-tight">
+            <div class="text-neutral-800 text-sm font-medium uppercase tracking-wide opacity-90">
               Jumlah Mustahiq
             </div>
           </div>
-          <img src="/images/icon_mustahiq.svg" />
+          <div class="w-12 h-12 bg-white/30 rounded-full flex items-center justify-center backdrop-blur-sm shadow-inner group-hover:scale-110 transition-transform duration-300">
+            <img src="/images/icon_mustahiq.svg" class="w-7 h-7" alt="Icon" />
+          </div>
         </div>
         <a
           href="#"
-          class="self-stretch p-2.5 bg-black/20 inline-flex justify-center items-center gap-2 overflow-hidden"
+          class="px-5 py-3 bg-black/10 hover:bg-black/20 flex justify-center items-center gap-2 transition-colors duration-300"
         >
-          <div class="justify-center text-neutral-800 text-sm font-normal leading-tight">
+          <span class="text-neutral-900 text-sm font-semibold">
             Info Mustahiq
-          </div>
+          </span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="currentColor"
-            class="size-6"
+            class="w-5 h-5 text-neutral-900 transform group-hover:translate-x-1 transition-transform duration-300"
           >
             <path
               fill-rule="evenodd"
-              d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm4.28 10.28a.75.75 0 0 0 0-1.06l-3-3a.75.75 0 1 0-1.06 1.06l1.72 1.72H8.25a.75.75 0 0 0 0 1.5h5.69l-1.72 1.72a.75.75 0 1 0 1.06 1.06l3-3Z"
+              d="M16.28 11.47a.75.75 0 010 1.06l-7.5 7.5a.75.75 0 01-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 011.06-1.06l7.5 7.5z"
               clip-rule="evenodd"
             />
           </svg>
         </a>
       </div>
+
+      <!-- Card 3 -->
       <div
-        class="flex-1 bg-yellow-400 rounded-[10px] inline-flex flex-col justify-start items-start overflow-hidden"
+        class="group flex-1 bg-gradient-to-br from-yellow-300 to-yellow-400 rounded-2xl flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 animate-fade-in-up delay-300"
       >
-        <div
-          class="self-stretch px-4 pt-5 pb-4 inline-flex justify-between items-start overflow-hidden"
-        >
-          <div class="inline-flex flex-col justify-center items-start gap-4">
-            <div class="justify-center text-neutral-800 text-2xl font-semibold leading-tight">
+        <div class="px-5 pt-6 pb-5 flex justify-between items-start">
+          <div class="flex flex-col gap-2">
+            <div class="text-neutral-900 text-2xl lg:text-3xl font-bold tracking-tight truncate max-w-[150px] lg:max-w-[200px]" title="Rp. 2.700.000">
               Rp. 2.700.000
             </div>
-            <div class="justify-center text-neutral-800 text-sm font-normal leading-tight">
-              Total Pengumpulan
+            <div class="text-neutral-800 text-sm font-medium uppercase tracking-wide opacity-90">
+              Jumlah Pengumpulan
             </div>
           </div>
-          <img src="/images/icon_program1.svg" />
+          <div class="w-12 h-12 bg-white/30 rounded-full flex items-center justify-center backdrop-blur-sm shadow-inner shrink-0 group-hover:scale-110 transition-transform duration-300">
+            <img src="/images/icon_program1.svg" class="w-7 h-7" alt="Icon" />
+          </div>
         </div>
         <a
           href="#"
-          class="self-stretch p-2.5 bg-black/20 inline-flex justify-center items-center gap-2 overflow-hidden"
+          class="px-5 py-3 bg-black/10 hover:bg-black/20 flex justify-center items-center gap-2 transition-colors duration-300"
         >
-          <div class="justify-center text-neutral-800 text-sm font-normal leading-tight">
+          <span class="text-neutral-900 text-sm font-semibold">
             Info Pengumpulan
-          </div>
+          </span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="currentColor"
-            class="size-6"
+            class="w-5 h-5 text-neutral-900 transform group-hover:translate-x-1 transition-transform duration-300"
           >
             <path
               fill-rule="evenodd"
-              d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm4.28 10.28a.75.75 0 0 0 0-1.06l-3-3a.75.75 0 1 0-1.06 1.06l1.72 1.72H8.25a.75.75 0 0 0 0 1.5h5.69l-1.72 1.72a.75.75 0 1 0 1.06 1.06l3-3Z"
+              d="M16.28 11.47a.75.75 0 010 1.06l-7.5 7.5a.75.75 0 01-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 011.06-1.06l7.5 7.5z"
               clip-rule="evenodd"
             />
           </svg>
         </a>
       </div>
+
+      <!-- Card 4 -->
       <div
-        class="flex-1 bg-yellow-400 rounded-[10px] inline-flex flex-col justify-start items-start overflow-hidden"
+        class="group flex-1 bg-gradient-to-br from-yellow-300 to-yellow-400 rounded-2xl flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 animate-fade-in-up delay-400"
       >
-        <div
-          class="self-stretch px-4 pt-5 pb-4 inline-flex justify-between items-start overflow-hidden"
-        >
-          <div class="inline-flex flex-col justify-center items-start gap-4">
-            <div class="justify-center text-neutral-800 text-2xl font-semibold leading-tight">
-              Rp. 2.700.000
+        <div class="px-5 pt-6 pb-5 flex justify-between items-start">
+          <div class="flex flex-col gap-2">
+            <div class="text-neutral-900 text-2xl lg:text-3xl font-bold tracking-tight truncate max-w-[150px] lg:max-w-[200px]" title="Rp. 5.100.000">
+              Rp. 5.100.000
             </div>
-            <div class="justify-center text-neutral-800 text-sm font-normal leading-tight">
-              Total Penyaluran
+            <div class="text-neutral-800 text-sm font-medium uppercase tracking-wide opacity-90">
+              Jumlah Distribusi
             </div>
           </div>
-          <img src="/images/icon_program1.svg" />
+          <div class="w-12 h-12 bg-white/30 rounded-full flex items-center justify-center backdrop-blur-sm shadow-inner shrink-0 group-hover:scale-110 transition-transform duration-300">
+            <img src="/images/icon_bantuan_tersalurkan.svg" class="w-7 h-7" alt="Icon" />
+          </div>
         </div>
         <a
           href="#"
-          class="self-stretch p-2.5 bg-black/20 inline-flex justify-center items-center gap-2 overflow-hidden"
+          class="px-5 py-3 bg-black/10 hover:bg-black/20 flex justify-center items-center gap-2 transition-colors duration-300"
         >
-          <div class="justify-center text-neutral-800 text-sm font-normal leading-tight">
-            Info Penyaluran
-          </div>
+          <span class="text-neutral-900 text-sm font-semibold">
+            Info Distribusi
+          </span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="currentColor"
-            class="size-6"
+            class="w-5 h-5 text-neutral-900 transform group-hover:translate-x-1 transition-transform duration-300"
           >
             <path
               fill-rule="evenodd"
-              d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm4.28 10.28a.75.75 0 0 0 0-1.06l-3-3a.75.75 0 1 0-1.06 1.06l1.72 1.72H8.25a.75.75 0 0 0 0 1.5h5.69l-1.72 1.72a.75.75 0 1 0 1.06 1.06l3-3Z"
+              d="M16.28 11.47a.75.75 0 010 1.06l-7.5 7.5a.75.75 0 01-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 011.06-1.06l7.5 7.5z"
               clip-rule="evenodd"
             />
           </svg>
@@ -166,3 +178,26 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+</style>

@@ -133,34 +133,42 @@ function openModalAdd() {
 </script>
 
 <template>
-  <!-- Tampilkan PermohonanMember jika showPermohonan true -->
-  <DetailDonasi
-    v-if="showPermohonan"
-    :id-kegiatan="selectedIdKegiatan!"
-    @back="handleBackFromPermohonan"
-  />
+  <div class="donasi-member-wrapper">
+    <!-- Tampilkan PermohonanMember jika showPermohonan true -->
+    <DetailDonasi
+      v-if="showPermohonan"
+      :id-kegiatan="selectedIdKegiatan!"
+      @back="handleBackFromPermohonan"
+    />
 
-  <!-- Tampilkan list program jika showPermohonan false -->
-  <div v-else class="p-6 bg-white rounded-lg shadow-lg">
+    <!-- Tampilkan list program jika showPermohonan false -->
+    <div v-else class="p-6 bg-white rounded-lg shadow-lg">
     <!-- Judul -->
-    <h2 class="text-2xl font-extrabold text-green-900 mb-15 text-center uppercase tracking-wide">
-      DAFTAR PROGRAM DONASI
-    </h2>
+    <div class="mb-10 text-center">
+      <h2 class="text-3xl font-extrabold text-gray-800 uppercase tracking-wider relative inline-block">
+        Daftar Program Donasi
+        <span class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-16 h-1.5 bg-green-600 rounded-full"></span>
+      </h2>
+      <p class="mt-6 text-gray-500 max-w-2xl mx-auto text-sm sm:text-base">
+        Mari bersama-sama wujudkan kebaikan melalui program donasi yang sedang berjalan. Bantuan Anda sangat berarti bagi mereka yang membutuhkan.
+      </p>
+    </div>
 
     <!-- Card List - Grid 4 kolom x 2 baris -->
-    <div v-if="data.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div v-if="data.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
       <div
         v-for="(item, index) in data"
         :key="index"
-        class="bg-white border border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all overflow-hidden flex flex-col"
+        class="group bg-white border border-gray-100 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] hover:shadow-[0_8px_20px_-6px_rgba(6,81,237,0.15)] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col animate-fade-in-up"
+        :style="{ animationDelay: `${index * 50}ms` }"
       >
         <!-- Banner -->
-        <div class="w-full h-44 bg-gray-100 flex items-center justify-center relative">
+        <div class="w-full h-48 bg-gray-50 flex items-center justify-center relative overflow-hidden">
           <img
             v-if="item.banner && !imageErrors.has(index)"
             :src="`${BASE_URL}/uploads/img/program_donasi/${item.banner}`"
             alt="Banner Program"
-            class="w-full h-full object-cover"
+            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             @error="handleImageError(index)"
           />
           <div
@@ -187,40 +195,54 @@ function openModalAdd() {
         </div>
 
         <!-- Konten -->
-        <div class="p-5 flex-1 flex flex-col justify-between">
+        <div class="p-6 flex-1 flex flex-col justify-between relative bg-white">
           <div>
-            <h3 class="font-semibold text-base text-gray-800 mb-3 leading-snug line-clamp-2">
+            <h3 class="font-bold text-lg text-gray-800 mb-4 leading-snug line-clamp-2 group-hover:text-green-700 transition-colors duration-200">
               {{ item.name }}
             </h3>
 
-            <!-- Orang Terbantu -->
-            <div class="flex items-center text-sm text-gray-600 mb-3 space-x-2">
-              <span class="font-semibold text-gray-800">{{ item.waktu_donasi }}</span>
-              <span>Hari Lagi:</span>
-            </div>
+            <div class="flex flex-col gap-3 mb-6">
+              <!-- Waktu Sisa -->
+              <div class="flex items-center text-sm text-gray-600 bg-orange-50/80 px-3.5 py-2.5 rounded-lg border border-orange-100">
+                <font-awesome-icon icon="fa-regular fa-clock" class="text-orange-500 mr-2.5 text-base" />
+                <span class="font-bold text-gray-800 mr-1.5">{{ item.waktu_donasi }}</span>
+                <span class="text-gray-600 font-medium">Hari Lagi</span>
+              </div>
 
-            <!-- Realisasi -->
-            <div class="flex items-center text-sm text-gray-700 mt-1 space-x-2">
-              <font-awesome-icon class="fa-solid fa-money text-yellow-500 text-base" />
-              <span class="font-medium">Terkumpul:</span>
-              <span class="font-semibold text-green-700">{{
-                formatRupiah(item.total_nominal)
-              }}</span>
+              <!-- Realisasi -->
+              <div class="flex items-center text-sm text-gray-600 bg-green-50/80 px-3.5 py-2.5 rounded-lg border border-green-100">
+                <font-awesome-icon icon="fa-solid fa-hand-holding-dollar" class="text-green-600 mr-2.5 text-base" />
+                <span class="font-medium mr-1.5 text-gray-600">Terkumpul:</span>
+                <span class="font-bold text-green-700">{{ formatRupiah(item.total_nominal) }}</span>
+              </div>
             </div>
           </div>
 
           <button
             @click="openDetailProgram(item.id)"
-            class="mt-5 bg-green-600 text-white font-medium text-sm py-2.5 rounded-lg hover:bg-green-700 transition-all duration-200"
+            class="mt-auto w-full bg-white border-2 border-green-600 text-green-700 font-bold text-sm py-2.5 rounded-xl hover:bg-green-600 hover:text-white transition-all duration-300 shadow-sm focus:ring-4 focus:ring-green-100 focus:outline-none flex justify-center items-center gap-2"
           >
-            Detail Program
+            <span>Donasi Sekarang</span>
+            <font-awesome-icon icon="fa-solid fa-arrow-right" class="text-xs transition-transform group-hover:translate-x-1" />
           </button>
         </div>
       </div>
     </div>
 
-    <!-- No Data -->
-    <div v-else class="text-center text-gray-500 mt-10">Belum ada data kegiatan</div>
+    <!-- Empty State -->
+    <div v-else class="flex flex-col items-center justify-center py-16 px-4 text-center bg-gray-50/50 rounded-2xl border border-dashed border-gray-200 mt-8 animate-fade-in-up">
+      <div class="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
+        <font-awesome-icon icon="fa-solid fa-hand-holding-heart" class="text-4xl text-green-500" />
+      </div>
+      <h3 class="text-xl font-bold text-gray-800 mb-2">Belum Ada Program Donasi</h3>
+      <p class="text-gray-500 max-w-md mx-auto mb-8 text-sm leading-relaxed">
+        Saat ini belum ada program donasi yang tersedia. Silakan periksa kembali di lain waktu untuk ikut berpartisipasi dalam program kebaikan kami.
+      </p>
+      <button @click="fetchData" class="px-6 py-2.5 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2">
+        <font-awesome-icon icon="fa-solid fa-rotate-right" />
+        <span>Muat Ulang Halaman</span>
+      </button>
+    </div>
 
     <!-- Pagination -->
     <div
@@ -284,4 +306,23 @@ function openModalAdd() {
       </p>
     </div>
   </div>
+  </div>
 </template>
+
+<style scoped>
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+</style>

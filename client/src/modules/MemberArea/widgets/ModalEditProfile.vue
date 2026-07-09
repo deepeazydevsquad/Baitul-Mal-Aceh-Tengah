@@ -13,7 +13,7 @@ const props = defineProps<{ formStatus: boolean }>();
 const emit = defineEmits<{
   (e: 'cancel'): void;
   (e: 'submitted'): void;
-  (e: 'notify', payload: { type: string; message: string }): void;
+  (e: 'notify', payload: { type: 'success' | 'error'; message: string }): void;
 }>();
 
 const isLoading = ref(false);

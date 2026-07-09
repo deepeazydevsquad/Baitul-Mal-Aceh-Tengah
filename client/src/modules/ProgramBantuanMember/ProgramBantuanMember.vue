@@ -9,7 +9,7 @@ const programs = [
 ];
 
 // Library
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
 import Notification from '@/components/Modal/Notification.vue';
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
@@ -130,98 +130,121 @@ const handleBackFromRiwayat = () => {
   showRiwayat.value = false;
 };
 
+const isMounted = ref(false);
+
 onMounted(() => {
+  isMounted.value = true;
   initTahun();
   fetchData();
+});
+
+onUnmounted(() => {
+  isMounted.value = false;
 });
 </script>
 
 <template>
-  <!-- Tampilkan RiwayatPermohonanMember jika showRiwayat true -->
-  <div v-if="showRiwayat">
-    <RiwayatPermohonanMember @back="handleBackFromRiwayat" />
-  </div>
+  <div class="program-bantuan-wrapper">
+    <!-- Tampilkan RiwayatPermohonanMember jika showRiwayat true -->
+    <div v-if="showRiwayat">
+      <RiwayatPermohonanMember @back="handleBackFromRiwayat" />
+    </div>
 
-  <!-- Tampilkan DaftarProgram jika selectedProgram ada -->
-  <div v-else-if="selectedProgram">
-    <DaftarProgram :program-name="selectedProgram" @back="selectedProgram = null" />
-  </div>
+    <!-- Tampilkan DaftarProgram jika selectedProgram ada -->
+    <div v-else-if="selectedProgram">
+      <DaftarProgram :program-name="selectedProgram" @back="selectedProgram = null" />
+    </div>
 
-  <!-- Tampilkan halaman utama jika tidak ada yang dipilih -->
-  <div v-else>
-    <div
-      class="w-full p-6 md:p-10 bg-white rounded-[10px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] flex flex-col lg:flex-row justify-start items-start gap-10 overflow-hidden"
-    >
-      <div class="w-full flex flex-col lg:flex-row gap-6">
+    <!-- Tampilkan halaman utama jika tidak ada yang dipilih -->
+    <div v-else class="pb-8">
+      <div
+        class="w-full bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-gray-100 flex flex-col lg:flex-row gap-8 lg:gap-10 overflow-hidden"
+      >
         <!-- === Kiri: List Program === -->
         <div
-          class="w-full lg:w-[35%] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6 overflow-hidden"
+          class="w-full lg:w-[35%] flex flex-col gap-5 p-6 md:p-8 lg:p-10 border-b lg:border-b-0 lg:border-r border-gray-100 bg-white animate-fade-in-up"
         >
-          <p class="text-green-900 text-3xl font-semibold mt-3">Program Bantuan</p>
-          <p class="text-gray-400 max-w-3xl">
-            Ayo, kita cari tahu bersama program-program bantuan apa saja yang sedang tersedia di
-            Baitul Mal Kabupaten Bener Meriah!
-          </p>
+          <div class="mb-4">
+            <h2 class="text-3xl font-extrabold text-gray-800 uppercase tracking-wider relative inline-block mb-4">
+              Program Bantuan
+              <span class="absolute -bottom-2 left-0 w-12 h-1.5 bg-green-600 rounded-full"></span>
+            </h2>
+            <p class="text-gray-500 text-sm md:text-base leading-relaxed">
+              Ayo, kita cari tahu bersama program-program bantuan apa saja yang sedang tersedia di
+              Baitul Mal Kabupaten Bener Meriah!
+            </p>
+          </div>
 
-          <a
-            v-for="(program, index) in programs"
-            :key="index"
-            href="#"
-            @click.prevent="handleProgramClick(program.name)"
-            class="w-full max-w-sm px-6 py-2.5 bg-yellow-400 hover:bg-yellow-500 focus:bg-yellow-500 rounded-lg inline-flex justify-start items-center gap-2.5 font-semibold text-[14px]"
-          >
-            <img :src="program.icon" />
-            {{ program.name }}
-          </a>
+          <div class="flex flex-col gap-3.5">
+            <button
+              v-for="(program, index) in programs"
+              :key="index"
+              @click="handleProgramClick(program.name)"
+              class="w-full px-5 py-3.5 bg-yellow-400 hover:bg-yellow-500 rounded-xl inline-flex justify-start items-center gap-3.5 font-bold text-gray-800 text-sm hover:-translate-y-1 hover:shadow-md transition-all duration-300 border border-yellow-500/20 animate-fade-in-up"
+              :style="{ animationDelay: `${100 + index * 50}ms` }"
+            >
+              <img :src="program.icon" class="w-6 h-6 object-contain" />
+              <span>{{ program.name }}</span>
+            </button>
 
-          <a
-            href="#"
-            @click.prevent="handleRiwayatClick"
-            class="w-full max-w-sm px-6 py-2.5 bg-green-800 hover:bg-green-700 focus:bg-green-500 rounded-lg inline-flex justify-start items-center gap-2.5 font-semibold text-[14px] text-white"
-          >
-            <font-awesome-icon icon="fa-solid fa-hand-holding-dollar mr-3" size="xl" />
-            <span>Riwayat Program Bantuan</span>
-          </a>
+            <button
+              @click="handleRiwayatClick"
+              class="w-full px-5 py-3.5 bg-green-800 hover:bg-green-700 rounded-xl inline-flex justify-start items-center gap-3.5 font-bold text-sm text-white hover:-translate-y-1 hover:shadow-md transition-all duration-300 mt-2 border border-green-900/50 animate-fade-in-up"
+              :style="{ animationDelay: `${100 + programs.length * 50}ms` }"
+            >
+              <font-awesome-icon icon="fa-solid fa-clock-rotate-left" class="text-green-300 text-lg ml-0.5" />
+              <span>Riwayat Program Bantuan</span>
+            </button>
+          </div>
         </div>
 
-        <!-- === Kanan: Chart === -->
+        <!-- === Kanan: Chart & Stats === -->
         <div
-          class="w-full lg:w-[65%] flex-1 gap-[30px] px-[24px] md:px-[32px] lg:px-[75px] py-10 bg-white rounded-lg outline outline-1 outline-offset-[-1px] outline-black/20 flex flex-col justify-start items-center overflow-hidden"
+          class="w-full lg:w-[65%] flex-1 p-6 md:p-8 lg:p-10 bg-gray-50/30 flex flex-col justify-start items-stretch overflow-hidden animate-fade-in-up delay-100"
         >
-          <div class="flex flex-col md:flex-row justify-between w-full relative gap-6">
-            <div class="flex gap-4">
-              <div class="justify-center text-neutral-800 text-base font-normal leading-normal">
+          <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center w-full gap-6 mb-8">
+            <!-- Filter Tahun -->
+            <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full xl:w-auto bg-white p-3 md:p-4 rounded-xl border border-gray-200 shadow-sm">
+              <div class="text-gray-700 text-sm font-semibold whitespace-nowrap">
                 Pilih Tahun Anggaran:
               </div>
               <select
                 v-model="tahun"
                 @change="fetchData"
-                class="h-fit py-3 px-4 pe-9 block w-full border border-gray-200 rounded-lg text-sm focus:border-green-900 focus:ring-green-900 disabled:opacity-50 disabled:pointer-events-none"
+                class="block w-full sm:w-40 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-800 focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-all outline-none cursor-pointer"
               >
                 <option v-for="(t, i) in daftarTahun" :key="i" :value="t">{{ t }}</option>
               </select>
             </div>
-            <div class="flex">
-              <div class="flex items-start gap-3">
-                <img src="/images/icon_orang_terbantu.svg" />
-                <div class="flex flex-col">
-                  <div class="justify-center text-green-900 text-xl font-bold leading-loose">
+            
+            <!-- Statistik Info -->
+            <div class="w-full xl:w-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Orang Terbantu -->
+              <div class="flex items-center gap-3 md:gap-4 bg-white p-4 sm:px-5 sm:py-3.5 rounded-xl border border-green-100 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] animate-fade-in-up delay-200 w-full overflow-hidden">
+                <div class="w-10 h-10 md:w-12 md:h-12 bg-green-50 rounded-full flex items-center justify-center flex-shrink-0">
+                  <img src="/images/icon_orang_terbantu.svg" class="w-5 h-5 md:w-6 md:h-6 object-contain" />
+                </div>
+                <div class="flex flex-col min-w-0 flex-1">
+                  <div class="text-green-700 text-lg md:text-xl xl:text-2xl font-black leading-none mb-1 tracking-tight truncate" :title="'+' + orang_terbantu">
                     +{{ orang_terbantu }}
                   </div>
-                  <div class="justify-center text-neutral-800 text-base font-normal leading-normal">
-                    Orang<br />Terbantu
+                  <div class="text-gray-500 text-xs font-semibold leading-tight uppercase tracking-wide">
+                    Orang Terbantu
                   </div>
                 </div>
               </div>
 
-              <div class="flex items-start gap-3">
-                <img src="/images/icon_bantuan_tersalurkan.svg" />
-                <div class="flex flex-col">
-                  <div class="justify-center text-green-900 text-xl font-bold leading-loose">
+              <!-- Bantuan Disalurkan -->
+              <div class="flex items-center gap-3 md:gap-4 bg-white p-4 sm:px-5 sm:py-3.5 rounded-xl border border-green-100 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] animate-fade-in-up delay-300 w-full overflow-hidden">
+                <div class="w-10 h-10 md:w-12 md:h-12 bg-green-50 rounded-full flex items-center justify-center flex-shrink-0">
+                  <img src="/images/icon_bantuan_tersalurkan.svg" class="w-5 h-5 md:w-6 md:h-6 object-contain" />
+                </div>
+                <div class="flex flex-col min-w-0 flex-1">
+                  <div class="text-green-700 text-lg md:text-xl xl:text-2xl font-black leading-none mb-1 tracking-tight truncate" :title="'+' + formatRupiah(total_bantuan)">
                     +{{ formatRupiah(total_bantuan) }}
                   </div>
-                  <div class="justify-center text-neutral-800 text-base font-normal leading-normal">
-                    Bantuan<br />Disalurkan
+                  <div class="text-gray-500 text-xs font-semibold leading-tight uppercase tracking-wide">
+                    Bantuan Disalurkan
                   </div>
                 </div>
               </div>
@@ -229,11 +252,12 @@ onMounted(() => {
           </div>
 
           <!-- Chart -->
-          <div v-if="!isLoading" class="w-full mt-6">
-            <VueApexCharts type="bar" height="350" :options="chartOptions" :series="chartSeries" />
+          <div v-if="isMounted && !isLoading" class="w-full mt-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm animate-fade-in-up delay-400">
+            <VueApexCharts type="bar" height="380" :options="chartOptions" :series="chartSeries" />
           </div>
-          <div v-else class="flex justify-center items-center h-40">
-            <span class="text-gray-400">Loading chart...</span>
+          <div v-else class="flex flex-col justify-center items-center h-[380px] bg-white rounded-2xl border border-gray-100 shadow-sm w-full mt-4">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-green-700 mb-4"></div>
+            <span class="text-gray-500 font-medium">Memuat data grafik...</span>
           </div>
         </div>
       </div>
@@ -242,6 +266,27 @@ onMounted(() => {
 </template>
 
 <style scoped>
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+
 :deep(.apexcharts-text),
 :deep(.apexcharts-legend-text),
 :deep(.apexcharts-xaxis-label),
