@@ -15,6 +15,8 @@ import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 // Form
 import FormAdd from '@/modules/Syarat/widgets/FormAdd.vue';
 import FormEdit from '@/modules/Syarat/widgets/FormEdit.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // Composable
 import { usePagination } from '@/composables/usePaginations';
@@ -31,6 +33,7 @@ const isTableLoading = ref(false);
 // Pagination
 const itemsPerPage = ref<number>(10);
 const totalColumns = ref<number>(4);
+const tableColumns = ref<TableColumn[]>([]);
 
 const { currentPage, perPage, totalRow, totalPages, nextPage, prevPage, pageNow, pages } =
   usePagination(fetchData, { perPage: itemsPerPage.value });
@@ -111,34 +114,31 @@ async function deleteData(id: number) {
 </script>
 
 <template>
-  <div class="mx-auto p-4">
+  <div class="p-4">
     <!-- Header -->
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <BaseButton @click="openAddModal" variant="primary" type="button">
-          <font-awesome-icon icon="fa-solid fa-plus" class="mr-2" />
-          Tambah Syarat
-        </BaseButton>
-
-        <!-- Search -->
-        <div class="flex items-center w-full sm:w-auto">
-          <label for="search" class="mr-2 text-sm font-medium text-gray-600">Cari</label>
-          <input
-            id="search"
-            type="text"
-            v-model="search"
-            @change="fetchData"
-            placeholder="Cari syarat..."
-            class="w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-[#14532d] focus:ring-2 focus:ring-[#14532d] transition"
-          />
-        </div>
-      </div>
-
       <!-- Table -->
-      <div class="rounded-xl border border-gray-200 shadow">
-        <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-        <table v-else class="table-fixed w-full border-collapse bg-white text-sm">
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mt-4">
+        <BaseTable
+        class="table-fixed w-full border-collapse bg-white text-sm"
+        :columns="tableColumns"
+        :data="dataSyarat"
+        :loading="isTableLoading"
+        :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+        @page-change="pageNow"
+        :show-search="true"
+        search-placeholder="Cari syarat..."
+        @search="search = $event; fetchData()"
+        :show-add="true"
+        add-label="Tambah Syarat"
+        @add="openAddModal"
+        :show-edit="false"
+        :show-delete="false"
+        :show-numbering="false"
+        :show-actions="false"
+      >
+        <template #thead>
           <thead class="bg-gray-50 text-gray-700 text-center">
             <tr>
               <th class="w-[25%] px-6 py-3 font-medium">Syarat</th>
@@ -147,7 +147,9 @@ async function deleteData(id: number) {
               <th class="w-[15%] px-6 py-3 font-medium">Aksi</th>
             </tr>
           </thead>
+        </template>
 
+        <template #tbody>
           <tbody class="divide-y divide-gray-100">
             <template v-if="dataSyarat.length > 0">
               <tr
@@ -179,30 +181,19 @@ async function deleteData(id: number) {
 
             <!-- Empty State -->
             <tr v-else>
-              <td :colspan="4" class="px-6 py-8 text-center text-gray-500">
-                <font-awesome-icon
-                  icon="fa-solid fa-database"
-                  class="text-2xl mb-2 text-gray-400"
-                />
-                <p class="text-sm">Belum ada syarat.</p>
-              </td>
+              <td :colspan="4" class="empty-state-cell">
+                  <div class="empty-state animate-fade-in">
+                    <div class="empty-state-icon">
+                      <font-awesome-icon icon="fa-solid fa-database" class="text-4xl" />
+                    </div>
+                    <p class="empty-state-title">Tidak ada data</p>
+                    <p class="empty-state-desc">Belum ada syarat.</p>
+                  </div>
+                </td>
             </tr>
           </tbody>
-
-          <!-- Pagination -->
-          <tfoot>
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
+        </template>
+      </BaseTable>
       </div>
     </div>
 

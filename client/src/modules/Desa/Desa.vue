@@ -9,10 +9,10 @@ import EditIcon from '@/components/Icons/EditIcon.vue';
 import DangerButton from '@/components/Button/DangerButton.vue';
 import DeleteIcon from '@/components/Icons/DeleteIcon.vue';
 import Pagination from '@/components/Pagination/Pagination.vue';
-import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue';
-import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 import FormAdd from '@/modules/Desa/widgets/FormAdd.vue';
 import FormEdit from '@/modules/Desa/widgets/FormEdit.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // Composable
 import { usePagination } from '@/composables/usePaginations';
@@ -27,7 +27,7 @@ const isLoading = ref(false);
 const isTableLoading = ref(false);
 
 // Composable: pagination
-const itemsPerPage = ref<number>(10);
+const itemsPerPage = ref<number>(50);
 const totalColumns = ref<number>(4);
 
 const { currentPage, perPage, totalRow, totalPages, nextPage, prevPage, pageNow, pages } =
@@ -49,6 +49,12 @@ interface Data {
 }
 
 const dataDesa = ref<Data[]>([]);
+
+const tableColumns = ref<TableColumn[]>([
+  { key: 'name', label: 'Nama Desa', headerClass: 'w-[40%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+  { key: 'kecamatan_name', label: 'Nama Kecamatan', headerClass: 'w-[20%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+  { key: 'updatedAt', label: 'Datetime', headerClass: 'w-[20%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+]);
 
 // Function: Modal
 const isModalAddOpen = ref(false);
@@ -115,104 +121,46 @@ async function deleteData(id: number) {
 </script>
 
 <template>
-  <div class="mx-auto p-4">
+  <div class="p-4">
     <!-- Header -->
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <BaseButton
-          @click="openModalAdd()"
-          variant="primary"
-          :loading="isModalAddOpen"
-          type="button"
-        >
-          <font-awesome-icon icon="fa-solid fa-plus" class="mr-2" />
-          Tambah Desa
-        </BaseButton>
-        <!-- Search -->
-        <div class="flex items-center w-full sm:w-auto">
-          <label for="search" class="mr-2 text-sm font-medium text-gray-600">Cari</label>
-          <input
-            id="search"
-            type="text"
-            v-model="search"
-            @change="fetchData"
-            placeholder="Cari desa..."
-            class="w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
-          />
-        </div>
-      </div>
-
-      <!-- Table -->
-      <div class="overflow-hidden rounded-xl border border-gray-200 shadow">
-        <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-        <table v-else class="w-full border-collapse bg-white text-sm">
-          <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
-            <tr>
-              <th class="w-[40%] px-6 py-3 font-medium">Nama Desa</th>
-              <th class="w-[20%] px-6 py-3 font-medium">Nama Kecamatan</th>
-              <th class="w-[20%] px-6 py-3 font-medium">Datetime</th>
-              <th class="w-[20%] px-6 py-3 font-medium">Aksi</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <template v-if="dataDesa">
-              <tr
-                v-for="data in dataDesa"
-                :key="data.id"
-                class="hover:bg-gray-50 transition-colors"
-              >
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  <!-- FIELD 1 -->
-                  {{ data.name }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  <!-- FIELD 2 -->
-                  {{ data.kecamatan_name }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  <!-- FIELD 3 -->
-                  {{ data.updatedAt }}
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex justify-center gap-2">
-                    <LightButton @click="openModalEdit(data)">
-                      <EditIcon />
-                    </LightButton>
-                    <DangerButton @click="deleteData(data.id)">
-                      <DeleteIcon />
-                    </DangerButton>
-                  </div>
-                </td>
-              </tr>
-            </template>
-
-            <!-- Empty State -->
-            <tr v-else>
-              <td :colspan="totalColumns" class="px-6 py-8 text-center text-gray-500">
-                <font-awesome-icon
-                  icon="fa-solid fa-database"
-                  class="text-2xl mb-2 text-gray-400"
-                />
-                <p class="text-sm">Belum ada data desa.</p>
-              </td>
-            </tr>
-          </tbody>
-
-          <!-- Pagination -->
-          <tfoot>
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mt-4">
+        <BaseTable
+        :columns="tableColumns"
+        :data="dataDesa"
+        :loading="isTableLoading"
+        :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+        :show-search="true"
+        search-placeholder="Cari desa..."
+        @search="search = $event; fetchData()"
+        :show-add="true"
+        add-label="Tambah Desa"
+        @add="openModalAdd"
+        :show-edit="false"
+        :show-delete="false"
+        @page-change="pageNow"
+      >
+        <template #cell-name="{ value }">
+          {{ value }}
+        </template>
+        <template #cell-kecamatan_name="{ value }">
+          {{ value }}
+        </template>
+        <template #cell-updatedAt="{ value }">
+          {{ value }}
+        </template>
+        <template #row-actions="{ row }">
+          <div class="flex justify-center gap-2">
+            <LightButton @click="openModalEdit(row)">
+              <EditIcon />
+            </LightButton>
+            <DangerButton @click="deleteData(row.id)">
+              <DeleteIcon />
+            </DangerButton>
+          </div>
+        </template>
+      </BaseTable>
       </div>
     </div>
 

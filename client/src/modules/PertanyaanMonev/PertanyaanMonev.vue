@@ -316,23 +316,28 @@ const formatText = (text: string) => {
                   </template>
                 </template>
                 <tr v-else>
-                  <td :colspan="totalColumns" class="px-6 py-4 text-center text-gray-400 italic">
-                    Tidak ada pertanyaan untuk bagian ini.
-                  </td>
+                  <td :colspan="totalColumns" class="empty-state-cell">
+                  <div class="empty-state animate-fade-in">
+                    <div class="empty-state-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
+                    </div>
+                    <p class="empty-state-title">Tidak ada data</p>
+                    <p class="empty-state-desc">Tidak ada pertanyaan untuk bagian ini.</p>
+                  </div>
+                </td>
                 </tr>
               </template>
             </template>
             <tr v-else>
-              <td :colspan="totalColumns" class="px-6 py-12 text-center text-gray-500">
-                <font-awesome-icon
-                  icon="fa-solid fa-folder-open"
-                  class="text-5xl mb-3 text-gray-400"
-                />
-                <h3 class="text-lg font-medium text-gray-800">Tidak ada data</h3>
-                <p class="mt-1 text-sm text-gray-600">
-                  Belum ada data pertanyaan untuk jenis monev ini.
-                </p>
-              </td>
+              <td :colspan="totalColumns" class="empty-state-cell">
+                  <div class="empty-state animate-fade-in">
+                    <div class="empty-state-icon">
+                      <font-awesome-icon icon="fa-solid fa-folder-open" class="text-4xl" />
+                    </div>
+                    <p class="empty-state-title">Tidak ada data</p>
+                    <p class="empty-state-desc">Belum ada data pertanyaan untuk jenis monev ini.</p>
+                  </div>
+                </td>
             </tr>
           </tbody>
         </table>

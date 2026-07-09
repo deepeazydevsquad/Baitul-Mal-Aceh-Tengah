@@ -9,6 +9,8 @@ import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 
 // Composable
 import { useNotification } from '@/composables/useNotification';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // Service API
 import {
@@ -21,6 +23,7 @@ const router = useRouter();
 // State: Loading
 const isLoading = ref(false);
 const isTableLoading = ref(false);
+const tableColumns = ref<TableColumn[]>([]);
 
 // Composable: notification
 const { showNotification, notificationType, notificationMessage, displayNotification } =
@@ -231,143 +234,149 @@ onMounted(async () => {
     <!-- Header -->
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div class="flex gap-2">
-          <BaseButton
-            @click="cetak_laporan(selectedYear)"
-            variant="primary"
-            :loading="isLoading"
-            type="button"
-          >
-            <font-awesome-icon icon="fa-solid fa-print" class="mr-2" />
-            Cetak
-          </BaseButton>
-        </div>
-        <!-- Filters -->
-        <div class="flex flex-col sm:flex-row gap-3">
-          <div class="flex items-center">
-            <label
-              for="search-kecamatan"
-              class="mr-2 text-sm font-medium text-gray-600 whitespace-nowrap"
-            >
-              Cari Kecamatan
-            </label>
-            <input
-              id="search-kecamatan"
-              type="text"
-              v-model="searchKecamatan"
-              placeholder="Nama kecamatan..."
-              class="w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
-            />
-          </div>
 
-          <!-- Filter Tahun -->
-          <div class="flex items-center">
-            <label
-              for="year-filter"
-              class="mr-2 text-sm font-medium text-gray-600 whitespace-nowrap"
-            >
-              Tahun
-            </label>
-            <select
-              id="year-filter"
-              v-model="selectedYear"
-              @change="fetchData"
-              class="w-full sm:w-48 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
-            >
-              <option value="0">Semua Tahun</option>
-              <option v-for="year in years.slice(1)" :key="year" :value="year">
-                {{ year }}
-              </option>
-            </select>
-          </div>
-        </div>
-      </div>
 
       <div class="overflow-x-auto rounded-xl border border-gray-200 shadow">
         <SkeletonTable v-if="isTableLoading" :columns="15" :rows="10" />
-        <table v-else class="w-full border-collapse bg-white text-sm">
-          <!-- Header -->
-          <thead class="text-gray-700 text-center border-b border-gray-300">
-            <!-- Baris 1 -->
-            <tr class="bg-gray-50">
-              <th
-                rowspan="2"
-                class="w-[20%] px-4 py-3 font-medium border-r border-gray-300 sticky left-0 top-0 bg-gray-50 z-[50] min-w-[180px]"
-              >
-                KECAMATAN
-              </th>
-              <th
-                :colspan="bulanNames.length"
-                class="px-4 py-3 font-medium border border-gray-300 top-0 bg-gray-50 z-[30]"
-              >
-                BULAN
-              </th>
-              <th
-                rowspan="2"
-                class="px-4 py-3 font-medium border border-gray-300 top-0 bg-gray-100 z-[30] min-w-[120px]"
-              >
-                JUMLAH
-              </th>
-            </tr>
-
-            <!-- Baris 2 -->
-            <tr class="bg-gray-50">
-              <th
-                v-for="bulan in bulanNames"
-                :key="bulan"
-                class="px-4 py-3 font-medium border-r border-gray-300 top-[44px] bg-gray-50 z-[30] min-w-[100px]"
-              >
-                {{ bulan }}
-              </th>
-            </tr>
-          </thead>
-
-          <!-- Body -->
-          <tbody v-if="filteredKecamatanList && filteredKecamatanList.length > 0" class="divide-y divide-gray-100">
-            <!-- Data per Kecamatan -->
-            <tr
-              v-for="item in filteredKecamatanList"
-              :key="item.id"
-              class="border-b border-gray-200 hover:bg-gray-50 transition-colors"
+        <BaseTable
+          v-else
+          class="w-full border-collapse bg-white text-sm"
+          :columns="tableColumns"
+          :data="filteredKecamatanList"
+          :with-pagination="false"
+          :show-search="false"
+          :show-add="false"
+          :show-edit="false"
+          :show-delete="false"
+          :show-numbering="false"
+          :show-actions="false"
+        >
+          <template #filters>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center">
+                <label for="search-kecamatan" class="mr-2 text-sm font-medium text-gray-600 whitespace-nowrap">
+                  Cari Kecamatan
+                </label>
+                <input
+                  id="search-kecamatan"
+                  type="text"
+                  v-model="searchKecamatan"
+                  placeholder="Nama kecamatan..."
+                  class="w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
+                />
+              </div>
+              <div class="flex items-center">
+                <label for="year-filter" class="mr-2 text-sm font-medium text-gray-600 whitespace-nowrap">
+                  Tahun
+                </label>
+                <select
+                  id="year-filter"
+                  v-model="selectedYear"
+                  @change="fetchData"
+                  class="w-full sm:w-48 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
+                >
+                  <option value="0">Semua Tahun</option>
+                  <option v-for="year in years.slice(1)" :key="year" :value="year">
+                    {{ year }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </template>
+          <template #custom-actions>
+            <BaseButton
+              @click="cetak_laporan(selectedYear)"
+              variant="primary"
+              :loading="isLoading"
+              type="button"
             >
-              <td
-                class="px-4 py-3 font-normal text-gray-800 border-r border-gray-300 sticky left-0 bg-white z-10"
-              >
-                {{ item.data.name }}
-              </td>
-              <td
-                v-for="(bulan, index) in 12"
-                :key="`rupiah-${index}`"
-                class="px-4 py-3 text-right border-r border-gray-100"
-              >
-                {{ formatRupiah(item.data.detail_rupiah[index as keyof DetailBulan]) }}
-              </td>
-              <td class="px-4 py-3 text-right font-normal bg-gray-100">
-                {{ formatRupiah(calculateTotal(item.data.detail_rupiah)) }}
-              </td>
-            </tr>
+              <font-awesome-icon icon="fa-solid fa-print" class="mr-2" />
+              Cetak
+            </BaseButton>
+          </template>
+          <template #thead>
+            <thead class="text-gray-700 text-center border-b border-gray-300">
+              <!-- Baris 1 -->
+              <tr class="bg-gray-50">
+                <th
+                  rowspan="2"
+                  class="w-[20%] px-4 py-3 font-medium border-r border-gray-300 sticky left-0 top-0 bg-gray-50 z-[50] min-w-[180px]"
+                >
+                  KECAMATAN
+                </th>
+                <th
+                  :colspan="bulanNames.length"
+                  class="px-4 py-3 font-medium border border-gray-300 top-0 bg-gray-50 z-[30]"
+                >
+                  BULAN
+                </th>
+                <th
+                  rowspan="2"
+                  class="px-4 py-3 font-medium border border-gray-300 top-0 bg-gray-100 z-[30] min-w-[120px]"
+                >
+                  JUMLAH
+                </th>
+              </tr>
 
-            <!-- Grand Total -->
-            <tr class="border border-gray-200">
-              <td
-                class="px-4 py-3 font-normal text-gray-800 border-r border-gray-200 sticky left-0 bg-gray-100 z-10"
+              <!-- Baris 2 -->
+              <tr class="bg-gray-50">
+                <th
+                  v-for="bulan in bulanNames"
+                  :key="bulan"
+                  class="px-4 py-3 font-medium border-r border-gray-300 top-[44px] bg-gray-50 z-[30] min-w-[100px]"
+                >
+                  {{ bulan }}
+                </th>
+              </tr>
+            </thead>
+          </template>
+          <template #tbody>
+            <tbody v-if="filteredKecamatanList && filteredKecamatanList.length > 0" class="divide-y divide-gray-100">
+              <!-- Data per Kecamatan -->
+              <tr
+                v-for="item in filteredKecamatanList"
+                :key="item.id"
+                class="border-b border-gray-200 hover:bg-gray-50 transition-colors"
               >
-                TOTAL KESELURUHAN
-              </td>
-              <td
-                v-for="(bulan, index) in 12"
-                :key="`total-${index}`"
-                class="px-4 py-3 text-right font-normal border-r border-gray-200 bg-gray-100"
-              >
-                {{ formatRupiah(calculateGrandTotalBulan(index)) }}
-              </td>
-              <td class="px-4 py-3 text-right font-normal border-gray-200 bg-gray-100">
-                {{ formatRupiah(calculateGrandTotal()) }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                <td
+                  class="px-4 py-3 font-normal text-gray-800 border-r border-gray-300 sticky left-0 bg-white z-10"
+                >
+                  {{ item.data.name }}
+                </td>
+                <td
+                  v-for="(bulan, index) in 12"
+                  :key="`rupiah-${index}`"
+                  class="px-4 py-3 text-right border-r border-gray-100"
+                >
+                  {{ formatRupiah(item.data.detail_rupiah[index as keyof DetailBulan]) }}
+                </td>
+                <td class="px-4 py-3 text-right font-normal bg-gray-100">
+                  {{ formatRupiah(calculateTotal(item.data.detail_rupiah)) }}
+                </td>
+              </tr>
+            </tbody>
+          </template>
+          <template #tfoot>
+              <!-- Grand Total -->
+              <tr class="border border-gray-200">
+                <td
+                  class="px-4 py-3 font-normal text-gray-800 border-r border-gray-200 sticky left-0 bg-gray-100 z-10"
+                >
+                  TOTAL KESELURUHAN
+                </td>
+                <td
+                  v-for="(bulan, index) in 12"
+                  :key="`total-${index}`"
+                  class="px-4 py-3 text-right font-normal border-r border-gray-200 bg-gray-100"
+                >
+                  {{ formatRupiah(calculateGrandTotalBulan(index)) }}
+                </td>
+                <td class="px-4 py-3 text-right font-normal border-gray-200 bg-gray-100">
+                  {{ formatRupiah(calculateGrandTotal()) }}
+                </td>
+              </tr>
+          </template>
+        </BaseTable>
       </div>
     </div>
 

@@ -5,6 +5,8 @@ import FooterCetak from '@/modules/FooterCetak/FooterCetak.vue';
 import { list } from '@/service/rekap_pengumpulan';
 import { nextTick, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 const route = useRoute();
 const tahun = route.params.tahun as string;
@@ -32,6 +34,7 @@ interface RowData {
 
 const rows = ref<RowData[]>([]);
 const isLoading = ref(true);
+const tableColumns = ref<TableColumn[]>([]);
 
 async function fetchData() {
   isLoading.value = true;
@@ -151,58 +154,79 @@ onMounted(async () => {
       </div>
 
       <!-- Tabel -->
-      <table class="w-full border-collapse text-[6.5pt] mt-5" style="table-layout: auto">
-        <thead class="border border-black text-center">
-          <tr>
-            <th rowspan="2" class="border border-black px-2 py-1 w-[15%]">JENIS PENGUMPULAN</th>
-            <th colspan="12" class="border border-black px-2 py-1">BULAN</th>
-            <th rowspan="2" class="border border-black px-2 py-1 w-[10%]">JUMLAH</th>
-          </tr>
-          <tr>
-            <th v-for="m in months" :key="m.key" class="border border-black px-1 py-1">
-              {{ m.label }}
-            </th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <template v-if="rows.length > 0">
-            <tr
-              v-for="(row, index) in rows"
-              :key="index"
-              class="text-[6pt] text-black"
-              :class="row.label === 'Total' ? 'font-bold bg-gray-200' : ''"
-              style="page-break-inside: avoid"
-            >
-              <td
-                class="border border-black px-2 py-1 text-left"
-                :class="row.label === 'Total' ? 'font-bold' : ''"
-              >
-                {{ row.label }}
-              </td>
-              <td
-                v-for="m in months"
-                :key="`${index}_${m.key}`"
-                class="border border-black px-1 py-1 text-right"
-              >
-                {{ $formatToRupiah(row.values[m.key] || 0) }}
-              </td>
-              <td
-                class="border border-black px-1 py-1 text-right bg-gray-100"
-                :class="row.label === 'Total' ? 'font-bold bg-gray-200' : ''"
-              >
-                {{ $formatToRupiah(row.total) }}
-              </td>
+      <BaseTable
+        class="w-full text-[6.5pt] mt-5 print-table"
+        style="table-layout: auto"
+        :columns="tableColumns"
+        :data="rows"
+        :with-pagination="false"
+        :show-search="false"
+        :show-add="false"
+        :show-edit="false"
+        :show-delete="false"
+        :show-numbering="false"
+        :show-actions="false"
+      >
+        <template #thead>
+          <thead class="border border-black text-center">
+            <tr>
+              <th rowspan="2" class="border border-black px-2 py-1 w-[15%]">JENIS PENGUMPULAN</th>
+              <th colspan="12" class="border border-black px-2 py-1">BULAN</th>
+              <th rowspan="2" class="border border-black px-2 py-1 w-[10%]">JUMLAH</th>
             </tr>
-          </template>
+            <tr>
+              <th v-for="m in months" :key="m.key" class="border border-black px-1 py-1">
+                {{ m.label }}
+              </th>
+            </tr>
+          </thead>
+        </template>
+        <template #tbody>
+          <tbody>
+            <template v-if="rows.length > 0">
+              <tr
+                v-for="(row, index) in rows"
+                :key="index"
+                class="text-[6pt] text-black"
+                :class="row.label === 'Total' ? 'font-bold bg-gray-200' : ''"
+                style="page-break-inside: avoid"
+              >
+                <td
+                  class="border border-black px-2 py-1 text-left"
+                  :class="row.label === 'Total' ? 'font-bold' : ''"
+                >
+                  {{ row.label }}
+                </td>
+                <td
+                  v-for="m in months"
+                  :key="`${index}_${m.key}`"
+                  class="border border-black px-1 py-1 text-right"
+                >
+                  {{ $formatToRupiah(row.values[m.key] || 0) }}
+                </td>
+                <td
+                  class="border border-black px-1 py-1 text-right bg-gray-100"
+                  :class="row.label === 'Total' ? 'font-bold bg-gray-200' : ''"
+                >
+                  {{ $formatToRupiah(row.total) }}
+                </td>
+              </tr>
+            </template>
 
-          <tr v-else>
-            <td colspan="14" class="border border-black px-2 py-3 text-center text-gray-700">
-              Rekap Pengumpulan Tidak Ditemukan
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            <tr v-else>
+              <td colspan="14" class="empty-state-cell">
+                  <div class="empty-state animate-fade-in">
+                    <div class="empty-state-icon">
+                      <font-awesome-icon icon="fa-solid fa-print" class="text-4xl" />
+                    </div>
+                    <p class="empty-state-title">Tidak ada data</p>
+                    <p class="empty-state-desc">Rekap Pengumpulan Tidak Ditemukan</p>
+                  </div>
+                </td>
+            </tr>
+          </tbody>
+        </template>
+      </BaseTable>
       <div class="mt-auto">
         <FooterCetak />
       </div>

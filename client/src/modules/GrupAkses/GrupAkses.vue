@@ -9,10 +9,10 @@ import EditIcon from '@/components/Icons/EditIcon.vue';
 import DangerButton from '@/components/Button/DangerButton.vue';
 import DeleteIcon from '@/components/Icons/DeleteIcon.vue';
 import Pagination from '@/components/Pagination/Pagination.vue';
-import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue';
-import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 import FormAdd from '@/modules/GrupAkses/widgets/FormAdd.vue';
 import FormEdit from '@/modules/GrupAkses/widgets/FormEdit.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // Composable
 import { usePagination } from '@/composables/usePaginations';
@@ -64,6 +64,11 @@ interface Data {
 }
 
 const datas = ref<Data[]>([]);
+
+const tableColumns = ref<TableColumn[]>([
+  { key: 'name', label: 'Nama Grup', headerClass: 'w-[40%] text-center align-top', cellClass: 'text-center font-medium text-gray-800 align-top' },
+  { key: 'akses', label: 'Akses', headerClass: 'w-[30%] text-center align-top', cellClass: 'text-left font-medium text-gray-800' },
+]);
 
 // Function: Modal
 const isModalAddOpen = ref(false);
@@ -149,132 +154,81 @@ const handleStatus = (payload: any) => {
 </script>
 
 <template>
-  <div class="mx-auto p-4">
+  <div class="p-4">
     <!-- Header -->
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <BaseButton
-          @click="openModalAdd()"
-          variant="primary"
-          :loading="isModalAddOpen || isModalEditOpen"
-          type="button"
-        >
-          <font-awesome-icon icon="fa-solid fa-plus" class="mr-2" />
-          Tambah Grup
-        </BaseButton>
-
-        <!-- Search -->
-        <div class="flex items-center w-full sm:w-auto">
-          <label for="search" class="mr-2 text-sm font-medium text-gray-600">Cari</label>
-          <input
-            id="search"
-            type="text"
-            v-model="search"
-            @change="fetchData"
-            placeholder="Cari Grup..."
-            class="w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
-          />
-        </div>
-      </div>
-
-      <!-- Table -->
-      <div class="overflow-hidden rounded-xl border border-gray-200 shadow">
-        <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-        <table v-else class="w-full border-collapse bg-white text-sm">
-          <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
-            <tr>
-              <th class="w-[40%] px-6 py-3 font-medium align-top">Nama Grup</th>
-              <th class="w-[30%] px-6 py-3 font-medium align-top">Akses</th>
-              <th class="w-[30%] px-6 py-3 font-medium align-top">Aksi</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <template v-if="datas && datas.length > 0">
-              <tr
-                v-for="data in datas"
-                :key="data.id"
-                class="hover:bg-gray-50 transition-colors"
-                :class="data.id === 1 ? ' pointer-events-none opacity-50 ' : ''"
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mt-4">
+        <BaseTable
+        :columns="tableColumns"
+        :data="datas"
+        :loading="isTableLoading"
+        :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+        :show-search="true"
+        search-placeholder="Cari Grup..."
+        @search="search = $event; fetchData()"
+        :show-add="true"
+        add-label="Tambah Grup"
+        @add="openModalAdd"
+        :show-edit="false"
+        :show-delete="false"
+        @page-change="pageNow"
+      >
+        <template #cell-name="{ row }">
+          <div :class="row.id === 1 ? 'pointer-events-none opacity-50' : ''">
+            {{ row.name }}
+          </div>
+        </template>
+        
+        <template #cell-akses="{ row }">
+          <div :class="row.id === 1 ? 'pointer-events-none opacity-50' : ''">
+            <template v-if="row.id == 1">
+              <div
+                v-if="row.group_access.length > 0"
+                v-for="menu in row.group_access"
+                :key="menu.id"
+                class="mb-2"
               >
-                <td class="px-6 py-4 text-center font-medium text-gray-800 align-top">
-                  {{ data.name }}
-                </td>
-                <td class="px-6 py-4 text-left font-medium text-gray-800">
-                  <template v-if="data.id == 1">
-                    <div
-                      v-if="data.group_access.length > 0"
-                      v-for="menu in data.group_access"
-                      :key="menu.id"
-                      class="mb-2"
-                    >
-                      <div class="font-semibold">{{ menu.name }}</div>
-                      <ul v-if="menu.Submenus?.length" class="ml-6 list-disc text-sm text-gray-600">
-                        <li v-for="sub in menu.Submenus" :key="sub.id">
-                          {{ sub.name }}
-                        </li>
-                      </ul>
-                    </div>
-                    <div v-else class="font-normal">
-                      <span class="text-gray-400 italic">Full Access</span>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div v-for="menu in data.group_access" :key="menu.id" class="mb-2">
-                      <div class="font-semibold">{{ menu.name }}</div>
-                      <ul v-if="menu.Submenus?.length" class="ml-6 list-disc text-sm text-gray-600">
-                        <li v-for="sub in menu.Submenus" :key="sub.id">
-                          {{ sub.name }}
-                        </li>
-                      </ul>
-                    </div>
-                  </template>
-                </td>
-
-                <td class="px-6 py-4 align-top">
-                  <div class="flex justify-center gap-2">
-                    <template v-if="data.id !== 1">
-                      <LightButton @click="openModalEdit(data.id)">
-                        <EditIcon />
-                      </LightButton>
-                      <DangerButton @click="deleteData(data.id)">
-                        <DeleteIcon />
-                      </DangerButton>
-                    </template>
-                    <template v-else>
-                      <span class="text-gray-400 italic">Default Grup</span>
-                    </template>
-                  </div>
-                </td>
-              </tr>
+                <div class="font-semibold">{{ menu.name }}</div>
+                <ul v-if="menu.Submenus?.length" class="ml-6 list-disc text-sm text-gray-600">
+                  <li v-for="sub in menu.Submenus" :key="sub.id">
+                    {{ sub.name }}
+                  </li>
+                </ul>
+              </div>
+              <div v-else class="font-normal">
+                <span class="text-gray-400 italic">Full Access</span>
+              </div>
             </template>
-
-            <!-- Empty State -->
-            <tr v-else>
-              <td :colspan="totalColumns" class="px-6 py-8 text-center text-gray-500">
-                <font-awesome-icon
-                  icon="fa-solid fa-database"
-                  class="text-2xl mb-2 text-gray-400"
-                />
-                <p class="text-sm">Belum ada data grup akses.</p>
-              </td>
-            </tr>
-          </tbody>
-
-          <!-- Pagination -->
-          <tfoot>
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
+            <template v-else>
+              <div v-for="menu in row.group_access" :key="menu.id" class="mb-2">
+                <div class="font-semibold">{{ menu.name }}</div>
+                <ul v-if="menu.Submenus?.length" class="ml-6 list-disc text-sm text-gray-600">
+                  <li v-for="sub in menu.Submenus" :key="sub.id">
+                    {{ sub.name }}
+                  </li>
+                </ul>
+              </div>
+            </template>
+          </div>
+        </template>
+        
+        <template #row-actions="{ row }">
+          <div class="flex justify-center gap-2 align-top">
+            <template v-if="row.id !== 1">
+              <LightButton @click="openModalEdit(row.id)">
+                <EditIcon />
+              </LightButton>
+              <DangerButton @click="deleteData(row.id)">
+                <DeleteIcon />
+              </DangerButton>
+            </template>
+            <template v-else>
+              <span class="text-gray-400 italic mt-2">Default Grup</span>
+            </template>
+          </div>
+        </template>
+      </BaseTable>
       </div>
     </div>
 

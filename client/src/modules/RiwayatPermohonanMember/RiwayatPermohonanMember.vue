@@ -11,7 +11,8 @@ import DeleteIcon from '@/components/Icons/DeleteIcon.vue';
 import Pagination from '@/components/Pagination/Pagination.vue';
 import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue';
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
-
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 // Composable
 import { usePagination } from '@/composables/usePaginations';
 import { useConfirmation } from '@/composables/useConfirmation';
@@ -52,6 +53,12 @@ interface Data {
 }
 
 const datas = ref<Data[]>([]);
+
+const tableColumns = ref<TableColumn[]>([
+  { key: 'info_program', label: 'Info Program', headerClass: 'w-[50%] text-center', cellClass: 'px-6 py-4 text-left font-medium text-gray-800' },
+  { key: 'status_realisasi', label: 'Status Permohonan', headerClass: 'w-[20%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+  { key: 'tanggal', label: 'Tanggal Permohonan', headerClass: 'w-[20%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+]);
 
 // Function: Modal
 const isModalAddOpen = ref(false);
@@ -123,108 +130,64 @@ async function deleteData(id: number) {
     <!-- Header -->
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <!-- Tombol Kembali -->
-        <div>
-          <BaseButton @click="emit('back')" variant="primary" type="button">
+      <!-- Table with BaseTable -->
+      <BaseTable
+        :columns="tableColumns"
+        :data="datas"
+        :loading="isTableLoading"
+        :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+        :show-search="true"
+        search-placeholder="Cari permohonan..."
+        @search="search = $event; fetchData()"
+        :show-add="false"
+        :show-edit="false"
+        :show-delete="false"
+        @page-change="pageNow"
+      >
+        <template #filters>
+          <BaseButton @click="emit('back')" variant="primary" type="button" class="mr-auto">
             <font-awesome-icon icon="fa-solid fa-arrow-left" class="mr-2" />
             Kembali
           </BaseButton>
-        </div>
+        </template>
 
-        <!-- Search -->
-        <div class="flex items-center">
-          <label for="search" class="mr-2 text-sm font-medium text-gray-600">Cari</label>
-          <input
-            id="search"
-            type="text"
-            v-model="search"
-            @change="fetchData"
-            placeholder="Cari permohonan..."
-            class="w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
-          />
-        </div>
-      </div>
-
-      <!-- Table -->
-      <div class="overflow-hidden rounded-xl border border-gray-200 shadow">
-        <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-        <table v-else class="w-full border-collapse bg-white text-sm">
-          <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
-            <tr>
-              <th class="w-[50%] px-6 py-3 font-medium">Info Program</th>
-              <th class="w-[20%] px-6 py-3 font-medium">Status Permohonan</th>
-              <th class="w-[20%] px-6 py-3 font-medium">Tanggal Permohonan</th>
-              <th class="w-[10%] px-6 py-3 font-medium">Aksi</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <template v-if="datas && datas.length > 0">
-              <tr v-for="data in datas" :key="data.id" class="hover:bg-gray-50 transition-colors">
-                <td class="px-6 py-4 text-left font-medium text-gray-800">
-                  <table class="w-full mx-auto border border-gray-300 rounded-lg">
-                    <tbody>
-                      <tr>
-                        <td class="border w-[35%] border-gray-300 px-2 py-1 font-normal">
-                          Nama Program
-                        </td>
-                        <td class="border border-gray-300 px-2 py-1 font-normal">
-                          {{ data.program }}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="border border-gray-300 px-2 py-1 font-normal">Nama Kegiatan</td>
-                        <td class="border border-gray-300 px-2 py-1 font-normal">
-                          {{ data.kegiatan }}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ data.status_realisasi?.replaceAll('_', ' ').toUpperCase() }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ data.tanggal }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  <div class="flex justify-center gap-2">
-                    <DangerButton @click="deleteData(data.id)">
-                      <DeleteIcon />
-                    </DangerButton>
-                  </div>
-                </td>
-              </tr>
-            </template>
-            <template v-else>
+        <template #cell-info_program="{ row }">
+          <table class="w-full mx-auto border border-gray-300 rounded-lg">
+            <tbody>
               <tr>
-                <td :colspan="totalColumns" class="px-6 py-8 text-center text-gray-500">
-                  <font-awesome-icon
-                    icon="fa-solid fa-database"
-                    class="text-4xl mb-2 text-gray-400"
-                  />
-                  <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada data</h3>
-                  <p class="text-sm">Belum ada data field.</p>
+                <td class="border w-[35%] border-gray-300 px-2 py-1 font-normal">
+                  Nama Program
+                </td>
+                <td class="border border-gray-300 px-2 py-1 font-normal">
+                  {{ row.program }}
                 </td>
               </tr>
-            </template>
-          </tbody>
+              <tr>
+                <td class="border border-gray-300 px-2 py-1 font-normal">Nama Kegiatan</td>
+                <td class="border border-gray-300 px-2 py-1 font-normal">
+                  {{ row.kegiatan }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </template>
 
-          <!-- Pagination -->
-          <tfoot class="bg-gray-100 font-bold">
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
-      </div>
+        <template #cell-status_realisasi="{ row }">
+          {{ row.status_realisasi?.replaceAll('_', ' ').toUpperCase() }}
+        </template>
+        
+        <template #cell-tanggal="{ row }">
+          {{ row.tanggal }}
+        </template>
+
+        <template #row-actions="{ row }">
+          <div class="flex justify-center gap-2">
+            <DangerButton @click="deleteData(row.id)">
+              <DeleteIcon />
+            </DangerButton>
+          </div>
+        </template>
+      </BaseTable>
     </div>
 
     <!-- Modal FormAdd -->

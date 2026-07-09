@@ -3,7 +3,9 @@ import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 import Logos from '@/components/Logo/Logo.vue';
 import FooterCetak from '@/modules/FooterCetak/FooterCetak.vue';
 import { get_laporan_kesekretariatan } from '@/service/laporan_kesekretariatan';
-import { nextTick, onMounted, ref } from 'vue';
+import { nextTick, onMounted, ref, computed } from 'vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
@@ -29,7 +31,6 @@ async function fetchData() {
     const flattenedData = response.data.data.flatMap((group: any) => group.data);
     laporanData.value = flattenedData;
 
-    // Hitung grand total
     grandTotal.value = flattenedData.reduce((sum: number, row: any) => {
       return sum + parseRupiah(row[7]);
     }, 0);
@@ -41,6 +42,28 @@ async function fetchData() {
     isLoading.value = false;
   }
 }
+
+const tableColumns = ref<TableColumn[]>([
+  { key: 'tanggal', label: 'Tanggal', headerClass: 'border border-black w-[10%] px-2 py-1 text-center', cellClass: 'border border-black px-2 py-1 text-center whitespace-nowrap' },
+  { key: 'uraian', label: 'Uraian', headerClass: 'border border-black w-[25%] px-2 py-1 text-center', cellClass: 'border border-black px-2 py-1 text-left' },
+  { key: 'nik', label: 'NIK', headerClass: 'border border-black w-[12%] px-2 py-1 text-center', cellClass: 'border border-black px-2 py-1 text-center' },
+  { key: 'alamat', label: 'Alamat', headerClass: 'border border-black w-[20%] px-2 py-1 text-center', cellClass: 'border border-black px-2 py-1 text-left' },
+  { key: 'kec', label: 'Kec', headerClass: 'border border-black w-[8%] px-2 py-1 text-center', cellClass: 'border border-black px-2 py-1 text-center' },
+  { key: 'kode_akun', label: 'Kode Akun', headerClass: 'border border-black w-[10%] px-2 py-1 text-center', cellClass: 'border border-black px-2 py-1 text-center' },
+  { key: 'kredit', label: 'Kredit', headerClass: 'border border-black w-[15%] px-2 py-1 text-center', cellClass: 'border border-black px-2 py-1 text-right whitespace-nowrap' },
+]);
+
+const formattedData = computed(() => {
+  return laporanData.value.map(row => ({
+    tanggal: row[1],
+    uraian: row[2],
+    nik: row[3],
+    alamat: row[4],
+    kec: row[5],
+    kode_akun: row[6],
+    kredit: row[7],
+  }));
+});
 
 onMounted(async () => {
   try {
@@ -96,56 +119,33 @@ onMounted(async () => {
       </div>
 
       <!-- Tabel -->
-      <table class="w-full border-collapse text-[8pt] mb-4" style="table-layout: fixed">
-        <thead class="border border-black text-center">
-          <tr>
-            <th class="border border-black w-[10%] px-2 py-1">Tanggal</th>
-            <th class="border border-black w-[25%] px-2 py-1">Uraian</th>
-            <th class="border border-black w-[12%] px-2 py-1">NIK</th>
-            <th class="border border-black w-[20%] px-2 py-1">Alamat</th>
-            <th class="border border-black w-[8%] px-2 py-1">Kec</th>
-            <th class="border border-black w-[10%] px-2 py-1">Kode Akun</th>
-            <th class="border border-black w-[15%] px-2 py-1">Kredit</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <template v-if="laporanData.length > 0">
-            <tr
-              v-for="(row, index) in laporanData"
-              :key="index"
-              class="text-[7pt] text-black"
-              style="page-break-inside: avoid"
-            >
-              <td class="border border-black px-2 py-1 text-center whitespace-nowrap">
-                {{ row[1] }}
-              </td>
-              <td class="border border-black px-2 py-1 text-left">{{ row[2] }}</td>
-              <td class="border border-black px-2 py-1 text-center">{{ row[3] }}</td>
-              <td class="border border-black px-2 py-1 text-left">{{ row[4] }}</td>
-              <td class="border border-black px-2 py-1 text-center">{{ row[5] }}</td>
-              <td class="border border-black px-2 py-1 text-center">{{ row[6] }}</td>
-              <td class="border border-black px-2 py-1 text-right whitespace-nowrap">
-                {{ row[7] }}
-              </td>
-            </tr>
-
-            <!-- Grand Total -->
-            <tr class="font-bold text-black bg-gray-100">
-              <td colspan="6" class="border border-black px-2 py-1 text-right">Total</td>
-              <td class="border border-black px-2 py-1 text-right">
-                {{ $formatToRupiah(grandTotal) }}
-              </td>
-            </tr>
-          </template>
-
-          <tr v-else>
-            <td colspan="7" class="border border-black px-2 py-3 text-center text-gray-700">
-              Laporan Kesekretariatan Tidak Ditemukan
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mt-4">
+        <BaseTable
+          empty-title="Data tidak ditemukan"
+          empty-desc="Belum ada data tersedia."
+        class="w-full text-[8pt] mb-4 print-table"
+        style="table-layout: fixed"
+        :columns="tableColumns"
+        :data="formattedData"
+        :with-pagination="false"
+        :show-search="false"
+        :show-add="false"
+        :show-edit="false"
+        :show-delete="false"
+        :show-numbering="false"
+        :show-actions="false"
+      >
+        <template #tfoot>
+          <tr v-if="laporanData.length > 0" class="font-bold text-black bg-gray-100">
+            <td colspan="6" class="border border-black px-2 py-1 text-right">Total</td>
+            <td class="border border-black px-2 py-1 text-right">
+              {{ $formatToRupiah(grandTotal) }}
             </td>
           </tr>
-        </tbody>
-      </table>
+        </template>
+        
+      </BaseTable>
+      </div>
 
       <!-- Footer -->
       <div class="mt-auto">

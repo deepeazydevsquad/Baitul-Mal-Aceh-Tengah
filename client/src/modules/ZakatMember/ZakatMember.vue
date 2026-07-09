@@ -9,6 +9,8 @@ import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue';
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 import FormAdd from '@/modules/ZakatMember/widgets/FormAdd.vue';
 import FormConfirm from '@/modules/ZakatMember/widgets/FormConfirm.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // Composable
 import { usePagination } from '@/composables/usePaginations';
@@ -49,6 +51,14 @@ interface Zakat {
 }
 
 const zakat = ref<Zakat[]>([]);
+
+const tableColumns = ref<TableColumn[]>([
+  { key: 'invoice', label: 'Invoice', headerClass: 'w-[20%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+  { key: 'nominal', label: 'Nominal', headerClass: 'w-[20%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+  { key: 'tipe', label: 'Tipe Zakat', headerClass: 'w-[20%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+  { key: 'status', label: 'Status', headerClass: 'w-[15%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+  { key: 'tanggal_pembayaran', label: 'Tanggal Pembayaran Zakat', headerClass: 'w-[15%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+]);
 
 // Function: Modal
 const isModalAddOpen = ref(false);
@@ -118,112 +128,44 @@ onMounted(async () => {
     <!-- Header -->
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <BaseButton
-          @click="openModalAdd()"
-          variant="primary"
-          :loading="isModalAddOpen || isModalConfirmOpen"
-          type="button"
-        >
-          <font-awesome-icon icon="fa-solid fa-plus" class="mr-2" />
-          Bayar Zakat
-        </BaseButton>
+      <!-- Table with BaseTable -->
+      <BaseTable
+        :columns="tableColumns"
+        :data="zakat"
+        :loading="isTableLoading"
+        :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+        :show-search="true"
+        search-placeholder="Cari invoice..."
+        @search="search = $event; handleSearch()"
+        :show-add="true"
+        add-label="Bayar Zakat"
+        @add="openModalAdd"
+        :show-edit="false"
+        :show-delete="false"
+        @page-change="pageNow"
+      >
+        <template #cell-nominal="{ value }">
+          {{ formatRupiah(value) }}
+        </template>
+        
+        <template #cell-status="{ value }">
+          <span
+            :class="{
+              'bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs': value === 'process',
+              'bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs': value === 'success',
+              'bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs': value === 'failed',
+            }"
+          >
+            {{ value }}
+          </span>
+        </template>
 
-        <!-- Search -->
-        <div class="flex items-center w-full sm:w-auto">
-          <label for="search" class="mr-2 text-sm font-medium text-gray-600">Cari</label>
-          <input
-            id="search"
-            type="text"
-            v-model="search"
-            placeholder="Cari invoice..."
-            class="w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
-          />
-        </div>
-      </div>
-
-      <!-- Table -->
-
-      <div class="overflow-hidden rounded-xl border border-gray-200 shadow">
-        <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-        <table v-else class="w-full border-collapse bg-white text-sm">
-          <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
-            <tr>
-              <th class="w-[20%] px-6 py-3 font-medium">Invoice</th>
-              <th class="w-[20%] px-6 py-3 font-medium">Nominal</th>
-              <th class="w-[20%] px-6 py-3 font-medium">Tipe Zakat</th>
-              <th class="w-[15%] px-6 py-3 font-medium">Status</th>
-              <th class="w-[15%] px-6 py-3 font-medium">Tanggal Pembayaran Zakat</th>
-              <th class="w-[10%] px-6 py-3 font-medium">Aksi</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <template v-if="zakat && zakat.length > 0">
-              <tr v-for="data in zakat" :key="data.id" class="hover:bg-gray-50 transition-colors">
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ data.invoice }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ formatRupiah(data.nominal) }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ data.tipe }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  <span
-                    :class="{
-                      'bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs':
-                        data.status === 'process',
-                      'bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs':
-                        data.status === 'success',
-                      'bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs':
-                        data.status === 'failed',
-                    }"
-                  >
-                    {{ data.status }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ data.tanggal_pembayaran }}
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex justify-center gap-2">
-                    <BaseButton @click="openModalDetail(data)" variant="warning" type="button">
-                      <font-awesome-icon icon="fa-solid fa-clipboard-check" />
-                    </BaseButton>
-                  </div>
-                </td>
-              </tr>
-            </template>
-
-            <!-- Empty State -->
-            <tr v-else>
-              <td :colspan="totalColumns" class="px-6 py-8 text-center text-gray-500">
-                <font-awesome-icon
-                  icon="fa-solid fa-database"
-                  class="text-4xl mb-2 text-gray-400"
-                />
-                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada data</h3>
-                <p class="text-sm">Belum ada data zakat yang ditemukan.</p>
-              </td>
-            </tr>
-          </tbody>
-
-          <!-- Pagination -->
-          <tfoot class="bg-gray-100 font-bold">
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
-      </div>
+        <template #row-actions="{ row }">
+          <BaseButton @click="openModalDetail(row)" variant="warning" type="button">
+            <font-awesome-icon icon="fa-solid fa-clipboard-check" />
+          </BaseButton>
+        </template>
+      </BaseTable>
     </div>
 
     <!-- Modal FormAdd -->

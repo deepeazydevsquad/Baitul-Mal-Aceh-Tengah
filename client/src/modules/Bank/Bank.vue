@@ -13,6 +13,8 @@ import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue';
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 import FormAdd from '@/modules/Bank/widgets/FormAdd.vue';
 import FormEdit from '@/modules/Bank/widgets/FormEdit.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // Composable
 import { usePagination } from '@/composables/usePaginations';
@@ -52,6 +54,11 @@ interface Bank {
 }
 
 const dataBanks = ref<Bank[]>([]);
+
+const tableColumns = ref<TableColumn[]>([
+  { key: 'img', label: 'Logo Bank', headerClass: 'w-[10%] text-center', cellClass: 'text-center align-middle' },
+  { key: 'name', label: 'Nama Bank', headerClass: 'w-[70%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+]);
 
 // Function: Modal
 const isModalAddOpen = ref(false);
@@ -116,121 +123,62 @@ async function deleteData(id: number) {
 </script>
 
 <template>
-  <div class="mx-auto p-4">
+  <div class="p-4">
     <!-- Header -->
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <BaseButton
-          @click="openModalAdd()"
-          variant="primary"
-          :loading="isModalAddOpen || isModalEditOpen"
-          type="button"
-        >
-          <font-awesome-icon icon="fa-solid fa-plus" class="mr-2" /> Tambah Bank
-        </BaseButton>
+      <!-- Table with BaseTable -->
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mt-4">
+        <BaseTable
+        :columns="tableColumns"
+        :data="dataBanks"
+        :loading="isTableLoading"
+        :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+        :show-search="true"
+        search-placeholder="Cari bank..."
+        @search="search = $event; fetchData()"
+        :show-add="true"
+        add-label="Tambah Bank"
+        @add="openModalAdd"
+        :show-edit="false"
+        :show-delete="false"
+        @page-change="pageNow"
+      >
+        <template #cell-img="{ row }">
+          <center>
+            <div
+              v-if="row.img && row.img !== '-'"
+              class="relative rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden"
+              style="width: 100px; height: 33px"
+              :class="{ 'bg-gray-200': !row.img || row.img === '-' }"
+            >
+              <img
+                :src="BASE_URL + '/uploads/img/bank/' + row.img"
+                :alt="`Foto Bank ${row.name}`"
+                class="object-contain max-w-full max-h-full mx-auto"
+                @error="row.img = '-'"
+              />
+            </div>
+            <div
+              v-else
+              class="bg-gray-200 text-gray-500 text-center px-4 relative aspect-video max-w-sm rounded-lg flex items-center justify-center overflow-hidden"
+            >
+              <p class="text-sm font-medium">Gambar tidak tersedia</p>
+            </div>
+          </center>
+        </template>
+        
+        <template #cell-name="{ value }">
+          {{ value }}
+        </template>
 
-        <!-- Search -->
-        <div class="flex items-center w-full sm:w-auto">
-          <label for="search" class="mr-2 text-sm font-medium text-gray-600">Cari</label>
-          <input
-            id="search"
-            type="text"
-            v-model="search"
-            @change="fetchData"
-            placeholder="Cari bank..."
-            class="w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
-          />
-        </div>
-      </div>
-
-      <!-- Table -->
-      <div class="overflow-hidden rounded-xl border border-gray-200 shadow-md">
-        <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-        <table v-else class="w-full border-collapse bg-white text-sm">
-          <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
-            <tr>
-              <th
-                class="w-[10%] text-center px-6 py-4 font-medium font-bold text-gray-900 text-center"
-              >
-                Logo Bank
-              </th>
-              <th
-                class="w-[70%] text-center px-6 py-4 font-medium font-bold text-gray-900 text-center"
-              >
-                Nama Bank
-              </th>
-              <th
-                class="w-[20%] text-center px-6 py-4 font-medium font-bold text-gray-900 text-center"
-              >
-                Aksi
-              </th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <template v-if="dataBanks.length > 0">
-              <tr
-                v-for="bank in dataBanks"
-                :key="bank.id"
-                class="hover:bg-gray-50 transition-colors"
-              >
-                <td class="px-6 py-4 text-center align-middle">
-                  <center>
-                    <div
-                      v-if="bank.img && bank.img !== '-'"
-                      class="relative rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden"
-                      style="width: 100px; height: 33px"
-                      :class="{ 'bg-gray-200': !bank.img || bank.img === '-' }"
-                    >
-                      <img
-                        :src="BASE_URL + '/uploads/img/bank/' + bank.img"
-                        :alt="`Foto Bank ${bank.name}`"
-                        class="object-contain max-w-full max-h-full mx-auto"
-                        @error="bank.img = '-'"
-                      />
-                    </div>
-                    <div
-                      v-else
-                      class="bg-gray-200 text-gray-500 text-center px-4 relative aspect-video max-w-sm rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden"
-                    >
-                      <p class="text-sm font-medium">Gambar tidak tersedia</p>
-                    </div>
-                  </center>
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ bank.name }}
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex justify-center gap-2">
-                    <LightButton @click="openModalEdit(bank)"><EditIcon /></LightButton>
-                    <DangerButton @click="deleteData(bank.id)"><DeleteIcon /></DangerButton>
-                  </div>
-                </td>
-              </tr>
-            </template>
-            <!-- Empty State -->
-            <tr v-else>
-              <td :colspan="totalColumns" class="px-6 py-8 text-center text-gray-500">
-                <font-awesome-icon icon="fa-solid fa-bank" class="text-4xl mb-2 text-gray-400" />
-                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada data</h3>
-                <p class="text-sm">Belum ada data bank.</p>
-              </td>
-            </tr>
-          </tbody>
-          <!-- Pagination -->
-          <tfoot>
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
+        <template #row-actions="{ row }">
+          <div class="flex justify-center gap-2">
+            <LightButton @click="openModalEdit(row)"><EditIcon /></LightButton>
+            <DangerButton @click="deleteData(row.id)"><DeleteIcon /></DangerButton>
+          </div>
+        </template>
+      </BaseTable>
       </div>
     </div>
 

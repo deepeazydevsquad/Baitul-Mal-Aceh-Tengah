@@ -7,9 +7,12 @@ import { useNotification } from '@/composables/useNotification';
 import { get_laporan_pengumpulan } from '@/service/laporan_pengumpulan';
 import { computed, onMounted, ref, watch } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 const isLoading = ref(false);
 const isTableLoading = ref(false);
+const tableColumns = ref<TableColumn[]>([]);
 
 const { showNotification, notificationType, notificationMessage, displayNotification } =
   useNotification();
@@ -370,40 +373,55 @@ onMounted(fetchData);
               selectedYearData.dataPerJenis.length > 0
             "
           >
-            <table class="w-full text-xs">
-              <thead class="bg-gray-50 border-b">
-                <tr>
-                  <th class="text-left py-2 px-2 font-medium text-gray-600">Kategori</th>
-                  <th class="text-right py-2 px-2 font-medium text-gray-600">Target</th>
-                  <th class="text-right py-2 px-2 font-medium text-gray-600">Realisasi</th>
-                  <th class="text-right py-2 px-2 font-medium text-gray-600">(%)</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y">
-                <tr
-                  v-for="jenis in selectedYearData.dataPerJenis"
-                  :key="jenis.jenis"
-                  class="hover:bg-gray-50"
-                >
-                  <td class="py-2 px-2">{{ jenis.jenis }}</td>
-                  <td class="py-2 px-2 text-right">{{ formatRupiah(jenis.target) }}</td>
-                  <td class="py-2 px-2 text-right">{{ formatRupiah(jenis.realisasi) }}</td>
-                  <td class="py-2 px-2 text-right">{{ (jenis.persentase ?? 0).toFixed(2) }}%</td>
-                </tr>
-                <tr class="bg-gray-50 font-semibold">
-                  <td class="py-2 px-2">Total</td>
-                  <td class="py-2 px-2 text-right">
-                    {{ formatRupiah(selectedYearData.totalTarget) }}
-                  </td>
-                  <td class="py-2 px-2 text-right">
-                    {{ formatRupiah(selectedYearData.totalRealisasi) }}
-                  </td>
-                  <td class="py-2 px-2 text-right">
-                    {{ (selectedYearData.persentaseTotal ?? 0).toFixed(2) }}%
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <BaseTable
+              class="w-full text-xs mt-2"
+              :columns="tableColumns"
+              :data="selectedYearData.dataPerJenis"
+              :with-pagination="false"
+              :show-search="false"
+              :show-add="false"
+              :show-edit="false"
+              :show-delete="false"
+              :show-numbering="false"
+              :show-actions="false"
+            >
+              <template #thead>
+                <thead class="bg-gray-50 border-b">
+                  <tr>
+                    <th class="text-left py-2 px-2 font-medium text-gray-600">Kategori</th>
+                    <th class="text-right py-2 px-2 font-medium text-gray-600">Target</th>
+                    <th class="text-right py-2 px-2 font-medium text-gray-600">Realisasi</th>
+                    <th class="text-right py-2 px-2 font-medium text-gray-600">(%)</th>
+                  </tr>
+                </thead>
+              </template>
+              <template #tbody>
+                <tbody class="divide-y">
+                  <tr
+                    v-for="jenis in selectedYearData.dataPerJenis"
+                    :key="jenis.jenis"
+                    class="hover:bg-gray-50"
+                  >
+                    <td class="py-2 px-2">{{ jenis.jenis }}</td>
+                    <td class="py-2 px-2 text-right">{{ formatRupiah(jenis.target) }}</td>
+                    <td class="py-2 px-2 text-right">{{ formatRupiah(jenis.realisasi) }}</td>
+                    <td class="py-2 px-2 text-right">{{ (jenis.persentase ?? 0).toFixed(2) }}%</td>
+                  </tr>
+                  <tr class="bg-gray-50 font-semibold">
+                    <td class="py-2 px-2">Total</td>
+                    <td class="py-2 px-2 text-right">
+                      {{ formatRupiah(selectedYearData.totalTarget) }}
+                    </td>
+                    <td class="py-2 px-2 text-right">
+                      {{ formatRupiah(selectedYearData.totalRealisasi) }}
+                    </td>
+                    <td class="py-2 px-2 text-right">
+                      {{ (selectedYearData.persentaseTotal ?? 0).toFixed(2) }}%
+                    </td>
+                  </tr>
+                </tbody>
+              </template>
+            </BaseTable>
           </div>
           <div v-else class="flex items-center justify-center h-32 text-gray-400">
             Tidak ada data
@@ -432,61 +450,76 @@ onMounted(fetchData);
               selectedYearData.dataPerJenis.length > 0
             "
           >
-            <table class="w-full text-xs">
-              <thead class="bg-gray-50 border-b">
-                <tr>
-                  <th class="text-left py-2 px-2 font-medium text-gray-600">Kategori</th>
-                  <th class="text-right py-2 px-2 font-medium text-gray-600">Rek Penampung</th>
-                  <th class="text-right py-2 px-2 font-medium text-gray-600">Rek Kasda</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y">
-                <tr
-                  v-for="jenis in selectedYearData.dataPerJenis"
-                  :key="jenis.jenis"
-                  class="hover:bg-gray-50"
-                >
-                  <td class="py-2 px-2">{{ jenis.jenis }}</td>
-                  <td class="py-2 px-2 text-right">
-                    <div class="flex items-center justify-end gap-1">
-                      <div
-                        class="h-4 bg-blue-400 rounded"
-                        :style="{
-                          width: `${Math.min(parseFloat(String(jenis.persentase)) * 0.6, 100)}%`,
-                          maxWidth: '100px',
-                        }"
-                      ></div>
-                      <span class="text-xs whitespace-nowrap">{{
-                        formatRupiah(jenis.realisasi * 0.6)
-                      }}</span>
-                    </div>
-                  </td>
-                  <td class="py-2 px-2 text-right">
-                    <div class="flex items-center justify-end gap-1">
-                      <div
-                        class="h-4 bg-cyan-400 rounded"
-                        :style="{
-                          width: `${Math.min(parseFloat(String(jenis.persentase)) * 0.8, 100)}%`,
-                          maxWidth: '100px',
-                        }"
-                      ></div>
-                      <span class="text-xs whitespace-nowrap">{{
-                        formatRupiah(jenis.realisasi * 0.4)
-                      }}</span>
-                    </div>
-                  </td>
-                </tr>
-                <tr class="bg-gray-50 font-semibold">
-                  <td class="py-2 px-2">Total keseluruhan</td>
-                  <td class="py-2 px-2 text-right">
-                    {{ formatRupiah(selectedYearData.totalRealisasi * 0.6) }}
-                  </td>
-                  <td class="py-2 px-2 text-right">
-                    {{ formatRupiah(selectedYearData.totalRealisasi * 0.4) }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <BaseTable
+              class="w-full text-xs mt-2"
+              :columns="tableColumns"
+              :data="selectedYearData.dataPerJenis"
+              :with-pagination="false"
+              :show-search="false"
+              :show-add="false"
+              :show-edit="false"
+              :show-delete="false"
+              :show-numbering="false"
+              :show-actions="false"
+            >
+              <template #thead>
+                <thead class="bg-gray-50 border-b">
+                  <tr>
+                    <th class="text-left py-2 px-2 font-medium text-gray-600">Kategori</th>
+                    <th class="text-right py-2 px-2 font-medium text-gray-600">Rek Penampung</th>
+                    <th class="text-right py-2 px-2 font-medium text-gray-600">Rek Kasda</th>
+                  </tr>
+                </thead>
+              </template>
+              <template #tbody>
+                <tbody class="divide-y">
+                  <tr
+                    v-for="jenis in selectedYearData.dataPerJenis"
+                    :key="jenis.jenis"
+                    class="hover:bg-gray-50"
+                  >
+                    <td class="py-2 px-2">{{ jenis.jenis }}</td>
+                    <td class="py-2 px-2 text-right">
+                      <div class="flex items-center justify-end gap-1">
+                        <div
+                          class="h-4 bg-blue-400 rounded"
+                          :style="{
+                            width: `${Math.min(parseFloat(String(jenis.persentase)) * 0.6, 100)}%`,
+                            maxWidth: '100px',
+                          }"
+                        ></div>
+                        <span class="text-xs whitespace-nowrap">{{
+                          formatRupiah(jenis.realisasi * 0.6)
+                        }}</span>
+                      </div>
+                    </td>
+                    <td class="py-2 px-2 text-right">
+                      <div class="flex items-center justify-end gap-1">
+                        <div
+                          class="h-4 bg-cyan-400 rounded"
+                          :style="{
+                            width: `${Math.min(parseFloat(String(jenis.persentase)) * 0.8, 100)}%`,
+                            maxWidth: '100px',
+                          }"
+                        ></div>
+                        <span class="text-xs whitespace-nowrap">{{
+                          formatRupiah(jenis.realisasi * 0.4)
+                        }}</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="bg-gray-50 font-semibold">
+                    <td class="py-2 px-2">Total keseluruhan</td>
+                    <td class="py-2 px-2 text-right">
+                      {{ formatRupiah(selectedYearData.totalRealisasi * 0.6) }}
+                    </td>
+                    <td class="py-2 px-2 text-right">
+                      {{ formatRupiah(selectedYearData.totalRealisasi * 0.4) }}
+                    </td>
+                  </tr>
+                </tbody>
+              </template>
+            </BaseTable>
           </div>
           <div v-else class="flex items-center justify-center h-32 text-gray-400">
             Tidak ada data

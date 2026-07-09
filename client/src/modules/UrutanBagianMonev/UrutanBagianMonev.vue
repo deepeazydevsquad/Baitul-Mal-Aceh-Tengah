@@ -4,6 +4,8 @@ import { ref, onMounted, computed, watch } from 'vue'
 import draggable from 'vuedraggable'
 import Notification from '@/components/Modal/Notification.vue'
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue'
+import BaseTable from '@/components/Table/BaseTable.vue'
+import type { TableColumn } from '@/components/Table/BaseTable.vue'
 
 // Composable
 import { useNotification } from '@/composables/useNotification'
@@ -22,6 +24,7 @@ const jenisMonevList = ref<string[]>([])
 const selectedJenisMonev = ref('')
 const urutanBagian = ref<string[]>([])
 const lastUpdated = ref<string | null>(null)
+const tableColumns = ref<TableColumn[]>([])
 
 // Composable
 const { showNotification, notificationType, notificationMessage, displayNotification } = useNotification()
@@ -128,41 +131,56 @@ const handleSaveOrder = async () => {
         </div>
         
         <div v-else-if="draggableList.length > 0 && selectedJenisMonev" class="mt-4 overflow-hidden rounded-xl border border-gray-200 shadow">
-          <table class="w-full border-collapse bg-white text-sm">
-            <thead class="bg-gray-50 text-gray-700 border-b border-gray-300">
-              <tr>
-                <th class="w-[5%] px-4 py-3 font-medium text-center">Urutan</th>
-                <th class="px-6 py-3 font-medium text-left">Bagian Monev</th>
-                <th class="w-[25%] px-6 py-3 font-medium text-center">Datetimes</th>
-                <th class="w-[5%] px-4 py-3 font-medium"></th>
-              </tr>
-            </thead>
-            <!-- Draggable tbody -->
-            <draggable
-              v-model="draggableList"
-              item-key="index"
-              tag="tbody"
-              class="divide-y divide-gray-100"
-              handle=".handle"
-            >
-              <template #item="{ element, index }">
-                <tr class="hover:bg-gray-50 transition-colors">
-                  <td class="px-4 py-2 text-center text-gray-600 font-mono">{{ index + 1 }}</td>
-                  <td class="px-6 py-2 text-gray-800 uppercase">
-                    {{ element.replace(/_/g, ' ').toUpperCase() }}
-                  </td>
-                  <td class="px-6 py-2 text-center text-gray-600">
-                    {{ lastUpdated }}
-                  </td>
-                  <td class="px-4 py-2 text-center">
-                    <div class="handle cursor-grab active:cursor-grabbing text-gray-400">
-                       <font-awesome-icon icon="fa-solid fa-grip-vertical" />
-                    </div>
-                  </td>
+          <BaseTable
+            class="w-full border-collapse bg-white text-sm"
+            :columns="tableColumns"
+            :data="draggableList"
+            :with-pagination="false"
+            :show-search="false"
+            :show-add="false"
+            :show-edit="false"
+            :show-delete="false"
+            :show-numbering="false"
+            :show-actions="false"
+          >
+            <template #thead>
+              <thead class="bg-gray-50 text-gray-700 border-b border-gray-300">
+                <tr>
+                  <th class="w-[5%] px-4 py-3 font-medium text-center">Urutan</th>
+                  <th class="px-6 py-3 font-medium text-left">Bagian Monev</th>
+                  <th class="w-[25%] px-6 py-3 font-medium text-center">Datetimes</th>
+                  <th class="w-[5%] px-4 py-3 font-medium"></th>
                 </tr>
-              </template>
-            </draggable>
-          </table>
+              </thead>
+            </template>
+            <!-- Draggable tbody -->
+            <template #tbody>
+              <draggable
+                v-model="draggableList"
+                item-key="index"
+                tag="tbody"
+                class="divide-y divide-gray-100"
+                handle=".handle"
+              >
+                <template #item="{ element, index }">
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-4 py-2 text-center text-gray-600 font-mono">{{ index + 1 }}</td>
+                    <td class="px-6 py-2 text-gray-800 uppercase">
+                      {{ element.replace(/_/g, ' ').toUpperCase() }}
+                    </td>
+                    <td class="px-6 py-2 text-center text-gray-600">
+                      {{ lastUpdated }}
+                    </td>
+                    <td class="px-4 py-2 text-center">
+                      <div class="handle cursor-grab active:cursor-grabbing text-gray-400">
+                         <font-awesome-icon icon="fa-solid fa-grip-vertical" />
+                      </div>
+                    </td>
+                  </tr>
+                </template>
+              </draggable>
+            </template>
+          </BaseTable>
         </div>
 
         <div v-else class="mt-4 text-center py-8 px-4 border-2 border-dashed border-gray-300 rounded-lg">

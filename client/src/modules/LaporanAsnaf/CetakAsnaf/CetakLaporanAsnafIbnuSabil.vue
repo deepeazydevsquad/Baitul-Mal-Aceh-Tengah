@@ -5,6 +5,8 @@ import FooterCetak from '@/modules/FooterCetak/FooterCetak.vue';
 import { get_laporan_asnaf } from '@/service/laporan_asnaf';
 import { nextTick, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 const route = useRoute();
 const tahun = route.params.tahun as string;
@@ -19,6 +21,7 @@ const parseRupiah = (val: string | number): number => {
 
 const laporanData = ref<any[]>([]);
 const isLoading = ref<boolean>(true);
+const tableColumns = ref<TableColumn[]>([]);
 const ttdData = ref<any>(null);
 const grandTotal = ref<number>(0);
 
@@ -120,56 +123,88 @@ onMounted(async () => {
       </div>
 
       <!-- Tabel -->
-      <table class="w-full border-collapse text-[7pt] mt-5" style="table-layout: fixed">
-        <thead class="border border-black text-center">
-          <tr>
-            <th class="border border-black w-[10%] px-2 py-1">Tanggal</th>
-            <th class="border border-black w-[25%] px-2 py-1">Uraian</th>
-            <th class="border border-black w-[12%] px-2 py-1">NIK</th>
-            <th class="border border-black w-[20%] px-2 py-1">Alamat</th>
-            <th class="border border-black w-[8%] px-2 py-1">Kec</th>
-            <th class="border border-black w-[10%] px-2 py-1">Kode Akun</th>
-            <th class="border border-black w-[15%] px-2 py-1">Kredit</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <template v-if="laporanData.length > 0">
-            <tr
-              v-for="(row, index) in laporanData"
-              :key="index"
-              class="text-[6.5pt] text-black"
-              style="page-break-inside: avoid"
-            >
-              <td class="border border-black px-2 py-1 text-center whitespace-nowrap">
-                {{ row[1] }}
-              </td>
-              <td class="border border-black px-2 py-1 text-left">{{ row[2] }}</td>
-              <td class="border border-black px-2 py-1 text-center">{{ row[3] }}</td>
-              <td class="border border-black px-2 py-1 text-left">{{ row[4] }}</td>
-              <td class="border border-black px-2 py-1 text-center">{{ row[5] }}</td>
-              <td class="border border-black px-2 py-1 text-center">{{ row[6] }}</td>
-              <td class="border border-black px-2 py-1 text-right whitespace-nowrap">
-                {{ row[7] }}
-              </td>
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mt-4">
+              <BaseTable
+        class="w-full text-[7pt] mt-5 print-table"
+        style="table-layout: fixed"
+        :columns="tableColumns"
+        :data="[]"
+        :with-pagination="false"
+        :show-search="false"
+        :show-add="false"
+        :show-edit="false"
+        :show-delete="false"
+        :show-numbering="false"
+        :show-actions="false"
+      >
+        <template #thead>
+          <thead class="border border-black text-center">
+            <tr>
+              <th class="border border-black w-[10%] px-2 py-1">Tanggal</th>
+              <th class="border border-black w-[25%] px-2 py-1">Uraian</th>
+              <th class="border border-black w-[12%] px-2 py-1">NIK</th>
+              <th class="border border-black w-[20%] px-2 py-1">Alamat</th>
+              <th class="border border-black w-[8%] px-2 py-1">Kec</th>
+              <th class="border border-black w-[10%] px-2 py-1">Kode Akun</th>
+              <th class="border border-black w-[15%] px-2 py-1">Kredit</th>
             </tr>
+          </thead>
+        </template>
+        
+        <template #tbody>
+          <tbody>
+            <template v-if="laporanData.length > 0">
+              <tr
+                v-for="(row, index) in laporanData"
+                :key="index"
+                class="text-[6.5pt] text-black"
+                style="page-break-inside: avoid"
+              >
+                <td class="border border-black px-2 py-1 text-center whitespace-nowrap">
+                  {{ row[1] }}
+                </td>
+                <td class="border border-black px-2 py-1 text-left">{{ row[2] }}</td>
+                <td class="border border-black px-2 py-1 text-center">{{ row[3] }}</td>
+                <td class="border border-black px-2 py-1 text-left">{{ row[4] }}</td>
+                <td class="border border-black px-2 py-1 text-center">{{ row[5] }}</td>
+                <td class="border border-black px-2 py-1 text-center">{{ row[6] }}</td>
+                <td class="border border-black px-2 py-1 text-right whitespace-nowrap">
+                  {{ row[7] }}
+                </td>
+              </tr>
 
-            <!-- Grand Total -->
-            <tr class="font-bold text-black bg-gray-100">
-              <td colspan="6" class="border border-black px-2 py-1 text-right">Total</td>
-              <td class="border border-black px-2 py-1 text-right">
-                {{ $formatToRupiah(grandTotal) }}
-              </td>
+              <!-- Grand Total -->
+              <tr class="font-bold text-black bg-gray-100">
+                <td colspan="6" class="empty-state-cell">
+                  <div class="empty-state animate-fade-in">
+                    <div class="empty-state-icon">
+                      <font-awesome-icon icon="fa-solid fa-print" class="text-4xl" />
+                    </div>
+                    <p class="empty-state-title">Tidak ada data</p>
+                    <p class="empty-state-desc">Total</p>
+                  </div>
+                </td>
+                <td class="border border-black px-2 py-1 text-right">
+                  {{ $formatToRupiah(grandTotal) }}
+                </td>
+              </tr>
+            </template>
+
+            <tr v-else>
+              <td colspan="7" class="empty-state-cell">
+                  <div class="empty-state animate-fade-in">
+                    <div class="empty-state-icon">
+                      <font-awesome-icon icon="fa-solid fa-print" class="text-4xl" />
+                    </div>
+                    <p class="empty-state-title">Tidak ada data</p>
+                    <p class="empty-state-desc">Laporan Penyaluran Asnaf Fakir Tidak Ditemukan</p>
+                  </div>
+                </td>
             </tr>
-          </template>
-
-          <tr v-else>
-            <td colspan="7" class="border border-black px-2 py-3 text-center text-gray-700">
-              Laporan Penyaluran Asnaf Ibnu Sabil Tidak Ditemukan
-            </td>
-          </tr>
-        </tbody>
-      </table>
+          </tbody>
+        </template>
+      </BaseTable>
+      </div>
 
       <!-- Tanda Tangan Section -->
       <div v-if="ttdData" class="mt-10 print:mt-8" style="page-break-inside: avoid">

@@ -8,16 +8,7 @@ const {
 
 const router = express.Router();
 
-router.get(
-  "/asnaf_tahun/list",
-  authenticateTokenAdministrator,
-  controllers.get_tahun
-)
-router.get(
-  "/fn_asnaf/list",
-  authenticateTokenAdministrator,
-  controllers.fn_asnaf
-)
+
 
 router.get(
   "/laporan_kesekretariatan/list",

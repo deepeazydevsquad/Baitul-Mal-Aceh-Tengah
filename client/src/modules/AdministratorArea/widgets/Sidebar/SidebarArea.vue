@@ -9,7 +9,7 @@ import {
 } from '../../../../stores/sidebar';
 import { SettingStore } from '../../../../stores/settings';
 
-import { ref, defineProps, watch, onMounted } from 'vue';
+import { ref, defineProps, watch, onMounted, onUnmounted } from 'vue';
 
 const target = ref(null);
 const sidebarStore = useSidebarStore();
@@ -32,6 +32,15 @@ interface MenuInfo {
   tab: Record<string, any>;
 }
 
+const openFlyout = ref<string | null>(null);
+
+const closeFlyout = (e: Event) => {
+  const target = e.target as HTMLElement;
+  if (!target.closest('.menu-entry')) {
+    openFlyout.value = null;
+  }
+};
+
 const subMenuClick = (menuname: string, name: string, path: string, tab: any) => {
   subMenuActive.value = path;
   selectedTab.clearArray();
@@ -48,6 +57,17 @@ const menuClick = (name: string, path: string, tab: any) => {
   console.log('*******Menu');
   console.log(name);
   console.log('*******Menu');
+
+  if (!sidebarStore.isSidebarOpen) {
+    if (path === '#') {
+      openFlyout.value = openFlyout.value === name ? null : name;
+      return;
+    } else {
+      openFlyout.value = null;
+    }
+  } else {
+    openFlyout.value = null;
+  }
   if (sideBarPage.sharedString === name) {
     console.log('+++++++1');
     sideBarPage.clearString();
@@ -86,13 +106,22 @@ onMounted(() => {
   if (SettingGlob.sharedObject.logo) {
     logo.value = SettingGlob.sharedObject.logo;
   }
+  document.addEventListener('click', closeFlyout);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', closeFlyout);
+});
+
+watch(() => sidebarStore.isSidebarOpen, (isOpen) => {
+  if (isOpen) openFlyout.value = null;
 });
 </script>
 
 <template>
   <aside
-    class="sidebar-container w-[260px] h-screen flex flex-col fixed left-0 top-0 z-9998 border-r border-gray-100 transition-transform duration-300 ease-in-out lg:static lg:translate-x-0"
-    :class="[sidebarStore.isSidebarOpen ? 'translate-x-0' : '-translate-x-full']"
+    class="sidebar-container h-screen flex flex-col fixed left-0 top-0 z-[9998] border-r border-gray-100 transition-all duration-300 ease-in-out lg:relative"
+    :class="[sidebarStore.isSidebarOpen ? 'w-[260px] translate-x-0' : 'w-[260px] lg:w-[85px] -translate-x-full lg:translate-x-0']"
   >
     <!-- ===== Header (Logo) ===== -->
     <div class="px-5 pt-4 pb-4 border-b border-gray-100">
@@ -106,7 +135,7 @@ onMounted(() => {
               class="w-9 h-9 object-contain"
             />
           </div>
-          <div class="flex flex-col min-w-0">
+          <div class="flex flex-col min-w-0 transition-opacity duration-300" :class="sidebarStore.isSidebarOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden lg:hidden'">
             <h1 class="text-gray-800 font-bold text-[13px] tracking-tight truncate leading-tight">
               Baitul Mal
             </h1>
@@ -130,10 +159,10 @@ onMounted(() => {
     </div>
 
     <!-- ===== Navigation ===== -->
-    <nav class="flex-1 overflow-y-auto py-4 px-3 no-scrollbar space-y-1">
+    <nav class="flex-1 py-4 px-3 no-scrollbar space-y-1" :class="sidebarStore.isSidebarOpen ? 'overflow-y-auto' : 'overflow-visible'">
 
       <!-- Section label -->
-      <div class="px-3 mb-3">
+      <div class="px-3 mb-3" :class="sidebarStore.isSidebarOpen ? 'block' : 'hidden'">
         <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
           Menu Utama
         </h3>
@@ -143,14 +172,15 @@ onMounted(() => {
       <div
         v-for="(item, key) in menu_info?.menu"
         :key="key"
-        class="space-y-0.5 menu-entry"
+        class="space-y-0.5 menu-entry relative"
         :style="{ animationDelay: `${Number(key) * 45}ms` }"
       >
         <!-- Main menu button -->
         <button
           @click="menuClick(item.name, item.path, item.tab)"
-          class="sidebar-link w-full text-left flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200"
-          :class="sideBarPage.sharedString === item.name ? 'link--active' : 'link--inactive'"
+          class="sidebar-link w-full text-left flex items-center px-3 py-2.5 rounded-xl transition-all duration-200"
+          :class="[sidebarStore.isSidebarOpen ? 'justify-between' : 'justify-center', sideBarPage.sharedString === item.name ? 'link--active' : 'link--inactive']"
+          :title="item.name"
         >
           <div class="flex items-center gap-3">
             <!-- Icon wrapper -->
@@ -160,12 +190,12 @@ onMounted(() => {
             >
               <font-awesome-icon :icon="item.icon" class="text-sm" />
             </span>
-            <span class="text-[13px] font-medium">{{ item.name }}</span>
+            <span class="text-[13px] font-medium whitespace-nowrap" :class="sidebarStore.isSidebarOpen ? 'block' : 'hidden'">{{ item.name }}</span>
           </div>
 
           <!-- Chevron -->
           <svg
-            v-if="item.path === '#'"
+            v-if="item.path === '#' && sidebarStore.isSidebarOpen"
             class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-300"
             :class="sideBarPage.sharedString === item.name ? 'rotate-90' : ''"
             fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -177,11 +207,12 @@ onMounted(() => {
         <!-- Animated submenu -->
         <Transition name="submenu">
           <div
-            v-if="item.path === '#' && sideBarPage.sharedString === item.name"
-            class="pl-8 pt-2 space-y-1.5 overflow-hidden pb-1"
+            v-if="item.path === '#' && sideBarPage.sharedString === item.name && sidebarStore.isSidebarOpen"
+            class="pt-2 space-y-1.5 overflow-hidden pb-1 pl-8"
           >
             <button
               v-for="(item1, keys) in menu_info?.submenu[item.id]"
+              :title="item1.name"
               :key="keys"
               @click="subMenuClick(item.name, item1.name, item1.path, item1.tab)"
               class="w-full text-left px-3 py-2.5 rounded-lg text-[12px] font-medium transition-colors flex items-center gap-2"
@@ -199,7 +230,37 @@ onMounted(() => {
                   stroke-width="1.5"
                 />
               </svg>
-              <span>{{ item1.name }}</span>
+              <span class="whitespace-nowrap" :class="sidebarStore.isSidebarOpen ? 'block' : 'hidden'">{{ item1.name }}</span>
+            </button>
+          </div>
+        </Transition>
+
+        <!-- Flyout submenu (only when collapsed) -->
+        <Transition name="fade">
+          <div
+            v-if="!sidebarStore.isSidebarOpen && item.path === '#' && openFlyout === item.name"
+            class="absolute left-[80px] top-0 w-[240px] bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-gray-100 p-2 z-[10000]"
+          >
+            <div class="px-3 pb-2 pt-1.5 border-b border-gray-100 mb-1.5">
+               <h4 class="text-[11px] font-bold text-gray-800 uppercase tracking-wider">{{ item.name }}</h4>
+            </div>
+            <button
+              v-for="(item1, keys) in menu_info?.submenu[item.id]"
+              :title="item1.name"
+              :key="'flyout-'+keys"
+              @click="subMenuClick(item.name, item1.name, item1.path, item1.tab); openFlyout = null;"
+              class="w-full text-left px-3 py-2.5 rounded-lg text-[12.5px] font-medium transition-all flex items-center gap-2 hover:bg-green-50/50"
+              :class="subMenuActive === item1.path ? 'text-green-700 bg-green-50/50 font-semibold' : 'text-gray-600'"
+            >
+              <!-- Dot -->
+              <svg class="flex-shrink-0" width="6" height="6" viewBox="0 0 8 8">
+                <circle cx="4" cy="4" r="3"
+                  :fill="subMenuActive === item1.path ? '#0E561E' : '#9ca3af'"
+                  :stroke="subMenuActive === item1.path ? '#0E561E' : 'transparent'"
+                  stroke-width="1.5"
+                />
+              </svg>
+              <span class="whitespace-nowrap truncate">{{ item1.name }}</span>
             </button>
           </div>
         </Transition>
@@ -213,7 +274,7 @@ onMounted(() => {
         <div class="w-8 h-8 rounded-lg bg-green-600 flex items-center justify-center text-xs font-bold text-white flex-shrink-0 shadow-md shadow-green-500/20">
           {{ (SettingGlob.sharedObject.name ?? 'A').charAt(0).toUpperCase() }}
         </div>
-        <div class="flex-1 min-w-0">
+        <div class="flex-1 min-w-0" :class="sidebarStore.isSidebarOpen ? 'block' : 'hidden'">
           <p class="text-[12px] font-semibold text-gray-700 truncate">
             {{ SettingGlob.sharedObject.name ?? 'Administrator' }}
           </p>
@@ -328,4 +389,6 @@ onMounted(() => {
 
 /* Chevron */
 .rotate-90 { transform: rotate(90deg); }
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s, transform 0.2s; }
+.fade-enter-from, .fade-leave-to { opacity: 0; transform: translateX(-10px); }
 </style>

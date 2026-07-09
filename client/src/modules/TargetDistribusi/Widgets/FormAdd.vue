@@ -5,6 +5,8 @@ import Notification from '@/components/Modal/Notification.vue';
 import BaseButton from '@/components/Button/BaseButton.vue';
 import InputText from '@/components/Form/InputText.vue';
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // Composable
 import { useNotification } from '@/composables/useNotification';
@@ -45,6 +47,7 @@ const bulan = ref('');
 const asnafList = ref<{ id: number; name: string; target_orang: string; target_rupiah: string }[]>(
   [],
 );
+const tableColumns = ref<TableColumn[]>([]);
 const errors = ref<Record<string, string>>({});
 
 // Daftar Bulan
@@ -312,45 +315,60 @@ onBeforeUnmount(() => document.removeEventListener('keydown', handleEscape));
 
           <!-- Daftar Asnaf (Zakat) -->
           <div class="space-y-4">
-            <table class="w-full rounded-lg">
-              <thead class="divide-y divide-gray-300">
-                <tr>
-                  <th class="px-4 py-2 text-center font-medium border border-gray-300">Asnaf</th>
-                  <th class="w-[25%] px-4 py-2 text-center font-medium border border-gray-300">
-                    Target Orang
-                  </th>
-                  <th class="w-[40%] px-4 py-2 text-center font-medium border border-gray-300">
-                    Target Rupiah
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-300">
-                <tr v-for="(a, idx) in asnafList" :key="a.id">
-                  <td class="px-4 py-2 text-left font-normal">
-                    {{ a.name }}
-                  </td>
-                  <td class="px-4 py-2 text-center font-normal">
-                    <InputText
-                      v-model="a.target_orang"
-                      label="Target Orang"
-                      type="number"
-                      placeholder="0"
-                      :label_status="false"
-                    />
-                  </td>
-                  <td class="px-4 py-2 text-center font-normal">
-                    <InputText
-                      :modelValue="formatRupiah(a.target_rupiah)"
-                      label="Target Rupiah"
-                      type="text"
-                      placeholder="Rp 0"
-                      @input="handleRupiahInput(a, $event)"
-                      :label_status="false"
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <BaseTable
+              class="w-full rounded-lg"
+              :columns="tableColumns"
+              :data="asnafList"
+              :with-pagination="false"
+              :show-search="false"
+              :show-add="false"
+              :show-edit="false"
+              :show-delete="false"
+              :show-numbering="false"
+              :show-actions="false"
+            >
+              <template #thead>
+                <thead class="divide-y divide-gray-300">
+                  <tr>
+                    <th class="px-4 py-2 text-center font-medium border border-gray-300">Asnaf</th>
+                    <th class="w-[25%] px-4 py-2 text-center font-medium border border-gray-300">
+                      Target Orang
+                    </th>
+                    <th class="w-[40%] px-4 py-2 text-center font-medium border border-gray-300">
+                      Target Rupiah
+                    </th>
+                  </tr>
+                </thead>
+              </template>
+              <template #tbody>
+                <tbody class="divide-y divide-gray-300">
+                  <tr v-for="(a, idx) in asnafList" :key="a.id">
+                    <td class="px-4 py-2 text-left font-normal border border-gray-300">
+                      {{ a.name }}
+                    </td>
+                    <td class="px-4 py-2 text-center font-normal border border-gray-300">
+                      <InputText
+                        v-model="a.target_orang"
+                        label="Target Orang"
+                        type="number"
+                        placeholder="0"
+                        :label_status="false"
+                      />
+                    </td>
+                    <td class="px-4 py-2 text-center font-normal border border-gray-300">
+                      <InputText
+                        :modelValue="formatRupiah(a.target_rupiah)"
+                        label="Target Rupiah"
+                        type="text"
+                        placeholder="Rp 0"
+                        @input="handleRupiahInput(a, $event)"
+                        :label_status="false"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </template>
+            </BaseTable>
           </div>
         </div>
 

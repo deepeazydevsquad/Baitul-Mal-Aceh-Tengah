@@ -13,6 +13,8 @@ import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue';
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 import FormAdd from '@/modules/TemplatePesanWhatsapp/widgets/FormAdd.vue';
 import FormEdit from '@/modules/TemplatePesanWhatsapp/widgets/FormEdit.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // Composable
 import { usePagination } from '@/composables/usePaginations';
@@ -32,6 +34,7 @@ const isTableLoading = ref(false);
 // Composable: pagination
 const itemsPerPage = ref<number>(100);
 const totalColumns = ref<number>(5);
+const tableColumns = ref<TableColumn[]>([]);
 
 const { currentPage, perPage, totalRow, totalPages, nextPage, prevPage, pageNow, pages } =
   usePagination(fetchData, { perPage: itemsPerPage.value });
@@ -120,103 +123,89 @@ async function deleteData(id: number) {
     <!-- Header -->
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <BaseButton
-          @click="openModalAdd()"
-          variant="primary"
-          :loading="isModalAddOpen"
-          type="button"
-        >
-          <font-awesome-icon icon="fa-solid fa-plus" class="mr-2" />
-          Tambah Template Pesan
-        </BaseButton>
-
-        <!-- Search -->
-        <div class="flex items-center w-full sm:w-auto">
-          <label for="search" class="mr-2 text-sm font-medium text-gray-600">Cari</label>
-          <input
-            id="search"
-            type="text"
-            v-model="search"
-            @change="fetchData"
-            placeholder="Cari template pesan..."
-            class="w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
-          />
-        </div>
-      </div>
-
       <!-- Table -->
       <div class="overflow-hidden rounded-xl border border-gray-200 shadow">
         <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-        <table v-else class="w-full border-collapse bg-white text-sm">
-          <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
-            <tr>
-              <th class="w-[15%] px-6 py-3 font-medium">Name</th>
-              <th class="w-[15%] px-6 py-3 font-medium">Tipe Pesan</th>
-              <th class="w-[30%] px-6 py-3 font-medium">Pesan</th>
-              <th class="w-[30%] px-6 py-3 font-medium">Variabel</th>
-              <th class="w-[10%] px-6 py-3 font-medium">Aksi</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <template v-if="dataTemplates_pesan_whatsapp.length > 0">
-              <tr
-                v-for="data in dataTemplates_pesan_whatsapp"
-                :key="data.id"
-                class="hover:bg-gray-50 transition-colors"
-              >
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ data.name }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ data.type }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ data.message }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ data.variable }}
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex justify-center gap-2">
-                    <LightButton @click="openModalEdit(data)">
-                      <EditIcon />
-                    </LightButton>
-                    <DangerButton @click="deleteData(data.id)">
-                      <DeleteIcon />
-                    </DangerButton>
+        <BaseTable
+          v-else
+          class="w-full border-collapse bg-white text-sm"
+          :columns="tableColumns"
+          :data="dataTemplates_pesan_whatsapp"
+          :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+          @page-change="pageNow"
+          :show-search="true"
+          search-placeholder="Cari template pesan..."
+          @search="search = $event; fetchData()"
+          :show-add="true"
+          add-label="Tambah Template Pesan"
+          @add="openModalAdd"
+          :show-edit="false"
+          :show-delete="false"
+          :show-numbering="false"
+          :show-actions="false"
+        >
+          <template #thead>
+            <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
+              <tr>
+                <th class="w-[15%] px-6 py-3 font-medium">Name</th>
+                <th class="w-[15%] px-6 py-3 font-medium">Tipe Pesan</th>
+                <th class="w-[30%] px-6 py-3 font-medium">Pesan</th>
+                <th class="w-[30%] px-6 py-3 font-medium">Variabel</th>
+                <th class="w-[10%] px-6 py-3 font-medium">Aksi</th>
+              </tr>
+            </thead>
+          </template>
+          <template #tbody>
+            <tbody class="divide-y divide-gray-100">
+              <template v-if="dataTemplates_pesan_whatsapp.length > 0">
+                <tr
+                  v-for="data in dataTemplates_pesan_whatsapp"
+                  :key="data.id"
+                  class="hover:bg-gray-50 transition-colors"
+                >
+                  <td class="px-6 py-4 text-center font-medium text-gray-800">
+                    {{ data.name }}
+                  </td>
+                  <td class="px-6 py-4 text-center font-medium text-gray-800">
+                    {{ data.type }}
+                  </td>
+                  <td class="px-6 py-4 text-center font-medium text-gray-800">
+                    {{ data.message }}
+                  </td>
+                  <td class="px-6 py-4 text-center font-medium text-gray-800">
+                    {{ data.variable }}
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex justify-center gap-2">
+                      <LightButton @click="openModalEdit(data)">
+                        <EditIcon />
+                      </LightButton>
+                      <DangerButton @click="deleteData(data.id)">
+                        <DeleteIcon />
+                      </DangerButton>
+                    </div>
+                  </td>
+                </tr>
+              </template>
+
+              <!-- Empty State -->
+              <tr v-else>
+                <td :colspan="totalColumns" class="empty-state-cell">
+                  <div class="empty-state animate-fade-in">
+                    <div class="empty-state-icon">
+                      <font-awesome-icon icon="fa-solid fa-database" class="text-4xl" />
+                    </div>
+                    <p class="empty-state-title">Tidak ada data</p>
+                    <p class="empty-state-desc">Belum ada template pesan.</p>
                   </div>
                 </td>
               </tr>
-            </template>
-
-            <!-- Empty State -->
-            <tr v-else>
-              <td :colspan="totalColumns" class="px-6 py-8 text-center text-gray-500">
-                <font-awesome-icon
-                  icon="fa-solid fa-database"
-                  class="text-4xl mb-2 text-gray-400"
-                />
-                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada data</h3>
-                <p class="text-sm">Belum ada template pesan.</p>
-              </td>
-            </tr>
-          </tbody>
+            </tbody>
+          </template>
 
           <!-- Pagination -->
-          <tfoot>
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
+          
+        </BaseTable>
       </div>
     </div>
 

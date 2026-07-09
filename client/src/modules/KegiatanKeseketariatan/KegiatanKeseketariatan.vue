@@ -4,9 +4,10 @@ import BaseButton from '@/components/Button/BaseButton.vue';
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 import Notification from '@/components/Modal/Notification.vue';
 import Pagination from '@/components/Pagination/Pagination.vue';
-import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue';
 import FormAdd from '@/modules/KegiatanKeseketariatan/widgets/FormAdd.vue';
 import { onMounted, ref } from 'vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // Composable
 import { useConfirmation } from '@/composables/useConfirmation';
@@ -49,6 +50,16 @@ interface Data {
 }
 
 const datas = ref<Data[]>([]);
+
+const tableColumns = ref<TableColumn[]>([
+  { key: 'kode', label: 'Kode', headerClass: 'w-[10%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+  { key: 'nama_kegiatan', label: 'Nama Kegiatan', headerClass: 'w-[18%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+  { key: 'sumber_dana', label: 'Sumber Dana', headerClass: 'w-[12%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+  { key: 'penerima', label: 'Info Penerima', headerClass: 'w-[18%] text-center', cellClass: 'text-left font-medium text-gray-800' },
+  { key: 'lokasi', label: 'Lokasi', headerClass: 'w-[15%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+  { key: 'nominal_kegiatan', label: 'Nominal', headerClass: 'w-[12%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+  { key: 'tanggal_penyaluran', label: 'Tanggal', headerClass: 'w-[15%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+]);
 
 // Function: Modal
 const isModalAddOpen = ref(false);
@@ -111,115 +122,61 @@ const formatSumberDana = (sumber: string) => {
     <!-- Header -->
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <BaseButton
-          @click="openModalAdd()"
-          variant="primary"
-          :loading="isModalAddOpen"
-          type="button"
-        >
-          <font-awesome-icon icon="fa-solid fa-plus" class="mr-2" />
-          Tambah Program
-        </BaseButton>
+      <BaseTable
+        :columns="tableColumns"
+        :data="datas"
+        :loading="isTableLoading"
+        :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+        :show-search="true"
+        search-placeholder="Cari Program . . . "
+        @search="search = $event; fetchData()"
+        :show-add="true"
+        add-label="Tambah Program"
+        @add="openModalAdd"
+        :show-edit="false"
+        :show-delete="false"
+        @page-change="pageNow"
+      >
+        <template #cell-kode="{ value }">
+          {{ value }}
+        </template>
+        
+        <template #cell-nama_kegiatan="{ value }">
+          {{ value }}
+        </template>
 
-        <!-- Search -->
-        <div class="flex items-center w-full sm:w-auto">
-          <label for="search" class="mr-2 text-sm font-medium text-gray-600">Cari</label>
-          <input
-            id="search"
-            type="text"
-            v-model="search"
-            @change="fetchData"
-            placeholder="Cari Program . . . "
-            class="w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
-          />
-        </div>
-      </div>
+        <template #cell-sumber_dana="{ value }">
+          <span 
+            class="inline-flex px-3 py-1 rounded-full text-xs font-semibold text-gray-800"
+          >
+            {{ formatSumberDana(value) }}
+          </span>
+        </template>
+        
+        <template #cell-penerima="{ row }">
+          <div class="grid grid-cols-2 gap-2">
+            <span class="text-gray-500">Nama Penerima</span>
+            <span>: {{ row.penerima }}</span>
 
-      <!-- Table -->
-      <div class="overflow-hidden rounded-xl border border-gray-200 shadow">
-        <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-        <table v-else class="w-full border-collapse bg-white text-sm">
-          <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
-            <tr>
-              <th class="w-[10%] px-6 py-3 font-medium">Kode</th>
-              <th class="w-[18%] px-6 py-3 font-medium">Nama Kegiatan</th>
-              <th class="w-[12%] px-6 py-3 font-medium">Sumber Dana</th>
-              <th class="w-[18%] px-6 py-3 font-medium">Info Penerima</th>
-              <th class="w-[15%] px-6 py-3 font-medium">Lokasi</th>
-              <th class="w-[12%] px-6 py-3 font-medium">Nominal</th>
-              <th class="w-[15%] px-6 py-3 font-medium">Tanggal</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <!-- Data Rows -->
-            <template v-if="datas && datas.length > 0">
-              <tr v-for="data in datas" :key="data.id" class="hover:bg-gray-50 transition-colors">
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ data.kode }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ data.nama_kegiatan }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  <span 
-                    class="inline-flex px-3 py-1 rounded-full text-xs font-semibold"
-                    :class="{
-                      'text-gray-800': data.sumber_dana === 'zakat',
-                      'text-gray-800': data.sumber_dana === 'infaq',
-                      'text-gray-800': data.sumber_dana === 'operasional_apbk'
-                    }"
-                  >
-                    {{ formatSumberDana(data.sumber_dana) }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-left font-medium text-gray-800">
-                  <div class="grid grid-cols-2 gap-2">
-                    <span class="text-gray-500">Nama Penerima</span>
-                    <span>: {{ data.penerima }}</span>
+            <span class="text-gray-500">Jenis Penerima</span>
+            <span>: {{ row.jenis_penerima }}</span>
+          </div>
+        </template>
 
-                    <span class="text-gray-500">Jenis Penerima</span>
-                    <span>: {{ data.jenis_penerima }}</span>
-                  </div>
-                </td>
+        <template #cell-lokasi="{ row }">
+          {{
+            row.area_penyaluran === 'kecamatan' ? 'Kec. ' + row.nama_desa : 'Kabupaten'
+          }}
+        </template>
 
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{
-                    data.area_penyaluran === 'kecamatan' ? 'Kec. ' + data.nama_desa : 'Kabupaten'
-                  }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  Rp {{ data.nominal_kegiatan.toLocaleString('id-ID') }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ new Date(data.tanggal_penyaluran).toLocaleDateString('id-ID') }}
-                </td>
-              </tr>
-            </template>
+        <template #cell-nominal_kegiatan="{ value }">
+          Rp {{ value.toLocaleString('id-ID') }}
+        </template>
 
-            <!-- Empty State -->
-            <tr v-else>
-              <td :colspan="totalColumns" class="px-6 py-8 text-center text-gray-500">
-                <p class="text-sm">Belum ada data.</p>
-              </td>
-            </tr>
-          </tbody>
-
-          <!-- Pagination -->
-          <tfoot>
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
-      </div>
+        <template #cell-tanggal_penyaluran="{ value }">
+          {{ new Date(value).toLocaleDateString('id-ID') }}
+        </template>
+      </BaseTable>
     </div>
 
     <!-- Modal FormAdd -->

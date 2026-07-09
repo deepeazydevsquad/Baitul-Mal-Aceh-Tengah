@@ -4,8 +4,9 @@ import BaseButton from '@/components/Button/BaseButton.vue';
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 import Notification from '@/components/Modal/Notification.vue';
 import Pagination from '@/components/Pagination/Pagination.vue';
-import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue';
 import { onMounted, ref, watch } from 'vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // Composable
 import { useNotification } from '@/composables/useNotification';
@@ -34,6 +35,16 @@ const { showNotification, notificationType, notificationMessage, displayNotifica
 // Composable: pagination
 const itemsPerPage = ref<number>(10);
 const totalColumns = ref<number>(7);
+
+const tableColumns = ref<TableColumn[]>([
+  { key: 'tanggal', label: 'Tanggal', headerClass: 'w-[10%] text-center', cellClass: 'text-center whitespace-nowrap' },
+  { key: 'uraian', label: 'Uraian', headerClass: 'w-[25%] text-center', cellClass: 'text-center' },
+  { key: 'nik', label: 'NIK', headerClass: 'w-[15%] text-center', cellClass: 'text-center' },
+  { key: 'alamat', label: 'Alamat', headerClass: 'w-[20%] text-center', cellClass: 'text-center' },
+  { key: 'kecamatan', label: 'Kec', headerClass: 'w-[5%] text-center', cellClass: 'text-center' },
+  { key: 'kode_akun', label: 'Kode Akun', headerClass: 'w-[10%] text-center', cellClass: 'text-center' },
+  { key: 'kredit', label: 'Kredit', headerClass: 'w-[15%] text-center', cellClass: 'text-center whitespace-nowrap' },
+]);
 
 function updatePaginatedData() {
   isTableLoading.value = true;
@@ -134,85 +145,68 @@ watch(selectedTahun, fetchData);
 </script>
 
 <template>
-  <div class="mx-auto p-4">
+  <div class="p-4">
     <!-- Header -->
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <BaseButton @click="cetak_laporan" variant="primary" type="button">
-          <font-awesome-icon icon="fa-solid fa-print" class="mr-2" />
-          Cetak
-        </BaseButton>
-        <select
-          v-model="selectedTahun"
-          class="w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
-        >
-          <option v-for="option in tahunOptions" :key="option.value" :value="option.value">
-            {{ option.text }}
-          </option>
-        </select>
-      </div>
-
       <!-- Table -->
-      <div class="overflow-hidden rounded-xl border border-gray-200 shadow-md">
-        <SkeletonTable v-if="isTableLoading" :columns="7" :rows="itemsPerPage" />
-        <table v-else class="min-w-full border-collapse bg-white text-sm">
-          <thead class="bg-gray-100 text-gray-700 text-center border-b border-gray-300">
-            <tr>
-              <th class="w-[10%] px-4 py-3 font-medium">Tanggal</th>
-              <th class="w-[25%] px-4 py-3 font-medium">Uraian</th>
-              <th class="w-[15%] px-4 py-3 font-medium">NIK</th>
-              <th class="w-[20%] px-4 py-3 font-medium">Alamat</th>
-              <th class="w-[5%] px-4 py-3 font-medium">Kec</th>
-              <th class="w-[10%] px-4 py-3 font-medium">Kode Akun</th>
-              <th class="w-[15%] px-4 py-3 font-medium">Kredit</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">
-            <template v-if="paginatedLaporanData && paginatedLaporanData.length > 0">
-              <tr
-                v-for="(row, index) in paginatedLaporanData"
-                :key="`${currentPage}-${index}`"
-                class="hover:bg-gray-50 transition-colors text-gray-600"
-              >
-                <td class="px-4 py-3 text-center whitespace-nowrap">{{ row[1] }}</td>
-                <td class="px-4 py-3 text-center">{{ row[2] }}</td>
-                <td class="px-4 py-3 text-center">{{ row[3] }}</td>
-                <td class="px-4 py-3 text-center">{{ row[4] }}</td>
-                <td class="px-4 py-3 text-center">{{ row[5] }}</td>
-                <td class="px-4 py-3 text-center">{{ row[6] }}</td>
-                <td class="px-4 py-3 text-center whitespace-nowrap">{{ row[7] }}</td>
-              </tr>
-            </template>
-
-            <!-- Empty State -->
-            <tr v-else>
-              <td :colspan="totalColumns" class="px-6 py-12 text-center text-gray-500">
-                <font-awesome-icon
-                  icon="fa-solid fa-database"
-                  class="text-4xl mb-3 text-gray-400"
-                />
-                <h3 class="text-lg font-medium text-gray-800">
-                  Laporan Penyaluran Asnaf Muallaf Tidak Ditemukan
-                </h3>
-                <p class="mt-1 text-sm">Silakan pilih tahun yang lain atau data belum tersedia.</p>
-              </td>
-            </tr>
-          </tbody>
-          <!-- Pagination -->
-          <tfoot v-if="paginatedLaporanData && paginatedLaporanData.length > 0">
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mt-4">
+        <BaseTable
+          empty-title="Laporan Penyaluran Asnaf Muallaf Tidak Ditemukan"
+          empty-desc="Silakan pilih tahun yang lain atau data belum tersedia."
+          empty-icon="fa-solid fa-database"
+        :columns="tableColumns"
+        :data="paginatedLaporanData"
+        :loading="isTableLoading"
+        :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+        :show-search="false"
+        :show-add="false"
+        :show-edit="false"
+        :show-delete="false"
+        @page-change="pageNow"
+      >
+        <template #filters>
+          <div class="flex items-center gap-2">
+            <select
+              v-model="selectedTahun"
+              class="w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
+            >
+              <option v-for="option in tahunOptions" :key="option.value" :value="option.value">
+                {{ option.text }}
+              </option>
+            </select>
+          </div>
+        </template>
+        <template #custom-actions>
+          <BaseButton @click="cetak_laporan" variant="primary" type="button">
+            <font-awesome-icon icon="fa-solid fa-print" class="mr-2" />
+            Cetak
+          </BaseButton>
+        </template>
+        
+        
+        <template #cell-tanggal="{ row }">
+          {{ row[1] }}
+        </template>
+        <template #cell-uraian="{ row }">
+          {{ row[2] }}
+        </template>
+        <template #cell-nik="{ row }">
+          {{ row[3] }}
+        </template>
+        <template #cell-alamat="{ row }">
+          {{ row[4] }}
+        </template>
+        <template #cell-kecamatan="{ row }">
+          {{ row[5] }}
+        </template>
+        <template #cell-kode_akun="{ row }">
+          {{ row[6] }}
+        </template>
+        <template #cell-kredit="{ row }">
+          {{ row[7] }}
+        </template>
+      </BaseTable>
       </div>
     </div>
 

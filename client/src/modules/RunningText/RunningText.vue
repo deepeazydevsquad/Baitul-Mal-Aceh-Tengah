@@ -26,6 +26,8 @@ import Pagination from '@/components/Pagination/Pagination.vue';
 import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue';
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 import FormAdd from './Widgets/FormAdd.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 import FormEdit from './Widgets/FormEdit.vue';
 import FormSpeedSettings from './Widgets/FormSpeedSettings.vue';
 
@@ -41,6 +43,7 @@ const isTableLoading = ref(false);
 // Composable: pagination
 const itemsPerPage = ref<number>(100);
 const totalColumns = ref<number>(3);
+const tableColumns = ref<TableColumn[]>([]);
 
 const { currentPage, perPage, totalRow, totalPages, nextPage, prevPage, pageNow, pages } =
   usePagination(fetchData, { perPage: itemsPerPage.value });
@@ -295,117 +298,104 @@ const handleEdit = (runningText: RunningText) => {
 
 <template>
   <div class="mx-auto p-4">
-    <div class="flex justify-between items-center mb-6 gap-4">
-      <div class="flex items-center gap-2">
-        <BaseButton
-          @click="openModalAdd()"
-          variant="primary"
-          :loading="isModalAddOpen || isModalEditOpen"
-          type="button"
-        >
-          <font-awesome-icon icon="fa-solid fa-plus" class="mr-2" />
-          Tambahkan Teks
-        </BaseButton>
-        <BaseButton
-          @click="openModalSpeed()"
-          variant="warning"
-          type="button"
-          title="Pengaturan Kecepatan"
-        >
-          <font-awesome-icon icon="fa-solid fa-gear" class="text-lg" />
-        </BaseButton>
-      </div>
-      <div class="flex items-center">
-        <label for="search" class="mr-2 text-sm font-medium text-gray-600">Cari</label>
-        <input
-          type="text"
-          id="search"
-          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-900 focus:border-green-900"
-          v-model="search"
-          @input="fetchData()"
-          @keyup.enter="fetchData()"
-          placeholder="Cari teks..."
-        />
-      </div>
-    </div>
-
     <div class="overflow-hidden rounded-xl border border-gray-200 shadow">
       <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-      <table v-else class="w-full border-collapse bg-white text-sm">
-        <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
-          <tr>
-            <th class="w-[65%] px-6 py-3 font-medium">Isi Text</th>
-            <th class="w-[15%] px-6 py-3 font-medium">Status</th>
-            <th class="w-[20%] px-6 py-3 font-medium">Aksi</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          <template v-if="dataRunningText.length > 0">
-            <tr
-              v-for="data in dataRunningText"
-              :key="data.id"
-              class="hover:bg-gray-50 transition-colors"
-            >
-              <td class="px-6 py-4 text-left font-medium text-gray-800 whitespace-nowrap">
-                <p
-                  class="text-gray-900 break-words whitespace-normal leading-relaxed max-w-[600px] line-clamp-4"
-                >
-                  {{ data.content }}
-                </p>
-              </td>
-              <td class="px-6 py-4 text-center font-medium text-gray-800">
-                <span
-                  :class="[
-                    'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
-                    data.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800',
-                  ]"
-                >
-                  {{ data.is_active ? 'Aktif' : 'Tidak Aktif' }}
-                </span>
-              </td>
-              <td class="py-4 flex justify-center items-center">
-                <div class="flex justify-center items-center gap-2">
-                  <ToggleSwitch
-                    :id="data.id"
-                    :checked="data.is_active"
-                    @change="handleToggle(data)"
-                  />
-                  <LightButton @click="handleEdit(data)">
-                    <EditIcon />
-                  </LightButton>
-                  <DangerButton @click="handleDelete(data.id)">
-                    <DeleteIcon />
-                  </DangerButton>
-                </div>
-              </td>
+      <BaseTable
+        v-else
+        class="w-full border-collapse bg-white text-sm"
+        :columns="tableColumns"
+        :data="dataRunningText"
+        :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+        @page-change="pageNow"
+        :show-search="true"
+        search-placeholder="Cari teks..."
+        @search="search = $event; fetchData()"
+        :show-add="true"
+        add-label="Tambahkan Teks"
+        @add="openModalAdd"
+        :show-edit="false"
+        :show-delete="false"
+        :show-numbering="false"
+        :show-actions="false"
+      >
+        <template #custom-actions>
+          <BaseButton
+            @click="openModalSpeed()"
+            variant="warning"
+            type="button"
+            title="Pengaturan Kecepatan"
+          >
+            <font-awesome-icon icon="fa-solid fa-gear" class="text-lg" />
+          </BaseButton>
+        </template>
+        <template #thead>
+          <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
+            <tr>
+              <th class="w-[65%] px-6 py-3 font-medium">Isi Text</th>
+              <th class="w-[15%] px-6 py-3 font-medium">Status</th>
+              <th class="w-[20%] px-6 py-3 font-medium">Aksi</th>
             </tr>
-          </template>
+          </thead>
+        </template>
+        <template #tbody>
+          <tbody class="divide-y divide-gray-100">
+            <template v-if="dataRunningText.length > 0">
+              <tr
+                v-for="data in dataRunningText"
+                :key="data.id"
+                class="hover:bg-gray-50 transition-colors"
+              >
+                <td class="px-6 py-4 text-left font-medium text-gray-800 whitespace-nowrap">
+                  <p
+                    class="text-gray-900 break-words whitespace-normal leading-relaxed max-w-[600px] line-clamp-4"
+                  >
+                    {{ data.content }}
+                  </p>
+                </td>
+                <td class="px-6 py-4 text-center font-medium text-gray-800">
+                  <span
+                    :class="[
+                      'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
+                      data.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800',
+                    ]"
+                  >
+                    {{ data.is_active ? 'Aktif' : 'Tidak Aktif' }}
+                  </span>
+                </td>
+                <td class="py-4 flex justify-center items-center">
+                  <div class="flex justify-center items-center gap-2">
+                    <ToggleSwitch
+                      :id="data.id"
+                      :checked="data.is_active"
+                      @change="handleToggle(data)"
+                    />
+                    <LightButton @click="handleEdit(data)">
+                      <EditIcon />
+                    </LightButton>
+                    <DangerButton @click="handleDelete(data.id)">
+                      <DeleteIcon />
+                    </DangerButton>
+                  </div>
+                </td>
+              </tr>
+            </template>
 
-          <!-- Empty State -->
-          <tr v-else>
-            <td :colspan="totalColumns" class="px-6 py-8 text-center text-gray-500">
-              <font-awesome-icon
-                icon="fa-solid fa-file-lines"
-                class="text-4xl mb-2 text-gray-400"
-              />
-              <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada data</h3>
-              <p class="text-sm">Belum ada data running text.</p>
-            </td>
-          </tr>
-        </tbody>
-        <tfoot class="bg-gray-100 font-bold">
-          <Pagination
-            :current-page="currentPage"
-            :total-pages="totalPages"
-            :pages="pages"
-            :total-columns="totalColumns"
-            @prev-page="prevPage"
-            @next-page="nextPage"
-            @page-now="pageNow"
-            :total-row="totalRow"
-          />
-        </tfoot>
-      </table>
+            <!-- Empty State -->
+            <tr v-else>
+              <td :colspan="totalColumns" class="empty-state-cell">
+                  <div class="empty-state animate-fade-in">
+                    <div class="empty-state-icon">
+                      <font-awesome-icon icon="fa-solid fa-file-lines" class="text-4xl" />
+                    </div>
+                    <p class="empty-state-title">Tidak ada data</p>
+                    <p class="empty-state-desc">Belum ada data running text.</p>
+                  </div>
+                </td>
+            </tr>
+          </tbody>
+        </template>
+        
+      </BaseTable>
     </div>
 
     <!-- Urutan Teks Aktif Section -->

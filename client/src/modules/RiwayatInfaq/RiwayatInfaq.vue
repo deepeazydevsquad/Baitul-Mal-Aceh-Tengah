@@ -11,6 +11,8 @@ import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 import Confirmation from '@/components/Modal/Confirmation.vue';
 import Notification from '@/components/Modal/Notification.vue';
 import Pagination from '@/components/Pagination/Pagination.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue';
 import FormAdd from '@/modules/RiwayatInfaq/widgets/FormAdd.vue';
 import FormDisplayBukti from '@/modules/RiwayatInfaq/widgets/FormDisplayBukti.vue';
@@ -59,6 +61,14 @@ const totalColumns = ref<number>(6);
 
 const { currentPage, perPage, totalRow, totalPages, nextPage, prevPage, pageNow, pages } =
   usePagination(fetchData, { perPage: itemsPerPage.value });
+
+const tableColumns = ref<TableColumn[]>([
+  { key: 'info_munfiq', label: 'Info Munfiq', headerClass: 'w-[30%] text-center', cellClass: 'text-start align-top' },
+  { key: 'info_pemasukan', label: 'Info Pemasukan', headerClass: 'w-[30%] text-center', cellClass: 'text-start font-medium text-gray-800 align-top' },
+  { key: 'status', label: 'Status', headerClass: 'w-[10%] text-center', cellClass: 'text-center font-bold text-gray-800' },
+  { key: 'status_konfirmasi', label: 'Status Konfirmasi', headerClass: 'w-[10%] text-center', cellClass: 'text-center font-bold text-gray-800' },
+  { key: 'datetimes', label: 'Datetimes', headerClass: 'w-[10%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+]);
 
 // Composable: notification
 const { showNotification, notificationType, notificationMessage, displayNotification } =
@@ -678,339 +688,290 @@ async function displayBukti(param: Displaybuktiparam) {
     <!-- Header -->
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <BaseButton
-          @click="openModalAdd()"
-          variant="primary"
-          :loading="isModalAddOpen"
-          type="button"
-        >
-          <font-awesome-icon icon="fa-solid fa-plus" class="mr-2" />
-          {{ dynamicLabel('Tambah Riwayat Infaq') }}
-        </BaseButton>
-
-        <!-- Search -->
-        <div class="flex items-center w-full sm:w-auto gap-2">
-          <label for="search" class="mr-2 text-sm font-medium text-gray-600">Filter</label>
-
-          <!-- Status -->
-          <BaseSelect
-            v-model="selectStatus"
-            :options="[
-              { value: 'process', label: 'Proses' },
-              { value: 'success', label: 'Sukses' },
-              { value: 'failed', label: 'Gagal' },
-            ]"
-            placeholder="Semua Status"
-            @change="fetchData"
-          />
-
-          <!-- Status Konfirmasi -->
-          <BaseSelect
-            v-model="selectStatusKonfirmasi"
-            :options="[
-              { value: 'belum_dikirim', label: 'Belum Dikirim' },
-              { value: 'sudah_dikirim', label: 'Sudah Dikirim' },
-            ]"
-            placeholder="Semua Status Konfirmasi"
-            @change="fetchData"
-          />
-
-          <BaseSelect
-            v-model="selectTipePembayaran"
-            :options="[
-              { value: 'online', label: 'Online' },
-              { value: 'transfer', label: 'Transfer' },
-              { value: 'cash', label: 'Cash' },
-            ]"
-            placeholder="Semua Tipe Pembayaran"
-            @change="fetchData"
-          />
-
-          <!-- Search -->
-          <input
-            id="search"
-            type="text"
-            v-model="search"
-            @change="fetchData"
-            placeholder="Cari Nama / Nomor Nik / Nomor Akun..."
-            class="w-full sm:w-86 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
-          />
-        </div>
-      </div>
-
-      <!-- Table -->
       <div class="overflow-hidden rounded-xl border border-gray-200 shadow-md">
-        <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-        <table v-else class="w-full border-collapse bg-white text-sm">
-          <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
-            <tr>
-              <th
-                class="w-[30%] text-center px-6 py-4 font-medium font-bold text-gray-900 text-center"
-              >
-                Info Munfiq
-              </th>
-              <th
-                class="w-[30%] text-center px-6 py-4 font-medium font-bold text-gray-900 text-center"
-              >
-                Info Pemasukan
-              </th>
-              <th
-                class="w-[10%] text-center px-6 py-4 font-medium font-bold text-gray-900 text-center"
-              >
-                Status
-              </th>
-              <th
-                class="w-[10%] text-center px-6 py-4 font-medium font-bold text-gray-900 text-center"
-              >
-                Status Konfirmasi
-              </th>
-              <th
-                class="w-[10%] text-center px-6 py-4 font-medium font-bold text-gray-900 text-center"
-              >
-                Datetimes
-              </th>
-              <th
-                class="w-[10%] text-center px-6 py-4 font-medium font-bold text-gray-900 text-center"
-              >
-                Aksi
-              </th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <template v-if="dataRiwayatInfaq.length > 0">
-              <tr
-                v-for="riwayat_infaq in dataRiwayatInfaq"
-                :key="riwayat_infaq.id"
-                class="hover:bg-gray-50 transition-colors"
-              >
-                <td class="px-6 py-4 text-start align-top">
-                  <table class="w-full border border-gray-300 rounded-lg">
-                    <tbody>
-                      <tr class="border border-gray-300">
-                        <td class="w-[40%] bg-gray-100 px-4 py-2 font-medium">Nama Munfiq</td>
-                        <td class="px-4 py-2 font-medium">
-                          {{ riwayat_infaq.member_name }}
-                        </td>
-                      </tr>
-                      <tr class="border border-gray-300">
-                        <td class="w-[45%] bg-gray-100 px-4 py-2 font-medium">NIK Munfiq</td>
-                        <td class="px-4 py-2 font-medium">
-                          {{ riwayat_infaq.member_nik }}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </td>
-                <td class="px-6 py-4 text-start font-medium text-gray-800 align-top">
-                  <table class="w-full border border-gray-300 rounded-lg">
-                    <tbody>
-                      <tr class="border border-gray-300">
-                        <td class="w-[40%] bg-gray-100 px-4 py-2 font-medium">Invoice</td>
-                        <td class="px-4 py-2 font-medium text-right">
-                          {{ riwayat_infaq.invoice }}
-                        </td>
-                      </tr>
-                      <tr class="border border-gray-300">
-                        <td class="w-[40%] bg-gray-100 px-4 py-2 font-medium">Nominal Infaq</td>
-                        <td class="px-4 py-2 font-medium text-right">
-                          {{ $formatToRupiah(riwayat_infaq.nominal) }}
-                        </td>
-                      </tr>
-                      <tr
-                        class="border border-gray-300"
-                        v-if="riwayat_infaq.tipe_pembayaran == 'online'"
-                      >
-                        <td class="bg-gray-100 px-4 py-2 font-medium">Kode</td>
-                        <td class="px-4 py-2 font-medium w-full text-right text-red-500">
-                          {{ $formatToRupiah(riwayat_infaq.kode) }}
-                        </td>
-                      </tr>
-                      <tr
-                        class="border border-gray-300"
-                        v-if="riwayat_infaq.tipe_pembayaran == 'online'"
-                      >
-                        <td class="bg-gray-100 px-4 py-2 font-medium">Total Dikirim</td>
-                        <td class="px-4 py-2 font-medium w-full text-right text-red-500">
-                          {{ $formatToRupiah(riwayat_infaq.nominal + riwayat_infaq.kode) }}
-                        </td>
-                      </tr>
-                      <tr class="border border-gray-300">
-                        <td class="bg-gray-100 px-4 py-2 font-medium">Tipe Pembayaran</td>
-                        <td class="px-4 py-2 font-medium w-full text-right">
-                          {{ riwayat_infaq.tipe_pembayaran }}
-                        </td>
-                      </tr>
-                      <tr class="border border-gray-300" v-if="riwayat_infaq.status == 'failed'">
-                        <td class="bg-gray-100 px-4 py-2 font-medium text-red">Alasan Penolakan</td>
-                        <td class="px-4 py-2 font-medium w-full text-right text-red">
-                          {{ riwayat_infaq.alasan_penolakan }}
-                        </td>
-                      </tr>
-                      <tr class="border border-gray-300" v-if="riwayat_infaq.status != 'process'">
-                        <td class="bg-gray-100 px-4 py-2 font-medium">Nama Petugas</td>
-                        <td class="px-4 py-2 font-medium w-full text-right">
-                          {{ riwayat_infaq.nama_petugas ?? '-' }}
-                        </td>
-                      </tr>
-                      <tr class="border border-gray-300" v-if="riwayat_infaq.status != 'process'">
-                        <td class="bg-gray-100 px-4 py-2 font-medium">Jabatan Petugas</td>
-                        <td class="px-4 py-2 font-medium w-full text-right">
-                          {{ riwayat_infaq.jabatan_petugas ?? '-' }}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </td>
-                <td class="px-6 py-4 text-center font-bold text-gray-800">
-                  <span
-                    :class="{
-                      'text-green-500': riwayat_infaq.status === 'success',
-                      'text-yellow-500': riwayat_infaq.status === 'process',
-                      'text-red-500': riwayat_infaq.status === 'failed',
-                    }"
-                  >
-                    {{
-                      {
-                        success: 'SUKSES',
-                        process: 'PROSES',
-                        failed: 'GAGAL',
-                      }[riwayat_infaq.status]
-                    }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-center font-bold text-gray-800">
-                  <span
-                    :class="
-                      riwayat_infaq.konfirmasi_pembayaran === 'sudah_dikirim'
-                        ? 'text-green-500'
-                        : 'text-red-500'
-                    "
-                  >
-                    {{
-                      riwayat_infaq.konfirmasi_pembayaran === 'sudah_dikirim'
-                        ? 'SUDAH DIKIRIM'
-                        : 'BELUM DIKIRIM'
-                    }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ riwayat_infaq.datetimes }}
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex justify-center gap-2">
-                    <ButtonGreen
-                      v-if="
-                        riwayat_infaq.tipe_pembayaran == 'online' &&
-                        riwayat_infaq.status == 'process'
-                      "
-                      title="Setujui Permohonan"
-                      @click="approveOnline(riwayat_infaq.id, riwayat_infaq.konfirmasi_pembayaran)"
-                    >
-                      <font-awesome-icon icon="fa-solid fa-check" />
-                    </ButtonGreen>
-                    <DangerButton
-                      v-if="
-                        riwayat_infaq.tipe_pembayaran == 'online' &&
-                        riwayat_infaq.status == 'process'
-                      "
-                      title="Reject Permohonan"
-                      @click="rejectOnline(riwayat_infaq.id)"
-                    >
-                      <font-awesome-icon icon="fa-solid fa-ban" />
-                    </DangerButton>
-                    <LightButton
-                      v-if="
-                        riwayat_infaq.tipe_pembayaran == 'transfer' &&
-                        riwayat_infaq.status == 'process'
-                      "
-                      title="Upload Bukti Transfer"
-                      @click="uploadBuktiTransfer(riwayat_infaq.id, riwayat_infaq.nominal)"
-                    >
-                      <font-awesome-icon icon="fa-solid fa-upload" />
-                    </LightButton>
-                    <LightButton
-                      v-if="
-                        riwayat_infaq.tipe_pembayaran == 'cash' ||
-                        (riwayat_infaq.tipe_pembayaran == 'transfer' &&
-                          riwayat_infaq.status == 'success')
-                      "
-                      title="Cetak Surat Serah Terima Infaq"
-                      @click="cetakSuratSerahTerimaInfaq(riwayat_infaq.id)"
-                    >
-                      <font-awesome-icon icon="fa-solid fa-print" />
-                    </LightButton>
-                    <LightButton
-                      v-if="
-                        riwayat_infaq.tipe_pembayaran == 'cash' &&
-                        riwayat_infaq.posisi_uang == 'kantor_baitulmal'
-                      "
-                      @click="uploadBuktiSetoranInfaq(riwayat_infaq.id, riwayat_infaq.nominal)"
-                      title="Upload Bukti Setoran"
-                    >
-                      <font-awesome-icon icon="fa-solid fa-upload" />
-                    </LightButton>
+        <BaseTable
+          empty-title="Tidak ada data"
+          empty-desc="Belum ada data riwayat infaq."
+          empty-icon="fa-solid fa-hand-holding-dollar"
+          :columns="tableColumns"
+          :data="dataRiwayatInfaq"
+          :loading="isTableLoading"
+          :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+          :show-search="false"
+          :show-add="false"
+          :show-edit="false"
+          :show-delete="false"
+          @page-change="pageNow"
+        >
+          <!-- Custom Filters -->
+          <template #filters>
+            <div class="flex items-center w-full sm:w-auto gap-2">
+              <!-- Status -->
+              <BaseSelect
+                v-model="selectStatus"
+                :options="[
+                  { value: 'process', label: 'Proses' },
+                  { value: 'success', label: 'Sukses' },
+                  { value: 'failed', label: 'Gagal' },
+                ]"
+                placeholder="Semua Status"
+                @change="fetchData"
+              />
 
-                    <YellowButton
-                      v-if="
-                        riwayat_infaq.status == 'success' &&
-                        (riwayat_infaq.tipe_pembayaran == 'transfer' ||
-                          riwayat_infaq.tipe_pembayaran == 'cash')
-                      "
-                      :title="
-                        `Tampilkan Bukti ` +
-                        (riwayat_infaq.tipe_pembayaran == 'transfer' ? 'Transfer' : 'Setoran')
-                      "
-                      @click="
-                        displayBukti({
-                          tipe_pembayaran: riwayat_infaq.tipe_pembayaran,
-                          nominal_infaq: riwayat_infaq.nominal,
-                          bukti:
-                            riwayat_infaq.tipe_pembayaran == 'transfer'
-                              ? riwayat_infaq.bukti_transfer
-                              : riwayat_infaq.bukti_setoran,
-                          nominal_bukti:
-                            riwayat_infaq.tipe_pembayaran == 'transfer'
-                              ? riwayat_infaq.nominal_transfer
-                              : riwayat_infaq.nominal_setoran,
-                        })
-                      "
-                    >
-                      <font-awesome-icon icon="fa-solid fa-print" />
-                    </YellowButton>
-                    <DangerButton @click="deleteData(riwayat_infaq.id)"
-                      ><DeleteIcon
-                    /></DangerButton>
-                  </div>
-                </td>
-              </tr>
-            </template>
-            <!-- Empty State -->
-            <tr v-else>
-              <td :colspan="totalColumns" class="px-6 py-8 text-center text-gray-500">
-                <font-awesome-icon
-                  icon="fa-solid fa-hand-holding-dollar"
-                  class="text-4xl mb-2 text-gray-400"
-                />
-                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada data</h3>
-                <p class="text-sm">Belum ada data riwayat infaq.</p>
-              </td>
-            </tr>
-          </tbody>
-          <!-- Pagination -->
-          <tfoot>
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
+              <!-- Status Konfirmasi -->
+              <BaseSelect
+                v-model="selectStatusKonfirmasi"
+                :options="[
+                  { value: 'belum_dikirim', label: 'Belum Dikirim' },
+                  { value: 'sudah_dikirim', label: 'Sudah Dikirim' },
+                ]"
+                placeholder="Semua Status Konfirmasi"
+                @change="fetchData"
+              />
+
+              <BaseSelect
+                v-model="selectTipePembayaran"
+                :options="[
+                  { value: 'online', label: 'Online' },
+                  { value: 'transfer', label: 'Transfer' },
+                  { value: 'cash', label: 'Cash' },
+                ]"
+                placeholder="Semua Tipe Pembayaran"
+                @change="fetchData"
+              />
+
+              <!-- Search -->
+              <input
+                id="search"
+                type="text"
+                v-model="search"
+                @change="fetchData"
+                placeholder="Cari Nama / Nomor Nik / Nomor Akun..."
+                class="w-full sm:w-86 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
+              />
+            </div>
+          </template>
+
+          <!-- Custom Actions (Add Button) -->
+          <template #actions>
+            <BaseButton
+              @click="openModalAdd()"
+              variant="primary"
+              :loading="isModalAddOpen"
+              type="button"
+            >
+              <font-awesome-icon icon="fa-solid fa-plus" class="mr-2" />
+              {{ dynamicLabel('Tambah Riwayat Infaq') }}
+            </BaseButton>
+          </template>
+
+          
+
+          <template #cell-info_munfiq="{ row: riwayat_infaq }">
+            <table class="w-full border border-gray-300 rounded-lg">
+              <tbody>
+                <tr class="border border-gray-300">
+                  <td class="w-[40%] bg-gray-100 px-4 py-2 font-medium">Nama Munfiq</td>
+                  <td class="px-4 py-2 font-medium">
+                    {{ riwayat_infaq.member_name }}
+                  </td>
+                </tr>
+                <tr class="border border-gray-300">
+                  <td class="w-[45%] bg-gray-100 px-4 py-2 font-medium">NIK Munfiq</td>
+                  <td class="px-4 py-2 font-medium">
+                    {{ riwayat_infaq.member_nik }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </template>
+
+          <template #cell-info_pemasukan="{ row: riwayat_infaq }">
+            <table class="w-full border border-gray-300 rounded-lg">
+              <tbody>
+                <tr class="border border-gray-300">
+                  <td class="w-[40%] bg-gray-100 px-4 py-2 font-medium">Invoice</td>
+                  <td class="px-4 py-2 font-medium text-right">
+                    {{ riwayat_infaq.invoice }}
+                  </td>
+                </tr>
+                <tr class="border border-gray-300">
+                  <td class="w-[40%] bg-gray-100 px-4 py-2 font-medium">Nominal Infaq</td>
+                  <td class="px-4 py-2 font-medium text-right">
+                    {{ $formatToRupiah(riwayat_infaq.nominal) }}
+                  </td>
+                </tr>
+                <tr
+                  class="border border-gray-300"
+                  v-if="riwayat_infaq.tipe_pembayaran == 'online'"
+                >
+                  <td class="bg-gray-100 px-4 py-2 font-medium">Kode</td>
+                  <td class="px-4 py-2 font-medium w-full text-right text-red-500">
+                    {{ $formatToRupiah(riwayat_infaq.kode) }}
+                  </td>
+                </tr>
+                <tr
+                  class="border border-gray-300"
+                  v-if="riwayat_infaq.tipe_pembayaran == 'online'"
+                >
+                  <td class="bg-gray-100 px-4 py-2 font-medium">Total Dikirim</td>
+                  <td class="px-4 py-2 font-medium w-full text-right text-red-500">
+                    {{ $formatToRupiah(riwayat_infaq.nominal + riwayat_infaq.kode) }}
+                  </td>
+                </tr>
+                <tr class="border border-gray-300">
+                  <td class="bg-gray-100 px-4 py-2 font-medium">Tipe Pembayaran</td>
+                  <td class="px-4 py-2 font-medium w-full text-right">
+                    {{ riwayat_infaq.tipe_pembayaran }}
+                  </td>
+                </tr>
+                <tr class="border border-gray-300" v-if="riwayat_infaq.status == 'failed'">
+                  <td class="bg-gray-100 px-4 py-2 font-medium text-red">Alasan Penolakan</td>
+                  <td class="px-4 py-2 font-medium w-full text-right text-red">
+                    {{ riwayat_infaq.alasan_penolakan }}
+                  </td>
+                </tr>
+                <tr class="border border-gray-300" v-if="riwayat_infaq.status != 'process'">
+                  <td class="bg-gray-100 px-4 py-2 font-medium">Nama Petugas</td>
+                  <td class="px-4 py-2 font-medium w-full text-right">
+                    {{ riwayat_infaq.nama_petugas ?? '-' }}
+                  </td>
+                </tr>
+                <tr class="border border-gray-300" v-if="riwayat_infaq.status != 'process'">
+                  <td class="bg-gray-100 px-4 py-2 font-medium">Jabatan Petugas</td>
+                  <td class="px-4 py-2 font-medium w-full text-right">
+                    {{ riwayat_infaq.jabatan_petugas ?? '-' }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </template>
+
+          <template #cell-status="{ row: riwayat_infaq }">
+            <span
+              :class="{
+                'text-green-500': riwayat_infaq.status === 'success',
+                'text-yellow-500': riwayat_infaq.status === 'process',
+                'text-red-500': riwayat_infaq.status === 'failed',
+              }"
+            >
+              {{
+                {
+                  success: 'SUKSES',
+                  process: 'PROSES',
+                  failed: 'GAGAL',
+                }[riwayat_infaq.status]
+              }}
+            </span>
+          </template>
+
+          <template #cell-status_konfirmasi="{ row: riwayat_infaq }">
+            <span
+              :class="
+                riwayat_infaq.konfirmasi_pembayaran === 'sudah_dikirim'
+                  ? 'text-green-500'
+                  : 'text-red-500'
+              "
+            >
+              {{
+                riwayat_infaq.konfirmasi_pembayaran === 'sudah_dikirim'
+                  ? 'SUDAH DIKIRIM'
+                  : 'BELUM DIKIRIM'
+              }}
+            </span>
+          </template>
+
+          <template #cell-datetimes="{ row: riwayat_infaq }">
+            {{ riwayat_infaq.datetimes }}
+          </template>
+
+          <template #row-actions="{ row: riwayat_infaq }">
+            <div class="flex justify-center gap-2">
+              <ButtonGreen
+                v-if="
+                  riwayat_infaq.tipe_pembayaran == 'online' &&
+                  riwayat_infaq.status == 'process'
+                "
+                title="Setujui Permohonan"
+                @click="approveOnline(riwayat_infaq.id, riwayat_infaq.konfirmasi_pembayaran)"
+              >
+                <font-awesome-icon icon="fa-solid fa-check" />
+              </ButtonGreen>
+              <DangerButton
+                v-if="
+                  riwayat_infaq.tipe_pembayaran == 'online' &&
+                  riwayat_infaq.status == 'process'
+                "
+                title="Reject Permohonan"
+                @click="rejectOnline(riwayat_infaq.id)"
+              >
+                <font-awesome-icon icon="fa-solid fa-ban" />
+              </DangerButton>
+              <LightButton
+                v-if="
+                  riwayat_infaq.tipe_pembayaran == 'transfer' &&
+                  riwayat_infaq.status == 'process'
+                "
+                title="Upload Bukti Transfer"
+                @click="uploadBuktiTransfer(riwayat_infaq.id, riwayat_infaq.nominal)"
+              >
+                <font-awesome-icon icon="fa-solid fa-upload" />
+              </LightButton>
+              <LightButton
+                v-if="
+                  riwayat_infaq.tipe_pembayaran == 'cash' ||
+                  (riwayat_infaq.tipe_pembayaran == 'transfer' &&
+                    riwayat_infaq.status == 'success')
+                "
+                title="Cetak Surat Serah Terima Infaq"
+                @click="cetakSuratSerahTerimaInfaq(riwayat_infaq.id)"
+              >
+                <font-awesome-icon icon="fa-solid fa-print" />
+              </LightButton>
+              <LightButton
+                v-if="
+                  riwayat_infaq.tipe_pembayaran == 'cash' &&
+                  riwayat_infaq.posisi_uang == 'kantor_baitulmal'
+                "
+                @click="uploadBuktiSetoranInfaq(riwayat_infaq.id, riwayat_infaq.nominal)"
+                title="Upload Bukti Setoran"
+              >
+                <font-awesome-icon icon="fa-solid fa-upload" />
+              </LightButton>
+
+              <YellowButton
+                v-if="
+                  riwayat_infaq.status == 'success' &&
+                  (riwayat_infaq.tipe_pembayaran == 'transfer' ||
+                    riwayat_infaq.tipe_pembayaran == 'cash')
+                "
+                :title="
+                  `Tampilkan Bukti ` +
+                  (riwayat_infaq.tipe_pembayaran == 'transfer' ? 'Transfer' : 'Setoran')
+                "
+                @click="
+                  displayBukti({
+                    tipe_pembayaran: riwayat_infaq.tipe_pembayaran,
+                    nominal_infaq: riwayat_infaq.nominal,
+                    bukti:
+                      riwayat_infaq.tipe_pembayaran == 'transfer'
+                        ? riwayat_infaq.bukti_transfer
+                        : riwayat_infaq.bukti_setoran,
+                    nominal_bukti:
+                      riwayat_infaq.tipe_pembayaran == 'transfer'
+                        ? riwayat_infaq.nominal_transfer
+                        : riwayat_infaq.nominal_setoran,
+                  })
+                "
+              >
+                <font-awesome-icon icon="fa-solid fa-print" />
+              </YellowButton>
+              <DangerButton @click="deleteData(riwayat_infaq.id)"
+                ><DeleteIcon
+              /></DangerButton>
+            </div>
+          </template>
+        </BaseTable>
       </div>
     </div>
 

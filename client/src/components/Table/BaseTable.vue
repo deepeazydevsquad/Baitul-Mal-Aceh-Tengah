@@ -12,6 +12,18 @@ export interface TableColumn {
 }
 
 const props = defineProps({
+  emptyTitle: {
+    type: String,
+    default: 'Data tidak ditemukan',
+  },
+  emptyDesc: {
+    type: String,
+    default: 'Belum ada data tersedia atau coba gunakan kata kunci lain.',
+  },
+  emptyIcon: {
+    type: String,
+    default: null,
+  },
   columns: {
     type: Array as () => TableColumn[],
     required: true,
@@ -186,41 +198,46 @@ defineExpose({ resetSearch });
       <SkeletonTable v-if="loading" :columns="totalColumns" :rows="5" />
 
       <table v-else class="base-table">
-        <thead>
-          <tr>
-            <th v-if="showNumbering" class="w-16 text-center">No</th>
-            <th v-for="(col, index) in columns" :key="index" :class="col.headerClass">
-              {{ col.label }}
-            </th>
-            <th v-if="showActions" class="w-28 text-center">Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
+        <slot name="thead">
+          <thead>
+            <tr>
+              <th v-if="showNumbering" class="w-16 text-center">No</th>
+              <th v-for="(col, index) in columns" :key="index" :class="col.headerClass">
+                <slot :name="`header-${col.key}`" :col="col">
+                  {{ col.label }}
+                </slot>
+              </th>
+              <th v-if="showActions" class="w-28 text-center">Aksi</th>
+            </tr>
+          </thead>
+        </slot>
+        <slot name="tbody">
+          <tbody>
           <!-- Empty State -->
           <tr v-if="data.length === 0 && !loading">
             <td :colspan="totalColumns" class="empty-state-cell">
               <div class="empty-state animate-fade-in">
-                <div class="empty-state-icon">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-8 h-8"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                    />
-                  </svg>
-                </div>
                 <slot name="empty">
-                  <p class="empty-state-title">Data tidak ditemukan</p>
-                  <p class="empty-state-desc">
-                    Belum ada data tersedia atau coba gunakan kata kunci lain.
-                  </p>
+                  <div class="empty-state-icon">
+                    <font-awesome-icon v-if="emptyIcon" :icon="emptyIcon" class="text-4xl" />
+                    <svg
+                      v-else
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="w-8 h-8"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                      />
+                    </svg>
+                  </div>
+                  <p class="empty-state-title">{{ emptyTitle }}</p>
+                  <p class="empty-state-desc">{{ emptyDesc }}</p>
                 </slot>
               </div>
             </td>
@@ -301,12 +318,14 @@ defineExpose({ resetSearch });
                 </div>
               </td>
             </tr>
-          </template>
-        </tbody>
+            </template>
+          </tbody>
+        </slot>
 
-        <tfoot v-if="withPagination && data.length > 0">
+        <tfoot v-if="(withPagination && data.length > 0) || $slots.tfoot">
+          <slot name="tfoot"></slot>
           <Pagination
-            v-if="(pagination.totalRow?.value ?? pagination.totalRow) > 0"
+            v-if="withPagination && data.length > 0 && (pagination.totalRow?.value ?? pagination.totalRow) > 0"
             :current-page="pagination.currentPage?.value ?? pagination.currentPage"
             :total-pages="pagination.totalPages?.value ?? pagination.totalPages"
             :pages="pagination.pages?.value ?? pagination.pages"
@@ -453,43 +472,7 @@ defineExpose({ resetSearch });
   vertical-align: middle;
 }
 
-/* ========== Empty State ========== */
-.empty-state-cell {
-  padding: 4rem 1.5rem !important;
-  text-align: center;
-}
 
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.empty-state-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 3.5rem;
-  height: 3.5rem;
-  background: #f1f5f9;
-  border-radius: 50%;
-  margin-bottom: 1rem;
-  color: #94a3b8;
-}
-
-.empty-state-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #1e293b;
-}
-
-.empty-state-desc {
-  font-size: 0.8125rem;
-  color: #94a3b8;
-  margin-top: 0.25rem;
-  max-width: 20rem;
-}
 
 /* ========== Action Buttons ========== */
 .action-buttons {
@@ -553,5 +536,46 @@ defineExpose({ resetSearch });
   .base-table-search {
     max-width: 100%;
   }
+}
+</style>
+
+
+<style>
+/* ========== Empty State ========== */
+.empty-state-cell {
+  padding: 4rem 1.5rem !important;
+  text-align: center;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  background: #f1f5f9;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+  color: #94a3b8;
+}
+
+.empty-state-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.empty-state-desc {
+  font-size: 0.8125rem;
+  color: #94a3b8;
+  margin-top: 0.25rem;
+  max-width: 20rem;
 }
 </style>

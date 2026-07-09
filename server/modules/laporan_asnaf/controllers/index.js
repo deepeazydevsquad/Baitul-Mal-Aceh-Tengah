@@ -1670,10 +1670,10 @@ controllers.fn_asnaf = async (req, res) => {
     const feedBack = await model_r_instance.fn_asnaf(tahun, asnaf);
 
     if (feedBack.length === 0) {
-      return res.status(404).json({
-        error: true,
+      return res.status(200).json({
+        error: false,
         error_msg: "Data laporan penyaluran tidak ditemukan",
-        data: [],
+        data: { list: [], tanda_tangan: tanda_tangan.data },
       });
     }
 
@@ -1703,8 +1703,8 @@ controllers.fn_asnaf_amil = async (req, res) => {
     const feedBack = await model_r_instance.fn_asnaf_amil(tahun);
 
     if (feedBack.length === 0) {
-      return res.status(404).json({
-        error: true,
+      return res.status(200).json({
+        error: false,
         error_msg: "Data laporan penyaluran tidak ditemukan",
         data: [],
       });

@@ -5,6 +5,8 @@ import VueApexCharts from 'vue3-apexcharts';
 import Logos from '@/components/Logo/Logo.vue';
 import { get_laporan_tahunan } from '@/service/laporan_tahunan';
 import FooterCetak from '../FooterCetak/FooterCetak.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 const route = useRoute();
 const tahun = route.params.tahun;
@@ -33,6 +35,7 @@ const datas = ref<Data[]>([]);
 const totalPengumpulan = ref(0);
 const totalDistribusi = ref(0);
 const persentase = ref(0);
+const tableColumns = ref<TableColumn[]>([]);
 
 // Chart State
 const seriesPengumpulan = ref<any[]>([]);
@@ -215,54 +218,69 @@ onMounted(async () => {
 
     <!-- Tabel Data -->
     <div class="mb-4 overflow-hidden border border-gray-300 rounded-lg">
-      <table class="w-full border-collapse bg-white text-xs">
-        <thead class="bg-gray-100 text-gray-900 text-center border-b-2 border-gray-400">
-          <tr>
-            <th rowspan="2" class="px-3 py-2 font-bold align-middle border-r border-gray-300">
-              Tahun
-            </th>
-            <th colspan="4" class="px-3 py-2 font-bold border-r border-gray-300">Pengumpulan</th>
-            <th colspan="3" class="px-3 py-2 font-bold">Distribusi</th>
-          </tr>
-          <tr>
-            <th class="px-2 py-2 font-semibold border-r border-gray-300">Zakat</th>
-            <th class="px-2 py-2 font-semibold border-r border-gray-300">Infaq</th>
-            <th class="px-2 py-2 font-semibold border-r border-gray-300">Donasi</th>
-            <th class="px-2 py-2 font-semibold border-r border-gray-300">Total</th>
-            <th class="px-2 py-2 font-semibold border-r border-gray-300">Zakat</th>
-            <th class="px-2 py-2 font-semibold border-r border-gray-300">Infaq</th>
-            <th class="px-2 py-2 font-semibold">Total</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200">
-          <tr v-for="(data, index) in datas" :key="index" class="text-center">
-            <td class="px-3 py-2 font-semibold text-gray-900 border-r border-gray-300">
-              {{ data.tahun }}
-            </td>
-            <td class="px-2 py-2 text-gray-700 border-r border-gray-300">
-              {{ formatRupiah(Number(data.pengumpulan.zakat)) }}
-            </td>
-            <td class="px-2 py-2 text-gray-700 border-r border-gray-300">
-              {{ formatRupiah(Number(data.pengumpulan.infaq)) }}
-            </td>
-            <td class="px-2 py-2 text-gray-700 border-r border-gray-300">
-              {{ formatRupiah(Number(data.pengumpulan.donasi)) }}
-            </td>
-            <td class="px-2 py-2 font-bold text-gray-900 border-r border-gray-300">
-              {{ formatRupiah(Number(data.pengumpulan.total)) }}
-            </td>
-            <td class="px-2 py-2 text-gray-700 border-r border-gray-300">
-              {{ formatRupiah(Number(data.distribusi.zakat)) }}
-            </td>
-            <td class="px-2 py-2 text-gray-700 border-r border-gray-300">
-              {{ formatRupiah(Number(data.distribusi.infaq)) }}
-            </td>
-            <td class="px-2 py-2 font-bold text-gray-900">
-              {{ formatRupiah(Number(data.distribusi.total)) }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <BaseTable
+        class="w-full text-xs"
+        :columns="tableColumns"
+        :data="datas"
+        :with-pagination="false"
+        :show-search="false"
+        :show-add="false"
+        :show-edit="false"
+        :show-delete="false"
+        :show-numbering="false"
+        :show-actions="false"
+      >
+        <template #thead>
+          <thead class="bg-gray-100 text-gray-900 text-center border-b-2 border-gray-400">
+            <tr>
+              <th rowspan="2" class="px-3 py-2 font-bold align-middle border-r border-gray-300">
+                Tahun
+              </th>
+              <th colspan="4" class="px-3 py-2 font-bold border-r border-gray-300">Pengumpulan</th>
+              <th colspan="3" class="px-3 py-2 font-bold">Distribusi</th>
+            </tr>
+            <tr>
+              <th class="px-2 py-2 font-semibold border-r border-gray-300">Zakat</th>
+              <th class="px-2 py-2 font-semibold border-r border-gray-300">Infaq</th>
+              <th class="px-2 py-2 font-semibold border-r border-gray-300">Donasi</th>
+              <th class="px-2 py-2 font-semibold border-r border-gray-300">Total</th>
+              <th class="px-2 py-2 font-semibold border-r border-gray-300">Zakat</th>
+              <th class="px-2 py-2 font-semibold border-r border-gray-300">Infaq</th>
+              <th class="px-2 py-2 font-semibold">Total</th>
+            </tr>
+          </thead>
+        </template>
+        <template #tbody>
+          <tbody class="divide-y divide-gray-200">
+            <tr v-for="(data, index) in datas" :key="index" class="text-center">
+              <td class="px-3 py-2 font-semibold text-gray-900 border-r border-gray-300">
+                {{ data.tahun }}
+              </td>
+              <td class="px-2 py-2 text-gray-700 border-r border-gray-300">
+                {{ formatRupiah(Number(data.pengumpulan.zakat)) }}
+              </td>
+              <td class="px-2 py-2 text-gray-700 border-r border-gray-300">
+                {{ formatRupiah(Number(data.pengumpulan.infaq)) }}
+              </td>
+              <td class="px-2 py-2 text-gray-700 border-r border-gray-300">
+                {{ formatRupiah(Number(data.pengumpulan.donasi)) }}
+              </td>
+              <td class="px-2 py-2 font-bold text-gray-900 border-r border-gray-300">
+                {{ formatRupiah(Number(data.pengumpulan.total)) }}
+              </td>
+              <td class="px-2 py-2 text-gray-700 border-r border-gray-300">
+                {{ formatRupiah(Number(data.distribusi.zakat)) }}
+              </td>
+              <td class="px-2 py-2 text-gray-700 border-r border-gray-300">
+                {{ formatRupiah(Number(data.distribusi.infaq)) }}
+              </td>
+              <td class="px-2 py-2 font-bold text-gray-900">
+                {{ formatRupiah(Number(data.distribusi.total)) }}
+              </td>
+            </tr>
+          </tbody>
+        </template>
+      </BaseTable>
     </div>
 
     <!-- Chart -->

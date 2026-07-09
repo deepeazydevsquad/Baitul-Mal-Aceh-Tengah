@@ -170,11 +170,12 @@ async function deleteData(id: number) {
 </script>
 
 <template>
-  <div class="mx-auto p-4">
+  <div class="p-4">
     <!-- Header -->
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mt-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4">
         <BaseButton
           @click="openModalAdd()"
           variant="primary"
@@ -425,6 +426,7 @@ async function deleteData(id: number) {
             />
           </tfoot>
         </table>
+      </div>
       </div>
     </div>
 

@@ -16,6 +16,8 @@ import { useNotification } from '@/composables/useNotification';
 import { get_laporan_tahunan } from '@/service/laporan_tahunan';
 import BaseButton from '@/components/Button/BaseButton.vue';
 import CetakIcon from '@/components/Icons/CetakIcon.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // State: Loading
 const isLoading = ref(false);
@@ -24,6 +26,7 @@ const isTableLoading = ref(false);
 // Composable: pagination
 const itemsPerPage = ref<number>(10);
 const totalColumns = ref<number>(3);
+const tableColumns = ref<TableColumn[]>([]);
 
 const { currentPage, perPage, totalRow, totalPages, nextPage, prevPage, pageNow, pages } =
   usePagination(fetchData, { perPage: itemsPerPage.value });
@@ -230,66 +233,72 @@ onMounted(async () => {
       <!-- Table -->
       <div class="overflow-hidden rounded-xl border border-gray-200 shadow">
         <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-        <table v-else class="w-full border-collapse bg-white text-sm">
-          <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
-            <tr>
-              <th rowspan="2" class="w-[15%] px-6 py-3 font-medium align-middle">Tahun</th>
-              <th colspan="4" class="w-[45%] px-6 py-3 font-medium">Pengumpulan</th>
-              <th colspan="3" class="w-[40%] px-6 py-3 font-medium">Distribusi</th>
-            </tr>
-            <tr>
-              <th class="px-4 py-2 font-medium">Zakat</th>
-              <th class="px-4 py-2 font-medium">Infaq</th>
-              <th class="px-4 py-2 font-medium">Donasi</th>
-              <th class="px-4 py-2 font-medium">Total</th>
-              <th class="px-4 py-2 font-medium">Zakat</th>
-              <th class="px-4 py-2 font-medium">Infaq</th>
-              <th class="px-4 py-2 font-medium">Total</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <tr
-              v-for="(data, index) in datas"
-              :key="index"
-              class="hover:bg-gray-50 transition-colors text-center"
-            >
-              <td class="px-6 py-4 font-medium text-gray-800">{{ data.tahun }}</td>
-              <td class="px-4 py-2 text-gray-700">
-                {{ formatRupiah(Number(data.pengumpulan.zakat)) }}
-              </td>
-              <td class="px-4 py-2 text-gray-700">
-                {{ formatRupiah(Number(data.pengumpulan.infaq)) }}
-              </td>
-              <td class="px-4 py-2 text-gray-700">
-                {{ formatRupiah(Number(data.pengumpulan.donasi)) }}
-              </td>
-              <td class="px-4 py-2 font-semibold text-gray-900">
-                {{ formatRupiah(Number(data.pengumpulan.total)) }}
-              </td>
-              <td class="px-4 py-2 text-gray-700">
-                {{ formatRupiah(Number(data.distribusi.zakat)) }}
-              </td>
-              <td class="px-4 py-2 text-gray-700">
-                {{ formatRupiah(Number(data.distribusi.infaq)) }}
-              </td>
-              <td class="px-4 py-2 font-semibold text-gray-900">
-                {{ formatRupiah(Number(data.distribusi.total)) }}
-              </td>
-            </tr>
-          </tbody>
-          <tfoot class="bg-gray-100 font-bold">
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="8"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
+        <BaseTable
+          v-else
+          class="w-full border-collapse bg-white text-sm"
+          :columns="tableColumns"
+          :data="datas"
+          :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+        @page-change="pageNow"
+          :show-search="false"
+          :show-add="false"
+          :show-edit="false"
+          :show-delete="false"
+          :show-numbering="false"
+          :show-actions="false"
+        >
+          <template #thead>
+            <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
+              <tr>
+                <th rowspan="2" class="w-[15%] px-6 py-3 font-medium align-middle">Tahun</th>
+                <th colspan="4" class="w-[45%] px-6 py-3 font-medium">Pengumpulan</th>
+                <th colspan="3" class="w-[40%] px-6 py-3 font-medium">Distribusi</th>
+              </tr>
+              <tr>
+                <th class="px-4 py-2 font-medium">Zakat</th>
+                <th class="px-4 py-2 font-medium">Infaq</th>
+                <th class="px-4 py-2 font-medium">Donasi</th>
+                <th class="px-4 py-2 font-medium">Total</th>
+                <th class="px-4 py-2 font-medium">Zakat</th>
+                <th class="px-4 py-2 font-medium">Infaq</th>
+                <th class="px-4 py-2 font-medium">Total</th>
+              </tr>
+            </thead>
+          </template>
+          <template #tbody>
+            <tbody class="divide-y divide-gray-100">
+              <tr
+                v-for="(data, index) in datas"
+                :key="index"
+                class="hover:bg-gray-50 transition-colors text-center"
+              >
+                <td class="px-6 py-4 font-medium text-gray-800">{{ data.tahun }}</td>
+                <td class="px-4 py-2 text-gray-700">
+                  {{ formatRupiah(Number(data.pengumpulan.zakat)) }}
+                </td>
+                <td class="px-4 py-2 text-gray-700">
+                  {{ formatRupiah(Number(data.pengumpulan.infaq)) }}
+                </td>
+                <td class="px-4 py-2 text-gray-700">
+                  {{ formatRupiah(Number(data.pengumpulan.donasi)) }}
+                </td>
+                <td class="px-4 py-2 font-semibold text-gray-900">
+                  {{ formatRupiah(Number(data.pengumpulan.total)) }}
+                </td>
+                <td class="px-4 py-2 text-gray-700">
+                  {{ formatRupiah(Number(data.distribusi.zakat)) }}
+                </td>
+                <td class="px-4 py-2 text-gray-700">
+                  {{ formatRupiah(Number(data.distribusi.infaq)) }}
+                </td>
+                <td class="px-4 py-2 font-semibold text-gray-900">
+                  {{ formatRupiah(Number(data.distribusi.total)) }}
+                </td>
+              </tr>
+            </tbody>
+          </template>
+          
+        </BaseTable>
       </div>
 
       <!-- Chart -->

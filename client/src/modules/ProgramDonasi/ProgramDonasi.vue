@@ -9,7 +9,8 @@ import EditIcon from '@/components/Icons/EditIcon.vue';
 import DangerButton from '@/components/Button/DangerButton.vue';
 import DeleteIcon from '@/components/Icons/DeleteIcon.vue';
 import Pagination from '@/components/Pagination/Pagination.vue';
-import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 import FormAdd from '@/modules/ProgramDonasi/widgets/FormAdd.vue';
 import FormEdit from '@/modules/ProgramDonasi/widgets/FormEdit.vue';
@@ -37,6 +38,13 @@ const totalColumns = ref<number>(5);
 
 const { currentPage, perPage, totalRow, totalPages, nextPage, prevPage, pageNow, pages } =
   usePagination(fetchData, { perPage: itemsPerPage.value });
+
+const tableColumns = ref<TableColumn[]>([
+  { key: 'banner', label: 'Banner', headerClass: 'w-[20%] text-center', cellClass: 'text-center align-middle' },
+  { key: 'info_donasi', label: 'Informasi Donasi', headerClass: 'w-[40%] text-center', cellClass: 'text-center font-medium text-gray-800 align-top' },
+  { key: 'status', label: 'Status', headerClass: 'w-[15%] text-center', cellClass: 'text-center font-medium text-gray-800 align-top' },
+  { key: 'datetime', label: 'Datetime', headerClass: 'w-[20%] text-center', cellClass: 'text-center font-medium text-gray-800 align-top' },
+]);
 
 // Composable: notification
 const { showNotification, notificationType, notificationMessage, displayNotification } =
@@ -173,170 +181,152 @@ function formatToRupiah(angka: number | string) {
     <!-- Header -->
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <BaseButton
-          @click="openModalAdd()"
-          variant="primary"
-          :loading="isModalAddOpen || isModalEditOpen"
-          type="button"
-        >
-          <font-awesome-icon icon="fa-solid fa-plus" class="mr-2" />
-          {{ dynamicLabel('Tambah Program') }}
-        </BaseButton>
-
-        <!-- Search -->
-        <div class="flex items-center w-full sm:w-auto">
-          <label for="search" class="mr-2 text-sm font-medium text-gray-600">Filter</label>
-          <input
-            id="search"
-            type="text"
-            v-model="search"
-            @change="fetchData"
-            placeholder="Cari Nama ..."
-            class="w-full sm:w-96 rounded-s-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
-          />
-          <select
-            id="status"
-            v-model="status"
-            @change="fetchData()"
-            class="block w-full sm:w-64 rounded-e-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:ring-2 focus:ring-green-900 focus:border-green-900 transition"
-          >
-            <option value="sedang_berlangsung">Sedang Berlangsung</option>
-            <option value="ditutup">Ditutup</option>
-            <option value="">Semua</option>
-          </select>
-        </div>
-      </div>
-
       <!-- Table -->
-      <div class="overflow-hidden rounded-xl border border-gray-200 shadow">
-        <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-        <table v-else class="w-full border-collapse bg-white text-sm">
-          <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
-            <tr>
-              <th class="w-[20%] px-6 py-3 font-medium">Banner</th>
-              <th class="w-[40%] px-6 py-3 font-medium">Informasi Donasi</th>
-              <th class="w-[15%] px-6 py-3 font-medium">Status</th>
-              <th class="w-[20%] px-6 py-3 font-medium">Datetime</th>
-              <th class="w-[5%] px-6 py-3 font-medium">Aksi</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <template v-if="datas && datas.length > 0">
-              <tr v-for="data in datas" :key="data.id" class="hover:bg-gray-50 transition-colors">
-                <td class="px-6 py-4 text-center align-middle">
-                  <center>
-                    <div
-                      v-if="data.banner && data.banner !== '-'"
-                      class="relative rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden"
-                      style="width: 300px; height: 99px"
-                      :class="{ 'bg-gray-200': !data.banner || data.banner === '-' }"
-                    >
-                      <img
-                        :src="BASE_URL + '/uploads/img/program_donasi/' + data.banner"
-                        :alt="`Foto data ${data.banner}`"
-                        class="object-contain max-w-full max-h-full mx-auto"
-                        @error="data.banner = '-'"
-                      />
-                    </div>
-                    <div
-                      v-else
-                      class="bg-gray-200 text-gray-500 text-center px-4 relative aspect-video max-w-sm rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden"
-                    >
-                      <p class="text-sm font-medium">Gambar tidak tersedia</p>
-                    </div>
-                  </center>
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800 align-top">
-                  <table class="w-full border border-gray-300 rounded-lg">
-                    <tbody>
-                      <tr class="border-b border-gray-300">
-                        <th class="w-[40%] px-4 py-2 text-left font-medium bg-gray-100">Name</th>
-                        <td class="px-4 py-2 text-right">{{ data.name }}</td>
-                      </tr>
-                      <tr class="border-b border-gray-300">
-                        <th class="px-4 py-2 text-left font-medium bg-gray-100">Tahun</th>
-                        <td class="px-4 py-2 text-right">{{ data.tahun }}</td>
-                      </tr>
-                      <tr class="border-b border-gray-300">
-                        <th class="px-4 py-2 text-left font-medium bg-gray-100">
-                          Target Donasi Terkumpul
-                        </th>
-                        <td class="px-4 py-2 text-right">
-                          {{ formatToRupiah(data.target_donasi_terkumpul) }}
-                        </td>
-                      </tr>
-                      <tr class="border-b border-gray-300">
-                        <th class="px-4 py-2 text-left font-medium bg-gray-100">Total Orang</th>
-                        <td class="px-4 py-2 text-right">{{ data.total_orang }}</td>
-                      </tr>
-                      <tr>
-                        <th class="px-4 py-2 text-left font-medium bg-gray-100">Total Nominal</th>
-                        <td class="px-4 py-2 text-right">
-                          {{ formatToRupiah(data.total_nominal) }}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800 align-top">
-                  {{ data.status.replace(/_/g, ' ').toUpperCase() }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800 align-top">
-                  {{ new Date(data.createdAt).toLocaleString('id-ID') }}
-                </td>
-                <td class="py-4 text-center font-medium text-gray-800 align-top">
-                  <div class="flex flex-col items-center gap-1 px-0 py-4">
-                    <!-- Kalau belum ditutup -->
-                    <template v-if="data.status !== 'ditutup'">
-                      <LightButton @click="openModalEdit(data.id)">
-                        <EditIcon />
-                      </LightButton>
-                      <LightButton @click="openModalDonasi(data.id)">
-                        <IconMoney />
-                      </LightButton>
-                      <DangerButton @click="tutup_program(data.id)">
-                        <LockIcon />
-                      </DangerButton>
-                      <DangerButton @click="deleteData(data.id)">
-                        <DeleteIcon />
-                      </DangerButton>
-                    </template>
-                    <!-- Kalau sudah ditutup -->
-                    <template v-else>
-                      <DangerButton @click="deleteData(data.id)">
-                        <DeleteIcon />
-                      </DangerButton>
-                    </template>
-                  </div>
-                </td>
-              </tr>
-            </template>
+      <div class="overflow-hidden rounded-xl border border-gray-200 shadow mt-4">
+        <BaseTable
+          empty-title="Tidak ada data"
+          empty-desc="Belum ada data program donasi."
+          empty-icon="fa-solid fa-money-bill-wave"
+          :columns="tableColumns"
+          :data="datas"
+          :loading="isTableLoading"
+          :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+          :show-search="false"
+          :show-add="false"
+          :show-edit="false"
+          :show-delete="false"
+          @page-change="pageNow"
+        >
+          <!-- Custom Filters -->
+          <template #filters>
+            <div class="flex items-center w-full sm:w-auto">
+              <input
+                id="search"
+                type="text"
+                v-model="search"
+                @change="fetchData"
+                placeholder="Cari Nama ..."
+                class="w-full sm:w-96 rounded-s-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
+              />
+              <select
+                id="status"
+                v-model="status"
+                @change="fetchData()"
+                class="block w-full sm:w-64 rounded-e-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:ring-2 focus:ring-green-900 focus:border-green-900 transition"
+              >
+                <option value="sedang_berlangsung">Sedang Berlangsung</option>
+                <option value="ditutup">Ditutup</option>
+                <option value="">Semua</option>
+              </select>
+            </div>
+          </template>
 
-            <!-- Empty State -->
-            <tr v-else>
-              <td :colspan="totalColumns" class="px-6 py-8 text-center text-gray-500">
-                <font-awesome-icon icon="fa-solid fa-money" class="text-4xl mb-2 text-gray-400" />
-                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada data</h3>
-                <p class="text-sm">Belum ada data field.</p>
-              </td>
-            </tr>
-          </tbody>
+          <!-- Custom Actions (Add Button) -->
+          <template #actions>
+            <BaseButton
+              @click="openModalAdd()"
+              variant="primary"
+              :loading="isModalAddOpen || isModalEditOpen"
+              type="button"
+            >
+              <font-awesome-icon icon="fa-solid fa-plus" class="mr-2" />
+              {{ dynamicLabel('Tambah Program') }}
+            </BaseButton>
+          </template>
 
-          <!-- Pagination -->
-          <tfoot class="bg-gray-100 font-bold">
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
+          
+
+          <template #cell-banner="{ row: data }">
+            <center>
+              <div
+                v-if="data.banner && data.banner !== '-'"
+                class="relative rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden"
+                style="width: 300px; height: 99px"
+                :class="{ 'bg-gray-200': !data.banner || data.banner === '-' }"
+              >
+                <img
+                  :src="BASE_URL + '/uploads/img/program_donasi/' + data.banner"
+                  :alt="`Foto data ${data.banner}`"
+                  class="object-contain max-w-full max-h-full mx-auto"
+                  @error="data.banner = '-'"
+                />
+              </div>
+              <div
+                v-else
+                class="bg-gray-200 text-gray-500 text-center px-4 relative aspect-video max-w-sm rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden"
+              >
+                <p class="text-sm font-medium">Gambar tidak tersedia</p>
+              </div>
+            </center>
+          </template>
+
+          <template #cell-info_donasi="{ row: data }">
+            <table class="w-full border border-gray-300 rounded-lg">
+              <tbody>
+                <tr class="border-b border-gray-300">
+                  <th class="w-[40%] px-4 py-2 text-left font-medium bg-gray-100">Name</th>
+                  <td class="px-4 py-2 text-right">{{ data.name }}</td>
+                </tr>
+                <tr class="border-b border-gray-300">
+                  <th class="px-4 py-2 text-left font-medium bg-gray-100">Tahun</th>
+                  <td class="px-4 py-2 text-right">{{ data.tahun }}</td>
+                </tr>
+                <tr class="border-b border-gray-300">
+                  <th class="px-4 py-2 text-left font-medium bg-gray-100">
+                    Target Donasi Terkumpul
+                  </th>
+                  <td class="px-4 py-2 text-right">
+                    {{ formatToRupiah(data.target_donasi_terkumpul) }}
+                  </td>
+                </tr>
+                <tr class="border-b border-gray-300">
+                  <th class="px-4 py-2 text-left font-medium bg-gray-100">Total Orang</th>
+                  <td class="px-4 py-2 text-right">{{ data.total_orang }}</td>
+                </tr>
+                <tr>
+                  <th class="px-4 py-2 text-left font-medium bg-gray-100">Total Nominal</th>
+                  <td class="px-4 py-2 text-right">
+                    {{ formatToRupiah(data.total_nominal) }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </template>
+
+          <template #cell-status="{ row: data }">
+            {{ data.status.replace(/_/g, ' ').toUpperCase() }}
+          </template>
+
+          <template #cell-datetime="{ row: data }">
+            {{ new Date(data.createdAt).toLocaleString('id-ID') }}
+          </template>
+
+          <template #row-actions="{ row: data }">
+            <div class="flex flex-col items-center gap-1 px-0 py-4">
+              <!-- Kalau belum ditutup -->
+              <template v-if="data.status !== 'ditutup'">
+                <LightButton @click="openModalEdit(data.id)">
+                  <EditIcon />
+                </LightButton>
+                <LightButton @click="openModalDonasi(data.id)">
+                  <IconMoney />
+                </LightButton>
+                <DangerButton @click="tutup_program(data.id)">
+                  <LockIcon />
+                </DangerButton>
+                <DangerButton @click="deleteData(data.id)">
+                  <DeleteIcon />
+                </DangerButton>
+              </template>
+              <!-- Kalau sudah ditutup -->
+              <template v-else>
+                <DangerButton @click="deleteData(data.id)">
+                  <DeleteIcon />
+                </DangerButton>
+              </template>
+            </div>
+          </template>
+        </BaseTable>
       </div>
     </div>
 

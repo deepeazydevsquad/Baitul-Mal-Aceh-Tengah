@@ -69,7 +69,7 @@ import TemplatePesanWhatsapp from '@/modules/TemplatePesanWhatsapp/TemplatePesan
 import UrutanBagianMonev from '@/modules/UrutanBagianMonev/UrutanBagianMonev.vue';
 import ValidasiPermohonanBantuan from '@/modules/ValidasiPermohonanBantuan/ValidasiPermohonanBantuan.vue';
 
-const tabComponents = {
+const tabComponents: Record<string, any> = {
   pengaturan_whatsapp: PengaturanWhatsapp,
   daftar_kecamatan: kecamatan,
   syarat: syarat,
@@ -115,7 +115,6 @@ const tabComponents = {
   target_pengumpulan: TargetPengumpulan,
   target_distribusi: TargetDistribusi,
   laporan_sekretariatan: LaporanKesekretariatan,
-  beranda_utama: Beranda,
   monev: Monev,
   rekap_distribusi_asnaf: RekapDistribusiPerAsnaf,
   laporan_kesekretariatan: LaporanKesekretariatan,
@@ -246,26 +245,29 @@ watch(
       :aria-labelledby="`${tab.sharedObject[item.id].path}-tab`"
     >
       <div class="grid grid-cols-2 gap-6 items-start">
-        <p
+        <div
           class="px-5 text-sm text-gray-900 dark:text-white leading-relaxed"
           v-html="tab.sharedObject[item.id].desc"
-        ></p>
+        ></div>
 
-        <p
+        <div
           class="px-5 text-sm text-gray-900 dark:text-white font-medium leading-relaxed text-right min-h-[40px]"
           v-if="tab.sharedObject[item.id].path == 'riwayat_zakat'"
           v-html="messageZakat.getString"
-        ></p>
-        <p
+        ></div>
+        <div
           class="px-5 text-sm text-gray-900 dark:text-white font-medium leading-relaxed text-right min-h-[40px]"
           v-if="tab.sharedObject[item.id].path == 'riwayat_donasi'"
           v-html="messageDonasi.getString"
-        ></p>
-        <p
+        ></div>
+        <div
           class="px-5 text-sm text-gray-900 dark:text-white font-medium leading-relaxed text-right min-h-[40px]"
           v-if="tab.sharedObject[item.id].path == 'riwayat_infaq'"
           v-html="messageInfaq.getString"
-        ></p>
+        ></div>
+        <!-- AAA {{ tab.sharedObject[item.id].path }} BB
+
+        CCC {{  tabComponents }} -->
       </div>
       <component :is="tabComponents[tab.sharedObject[item.id].path]" class="tab"></component>
     </div>

@@ -6,6 +6,8 @@ import { computed, nextTick, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import VueApexCharts from 'vue3-apexcharts';
 import FooterCetak from '../FooterCetak/FooterCetak.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 const route = useRoute();
 const tahun = parseInt(route.params.tahun as string);
@@ -108,6 +110,25 @@ const persentaseCapaianDistribusi = computed(() => {
   if (!target || target === 0) return 0;
   return (realisasi / target) * 100;
 });
+
+const dataTabel = computed(() => {
+  if (!apiData.value) return [];
+  return [
+    { kategori: 'Infaq', data: apiData.value.infaq },
+    { kategori: 'Zakat', data: apiData.value.zakat },
+    { kategori: 'Donasi', data: apiData.value.donasi },
+  ];
+});
+
+const tableColumns = ref<TableColumn[]>([
+  { key: 'kategori', label: 'Kategori', headerClass: 'text-left border-r border-gray-300', cellClass: 'text-left font-medium border-r border-gray-300' },
+  { key: 'target_pengumpulan', label: 'Target Pengumpulan', headerClass: 'border-r border-gray-300', cellClass: 'text-right border-r border-gray-300' },
+  { key: 'realisasi_pengumpulan', label: 'Realisasi Pengumpulan', headerClass: 'border-r border-gray-300', cellClass: 'text-right border-r border-gray-300' },
+  { key: 'capaian_pengumpulan', label: 'Capaian', headerClass: 'border-r border-gray-300', cellClass: 'text-right border-r border-gray-300' },
+  { key: 'target_distribusi', label: 'Target Distribusi', headerClass: 'border-r border-gray-300', cellClass: 'text-right border-r border-gray-300' },
+  { key: 'realisasi_distribusi', label: 'Realisasi Distribusi', headerClass: 'border-r border-gray-300', cellClass: 'text-right border-r border-gray-300' },
+  { key: 'capaian_distribusi', label: 'Capaian', headerClass: '', cellClass: 'text-right' },
+]);
 
 // Fetch Data
 async function fetchData() {
@@ -420,94 +441,43 @@ onMounted(async () => {
       </div>
 
       <!-- Tabel Data -->
-      <div v-if="apiData && apiData.length > 0" class="overflow-hidden border border-gray-300 rounded-lg">
-        <table class="w-full border-collapse bg-white text-[8pt]">
-          <thead class="bg-gray-100 text-gray-900 border-b-2 border-gray-400">
-            <tr>
-              <th class="px-2 py-2 font-semibold text-left border-r border-gray-300">Kategori</th>
-              <th class="px-2 py-2 font-semibold border-r border-gray-300">
-                Target<br />Pengumpulan
-              </th>
-              <th class="px-2 py-2 font-semibold border-r border-gray-300">
-                Realisasi<br />Pengumpulan
-              </th>
-              <th class="px-2 py-2 font-semibold border-r border-gray-300">Capaian</th>
-              <th class="px-2 py-2 font-semibold border-r border-gray-300">
-                Target<br />Distribusi
-              </th>
-              <th class="px-2 py-2 font-semibold border-r border-gray-300">
-                Realisasi<br />Distribusi
-              </th>
-              <th class="px-2 py-2 font-semibold">Capaian</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">
-            <tr class="hover:bg-gray-50">
-              <td class="px-2 py-2 font-medium text-left border-r border-gray-300">Infaq</td>
-              <td class="px-2 py-2 text-right border-r border-gray-300">
-                {{ formatRupiah(apiData.infaq.target_pengumpulan) }}
-              </td>
-              <td class="px-2 py-2 text-right border-r border-gray-300">
-                {{ formatRupiah(apiData.infaq.realisasi_pengumpulan) }}
-              </td>
-              <td class="px-2 py-2 text-right border-r border-gray-300">
-                {{ (apiData.infaq.persentase_pengumpulan ?? 0).toFixed(2) }}%
-              </td>
-              <td class="px-2 py-2 text-right border-r border-gray-300">
-                {{ formatRupiah(apiData.infaq.target_distribusi) }}
-              </td>
-              <td class="px-2 py-2 text-right border-r border-gray-300">
-                {{ formatRupiah(apiData.infaq.realisasi_distribusi) }}
-              </td>
-              <td class="px-2 py-2 text-right">
-                {{ (apiData.infaq.persentase_distribusi ?? 0).toFixed(2) }}%
-              </td>
-            </tr>
-            <tr class="hover:bg-gray-50">
-              <td class="px-2 py-2 font-medium text-left border-r border-gray-300">Zakat</td>
-              <td class="px-2 py-2 text-right border-r border-gray-300">
-                {{ formatRupiah(apiData.zakat.target_pengumpulan) }}
-              </td>
-              <td class="px-2 py-2 text-right border-r border-gray-300">
-                {{ formatRupiah(apiData.zakat.realisasi_pengumpulan) }}
-              </td>
-              <td class="px-2 py-2 text-right border-r border-gray-300">
-                {{ (apiData.zakat.persentase_pengumpulan ?? 0).toFixed(2) }}%
-              </td>
-              <td class="px-2 py-2 text-right border-r border-gray-300">
-                {{ formatRupiah(apiData.zakat.target_distribusi) }}
-              </td>
-              <td class="px-2 py-2 text-right border-r border-gray-300">
-                {{ formatRupiah(apiData.zakat.realisasi_distribusi) }}
-              </td>
-              <td class="px-2 py-2 text-right">
-                {{ (apiData.zakat.persentase_distribusi ?? 0).toFixed(2) }}%
-              </td>
-            </tr>
-            <tr class="hover:bg-gray-50">
-              <td class="px-2 py-2 font-medium text-left border-r border-gray-300">Donasi</td>
-              <td class="px-2 py-2 text-right border-r border-gray-300">
-                {{ formatRupiah(apiData.donasi.target_pengumpulan) }}
-              </td>
-              <td class="px-2 py-2 text-right border-r border-gray-300">
-                {{ formatRupiah(apiData.donasi.realisasi_pengumpulan) }}
-              </td>
-              <td class="px-2 py-2 text-right border-r border-gray-300">
-                {{ (apiData.donasi.persentase_pengumpulan ?? 0).toFixed(2) }}%
-              </td>
-              <td class="px-2 py-2 text-right border-r border-gray-300">
-                {{ formatRupiah(apiData.donasi.target_distribusi) }}
-              </td>
-              <td class="px-2 py-2 text-right border-r border-gray-300">
-                {{ formatRupiah(apiData.donasi.realisasi_distribusi) }}
-              </td>
-              <td class="px-2 py-2 text-right">
-                {{ (apiData.donasi.persentase_distribusi ?? 0).toFixed(2) }}%
-              </td>
-            </tr>
-          </tbody>
-          <tfoot class="bg-gray-200 font-bold text-gray-900 border-t-2 border-gray-400">
-            <tr>
+      <div v-if="apiData && dataTabel.length > 0" class="overflow-hidden border border-gray-300 rounded-lg">
+        <BaseTable
+          class="text-[8pt]"
+          :columns="tableColumns"
+          :data="dataTabel"
+          :with-pagination="false"
+          :show-search="false"
+          :show-add="false"
+          :show-edit="false"
+          :show-delete="false"
+          :show-numbering="false"
+          :show-actions="false"
+        >
+          <template #cell-kategori="{ row }">
+            {{ row.kategori }}
+          </template>
+          <template #cell-target_pengumpulan="{ row }">
+            {{ formatRupiah(row.data.target_pengumpulan) }}
+          </template>
+          <template #cell-realisasi_pengumpulan="{ row }">
+            {{ formatRupiah(row.data.realisasi_pengumpulan) }}
+          </template>
+          <template #cell-capaian_pengumpulan="{ row }">
+            {{ (row.data.persentase_pengumpulan ?? 0).toFixed(2) }}%
+          </template>
+          <template #cell-target_distribusi="{ row }">
+            {{ formatRupiah(row.data.target_distribusi) }}
+          </template>
+          <template #cell-realisasi_distribusi="{ row }">
+            {{ formatRupiah(row.data.realisasi_distribusi) }}
+          </template>
+          <template #cell-capaian_distribusi="{ row }">
+            {{ (row.data.persentase_distribusi ?? 0).toFixed(2) }}%
+          </template>
+
+          <template #tfoot>
+            <tr class="bg-gray-200 font-bold text-gray-900 border-t-2 border-gray-400">
               <td class="px-2 py-2 text-left border-r border-gray-300">TOTAL</td>
               <td class="px-2 py-2 text-right border-r border-gray-300">
                 {{ formatRupiah(totalTarget) }}
@@ -526,8 +496,8 @@ onMounted(async () => {
               </td>
               <td class="px-2 py-2 text-right">{{ persentaseCapaianDistribusi.toFixed(2) }}%</td>
             </tr>
-          </tfoot>
-        </table>
+          </template>
+        </BaseTable>
       </div>
 
       <div class="mt-auto">

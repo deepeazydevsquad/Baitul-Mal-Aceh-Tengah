@@ -24,10 +24,18 @@ app.use(
 );
 
 app.use(cookieParser());
+const compression = require("compression");
+app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const sessionDuration = 3600000; // 1 jam
+
+const db = require("./models");
+const SequelizeStore = require("connect-session-sequelize")(session.Store);
+const sessionStore = new SequelizeStore({
+  db: db.sequelize,
+});
 
 app.use(
   session({
@@ -35,6 +43,7 @@ app.use(
     name: "amra_sessid",
     resave: false,
     saveUninitialized: false,
+    store: sessionStore,
     cookie: {
       expires: new Date(Date.now() + sessionDuration),
       maxAge: sessionDuration,
@@ -125,7 +134,6 @@ arr_router.forEach((e) => {
 });
 
 // Load model dan sync
-const db = require("./models");
 
 (async () => {
   await db.sequelize.sync();

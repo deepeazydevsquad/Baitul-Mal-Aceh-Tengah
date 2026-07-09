@@ -8,6 +8,8 @@ import {
   update_konfirmasi,
   riwayat_detail,
 } from '@/service/donasi_member';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 const props = defineProps<{
   isModalOpen: boolean;
@@ -25,6 +27,12 @@ interface Bank {
   accountNumber: string;
 }
 const infaqBanks = ref<Bank[]>([]);
+
+const bankColumns = ref<TableColumn[]>([
+  { key: 'bankName', label: 'Bank', headerClass: 'text-left font-medium text-gray-600 p-2', cellClass: 'p-2 font-medium' },
+  { key: 'accountName', label: 'Atas Nama', headerClass: 'text-left font-medium text-gray-600 p-2', cellClass: 'p-2' },
+  { key: 'accountNumber', label: 'Nomor Rekening', headerClass: 'text-left font-medium text-gray-600 p-2', cellClass: 'p-2 font-mono' },
+]);
 
 interface DetailKonfirmasi {
   invoice: string;
@@ -264,36 +272,32 @@ function formatRupiah(amount: number): string {
 
               <!-- Tabel Bank -->
               <div class="border rounded-lg overflow-hidden">
-                <table class="w-full text-sm">
-                  <thead class="bg-gray-100">
-                    <tr>
-                      <th class="p-2 text-left font-medium text-gray-600">Bank</th>
-                      <th class="p-2 text-left font-medium text-gray-600">Atas Nama</th>
-                      <th class="p-2 text-left font-medium text-gray-600">Nomor Rekening</th>
-                    </tr>
-                  </thead>
-                  <tbody v-if="isBankLoading">
-                    <tr>
-                      <td colspan="3" class="p-4 text-center">
-                        <LoadingSpinner label="Memuat data bank..." />
-                      </td>
-                    </tr>
-                  </tbody>
-                  <tbody v-else-if="infaqBanks.length > 0">
-                    <tr v-for="bank in infaqBanks" :key="bank.accountNumber" class="border-t">
-                      <td class="p-2 font-medium">{{ bank.bankName }}</td>
-                      <td class="p-2">{{ bank.accountName }}</td>
-                      <td class="p-2 font-mono">{{ bank.accountNumber }}</td>
-                    </tr>
-                  </tbody>
-                  <tbody v-else>
-                    <tr>
-                      <td colspan="3" class="p-4 text-center text-gray-500">
-                        Tidak ada data bank yang tersedia.
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                <BaseTable
+          empty-title="Data tidak ditemukan"
+          empty-desc="Tidak ada data bank yang tersedia."
+                  class="w-full text-sm"
+                  :columns="bankColumns"
+                  :data="infaqBanks"
+                  :loading="isBankLoading"
+                  :with-pagination="false"
+                  :show-search="false"
+                  :show-add="false"
+                  :show-edit="false"
+                  :show-delete="false"
+                  :show-numbering="false"
+                  :show-actions="false"
+                >
+                  <template #cell-bankName="{ row }">
+                    {{ row.bankName }}
+                  </template>
+                  <template #cell-accountName="{ row }">
+                    {{ row.accountName }}
+                  </template>
+                  <template #cell-accountNumber="{ row }">
+                    {{ row.accountNumber }}
+                  </template>
+                  
+                </BaseTable>
               </div>
 
               <!-- Informasi -->

@@ -171,10 +171,10 @@ const cetak_laporan = (tahun: string) => {
     </div>
 
     <!-- Table Container -->
-    <div class="overflow-x-auto">
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mt-4">
       <SkeletonTable v-if="isLoading" :columns="months.length + 2" :rows="5" />
 
-      <div v-else-if="filteredRows.length > 0">
+      <div v-else-if="filteredRows.length > 0" class="overflow-x-auto">
         <table
           class="min-w-full table-auto border-collapse bg-white shadow-md rounded-xl overflow-hidden text-sm"
         >

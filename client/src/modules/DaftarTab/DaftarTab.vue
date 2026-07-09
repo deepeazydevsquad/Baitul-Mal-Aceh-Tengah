@@ -7,11 +7,10 @@ import BaseButton from '@/components/Button/BaseButton.vue';
 import LightButton from '@/components/Button/LightButton.vue';
 import EditIcon from '@/components/Icons/EditIcon.vue';
 import Pagination from '@/components/Pagination/Pagination.vue';
-import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue';
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
-
-// Form
 import FormEdit from '@/modules/DaftarTab/widgets/FormEdit.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // Composable
 import { usePagination } from '@/composables/usePaginations';
@@ -50,6 +49,13 @@ interface Tab {
 }
 
 const dataTab = ref<Tab[]>([]);
+
+const tableColumns = ref<TableColumn[]>([
+  { key: 'name', label: 'Nama Tab', headerClass: 'w-[20%] text-center', cellClass: 'text-left font-medium text-gray-800' },
+  { key: 'icon', label: 'Icon', headerClass: 'w-[15%] text-center', cellClass: 'text-left font-medium text-gray-800' },
+  { key: 'path', label: 'Path', headerClass: 'w-[25%] text-center', cellClass: 'text-left font-medium text-gray-800' },
+  { key: 'desc', label: 'Deskripsi', headerClass: 'w-[40%] text-center', cellClass: 'text-left font-medium text-gray-800' },
+]);
 
 // Modal state
 const isAddModalOpen = ref(false);
@@ -97,91 +103,44 @@ onMounted(async () => {
     <!-- Header -->
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-end gap-4">
-        <!-- Search -->
-        <div class="flex items-center w-full sm:w-auto">
-          <label for="search" class="mr-2 text-sm font-medium text-gray-600">Cari</label>
-          <input
-            id="search"
-            type="text"
-            v-model="search"
-            @change="fetchData"
-            placeholder="Cari Nama Tab..."
-            class="w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-[#14532d] focus:ring-2 focus:ring-[#14532d] transition"
-          />
-        </div>
-      </div>
-
-      <!-- Table -->
-      <div class="rounded-xl border border-gray-200 shadow">
-        <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-        <table v-else class="table-fixed w-full border-collapse bg-white text-sm">
-          <thead class="bg-gray-50 text-gray-700 text-center">
-            <tr>
-              <th class="w-[20%] px-6 py-3 font-medium">Nama Tab</th>
-              <th class="w-[15%] px-6 py-3 font-medium">Icon</th>
-              <th class="w-[25%] px-6 py-3 font-medium">path</th>
-              <th class="w-[50%] px-6 py-3 font-medium">Deskripsi</th>
-              <th class="w-[10%] px-6 py-3 font-medium">Aksi</th>
-            </tr>
-          </thead>
-
-          <tbody class="divide-y divide-gray-100">
-            <template v-if="dataTab.length > 0">
-              <tr
-                v-for="tab in dataTab"
-                :key="tab.id"
-                class="hover:bg-gray-50 transition-colors text-center"
-              >
-                <td class="px-4 py-2 text-gray-600 text-left">
-                  {{ tab.name }}
-                </td>
-                <td class="px-6 py-4 text-gray-600 text-left">
-                  {{ tab.icon }}
-                </td>
-                <td class="px-6 py-4 text-gray-600 text-left">
-                  {{ tab.path }}
-                </td>
-                <td class="px-6 py-4 text-gray-600 text-left">
-                  {{ tab.desc }}
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex justify-center gap-2">
-                    <LightButton @click="openEditModal(tab)">
-                      <EditIcon />
-                    </LightButton>
-                  </div>
-                </td>
-              </tr>
-            </template>
-
-            <!-- Empty State -->
-            <tr v-else>
-              <td :colspan="4" class="px-6 py-8 text-center text-gray-500">
-                <font-awesome-icon
-                  icon="fa-solid fa-database"
-                  class="text-2xl mb-2 text-gray-400"
-                />
-                <p class="text-sm">Belum ada Tab.</p>
-              </td>
-            </tr>
-          </tbody>
-
-          <!-- Pagination -->
-          <tfoot>
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
-      </div>
+      <BaseTable
+          empty-title="Data tidak ditemukan"
+          empty-desc="Belum ada Tab."
+          empty-icon="fa-solid fa-database"
+        :columns="tableColumns"
+        :data="dataTab"
+        :loading="isTableLoading"
+        :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+        :show-search="true"
+        search-placeholder="Cari Nama Tab..."
+        @search="search = $event; fetchData()"
+        :show-add="false"
+        :show-edit="false"
+        :show-delete="false"
+        @page-change="pageNow"
+      >
+        
+        <template #cell-name="{ value }">
+          {{ value }}
+        </template>
+        <template #cell-icon="{ value }">
+          {{ value }}
+        </template>
+        <template #cell-path="{ value }">
+          {{ value }}
+        </template>
+        <template #cell-desc="{ value }">
+          {{ value }}
+        </template>
+        
+        <template #row-actions="{ row }">
+          <div class="flex justify-center gap-2">
+            <LightButton @click="openEditModal(row)">
+              <EditIcon />
+            </LightButton>
+          </div>
+        </template>
+      </BaseTable>
     </div>
     <!-- Modal Edit -->
     <FormEdit

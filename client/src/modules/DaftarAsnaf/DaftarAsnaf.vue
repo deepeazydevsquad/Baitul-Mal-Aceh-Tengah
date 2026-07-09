@@ -9,12 +9,10 @@ import EditIcon from '@/components/Icons/EditIcon.vue';
 import DangerButton from '@/components/Button/DangerButton.vue';
 import DeleteIcon from '@/components/Icons/DeleteIcon.vue';
 import Pagination from '@/components/Pagination/Pagination.vue';
-import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue';
-import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
-
-// Form
 import FormAdd from '@/modules/DaftarAsnaf/widgets/FormAdd.vue';
 import FormEdit from '@/modules/DaftarAsnaf/widgets/FormEdit.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // Composable
 import { usePagination } from '@/composables/usePaginations';
@@ -52,6 +50,11 @@ interface DaftarAsnaf {
 }
 
 const DaftardataAsnaf = ref<DaftarAsnaf[]>([]);
+
+const tableColumns = ref<TableColumn[]>([
+  { key: 'name', label: 'Daftar Asnaf', headerClass: 'w-[50%] text-center', cellClass: 'text-left font-medium text-gray-800' },
+  { key: 'updatedAt', label: 'Datetimes', headerClass: 'w-[30%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+]);
 
 // Modal state
 const isAddModalOpen = ref(false);
@@ -124,96 +127,43 @@ async function deleteData(id: number) {
 </script>
 
 <template>
-  <div class="mx-auto p-4">
+  <div class="p-4">
     <!-- Header -->
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <BaseButton @click="openAddModal" variant="primary" type="button">
-          <font-awesome-icon icon="fa-solid fa-plus" class="mr-2" />
-          Tambah Daftar Asnaf
-        </BaseButton>
-
-        <!-- Search -->
-        <div class="flex items-center w-full sm:w-auto">
-          <label for="search" class="mr-2 text-sm font-medium text-gray-600">Cari</label>
-          <input
-            id="search"
-            type="text"
-            v-model="search"
-            @change="fetchData"
-            placeholder="Cari Asnaf..."
-            class="w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-[#14532d] focus:ring-2 focus:ring-[#14532d] transition"
-          />
-        </div>
-      </div>
-
-      <!-- Table -->
-      <div class="overflow-hidden rounded-xl border border-gray-200 shadow-md">
-        <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-        <table v-else class="table-fixed w-full border-collapse bg-white text-sm">
-          <!-- tambahkan border-b di thead -->
-          <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
-            <tr>
-              <th class="w-[50%] px-6 py-4 font-medium font-bold text-gray-900">Daftar Asnaf</th>
-              <th class="w-[30%] px-6 py-4 font-medium font-bold text-gray-900">Datetimes</th>
-              <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900">Aksi</th>
-            </tr>
-          </thead>
-
-          <tbody class="divide-y divide-gray-100">
-            <template v-if="DaftardataAsnaf.length > 0">
-              <tr
-                v-for="asnaf in DaftardataAsnaf"
-                :key="asnaf.id"
-                class="hover:bg-gray-50 transition-colors text-left"
-              >
-                <td class="px-4 py-2 text-gray-600">
-                  {{ asnaf.name }}
-                </td>
-                <td class="px-6 py-4 text-gray-600 text-center">
-                  {{ asnaf.updatedAt }}
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex justify-center gap-2">
-                    <LightButton @click="openEditModal(asnaf)">
-                      <EditIcon />
-                    </LightButton>
-                    <DangerButton @click="deleteData(asnaf.id)">
-                      <DeleteIcon />
-                    </DangerButton>
-                  </div>
-                </td>
-              </tr>
-            </template>
-
-            <!-- Empty State -->
-            <tr v-else>
-              <td :colspan="4" class="px-6 py-8 text-center text-gray-500">
-                <font-awesome-icon
-                  icon="fa-solid fa-database"
-                  class="text-4xl mb-2 text-gray-400"
-                />
-                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada data</h3>
-                <p class="text-sm">Belum ada data asnaf.</p>
-              </td>
-            </tr>
-          </tbody>
-
-          <!-- Pagination -->
-          <tfoot>
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mt-4">
+        <BaseTable
+        :columns="tableColumns"
+        :data="DaftardataAsnaf"
+        :loading="isTableLoading"
+        :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+        :show-search="true"
+        search-placeholder="Cari Asnaf..."
+        @search="search = $event; fetchData()"
+        :show-add="true"
+        add-label="Tambah Daftar Asnaf"
+        @add="openAddModal"
+        :show-edit="false"
+        :show-delete="false"
+        @page-change="pageNow"
+      >
+        <template #cell-name="{ value }">
+          {{ value }}
+        </template>
+        <template #cell-updatedAt="{ value }">
+          {{ value }}
+        </template>
+        <template #row-actions="{ row }">
+          <div class="flex justify-center gap-2">
+            <LightButton @click="openEditModal(row)">
+              <EditIcon />
+            </LightButton>
+            <DangerButton @click="deleteData(row.id)">
+              <DeleteIcon />
+            </DangerButton>
+          </div>
+        </template>
+      </BaseTable>
       </div>
     </div>
 

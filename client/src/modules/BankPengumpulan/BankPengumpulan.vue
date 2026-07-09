@@ -12,7 +12,8 @@ import Pagination from '@/components/Pagination/Pagination.vue';
 import FormAdd from './Widgets/FormAdd.vue';
 import FormEdit from './Widgets/FormEdit.vue';
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
-import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // Import service API
 import {
@@ -87,8 +88,15 @@ interface BankPengumpulan {
   Bank?: Bank;
 }
 
-// State lokal komponen
 const dataBankPengumpulan = ref<BankPengumpulan[]>([]);
+
+const tableColumns = ref<TableColumn[]>([
+  { key: 'bank_name', label: 'Nama Bank', headerClass: 'w-[15%] text-center', cellClass: 'text-center' },
+  { key: 'tipe', label: 'Jenis Pemasukan', headerClass: 'w-[10%] text-center', cellClass: 'text-center capitalize' },
+  { key: 'nomor_akun_bank', label: 'Nomor Akun', headerClass: 'w-[20%] text-center', cellClass: 'text-center' },
+  { key: 'nama_akun_bank', label: 'Atas Nama', headerClass: 'w-[20%] text-center', cellClass: 'text-center' },
+  { key: 'tanggal', label: 'Tanggal', headerClass: 'w-[15%] text-center', cellClass: 'text-center' },
+]);
 const isModalAddOpen = ref(false);
 const formAddRef = ref<any>(null);
 
@@ -193,90 +201,40 @@ onMounted(fetchData);
 </script>
 
 <template>
-  <div class="mx-auto px-4 mt-9">
+  <div class="p-4">
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <BaseButton
-          @click="openModalAdd()"
-          variant="primary"
-          type="button"
-          :loading="isModalAddOpen || isModalEditOpen"
-        >
-          <font-awesome-icon icon="fa-solid fa-plus" class="mr-2" />
-          Tambah Bank Pengumpulan
-        </BaseButton>
-        <div class="flex items-center w-full sm:w-auto">
-          <label for="search" class="mr-2 text-sm font-medium text-gray-600">Cari</label>
-          <input
-            id="search"
-            type="text"
-            v-model="search"
-            @change="fetchData"
-            placeholder="Cari Nama / No. Akun..."
-            class="w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
-          />
-        </div>
-      </div>
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mt-4">
+        <BaseTable
+        :columns="tableColumns"
+        :data="dataBankPengumpulan"
+        :loading="isTableLoading"
+        :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+        :show-search="true"
+        search-placeholder="Cari Nama / No. Akun..."
+        @search="search = $event; fetchData()"
+        :show-add="true"
+        add-label="Tambah Bank Pengumpulan"
+        @add="openModalAdd"
+        :show-edit="false"
+        :show-delete="false"
+        @page-change="pageNow"
+      >
+        <template #cell-bank_name="{ row }">
+          {{ row.Bank?.name || 'N/A' }}
+        </template>
 
-      <div class="overflow-hidden rounded-xl border border-gray-200 shadow-md">
-        <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-        <table v-else class="w-full border-collapse bg-white text-sm">
-          <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
-            <tr>
-              <th class="w-[15%] px-6 py-4 font-medium text-center">Nama Bank</th>
-              <th class="w-[10%] px-6 py-4 font-medium text-center">Jenis Pemasukan</th>
-              <th class="w-[20%] px-6 py-4 font-medium text-center">Nomor Akun</th>
-              <th class="w-[20%] px-6 py-4 font-medium text-center">Atas Nama</th>
-              <th class="w-[15%] px-6 py-4 font-medium text-center">Tanggal</th>
-              <th class="w-[20%] px-6 py-4 font-medium text-center">Aksi</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <tr
-              v-if="dataBankPengumpulan.length > 0"
-              v-for="item in dataBankPengumpulan"
-              :key="item.id"
-              class="hover:bg-gray-50"
-            >
-              <td class="w-[15%] px-6 py-4 text-center">{{ item.Bank?.name || 'N/A' }}</td>
-              <td class="w-[10%] px-6 py-4 text-center capitalize">{{ item.tipe }}</td>
-              <td class="w-[25%] px-6 py-4 text-center">{{ item.nomor_akun_bank }}</td>
-              <td class="w-[25%] px-6 py-4 text-center">{{ item.nama_akun_bank }}</td>
-              <td class="w-[15%] px-6 py-4 text-center">
-                {{ item.createdAt ? new Date(item.createdAt).toLocaleDateString('id-ID') : '-' }}
-              </td>
-              <td class="w-[10%] px-6 py-4">
-                <div class="flex justify-center items-center gap-4">
-                  <LightButton @click="handleEdit(item)"><EditIcon /></LightButton>
-                  <DangerButton @click="handleDelete(item)"><DeleteIcon /></DangerButton>
-                </div>
-              </td>
-            </tr>
-            <tr v-else>
-              <td :colspan="totalColumns" class="px-6 py-8 text-center text-gray-500">
-                <font-awesome-icon
-                  icon="fa-solid fa-piggy-bank"
-                  class="text-4xl mb-2 text-gray-400"
-                />
-                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada data</h3>
-                <p class="text-sm">Belum ada data pengumpulan bank.</p>
-              </td>
-            </tr>
-          </tbody>
-          <tfoot class="bg-gray-100 font-bold">
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
+        <template #cell-tanggal="{ row }">
+          {{ row.createdAt ? new Date(row.createdAt).toLocaleDateString('id-ID') : '-' }}
+        </template>
+
+        <template #row-actions="{ row }">
+          <div class="flex justify-center items-center gap-4">
+            <LightButton @click="handleEdit(row)"><EditIcon /></LightButton>
+            <DangerButton @click="handleDelete(row)"><DeleteIcon /></DangerButton>
+          </div>
+        </template>
+      </BaseTable>
       </div>
     </div>
 

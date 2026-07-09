@@ -6,6 +6,8 @@ import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue';
 import { useNotification } from '@/composables/useNotification';
 import { list_rekap_distribusi_per_kode_asnaf } from '@/service/rekap_distribusi_per_kode_asnaf';
 import { computed, onMounted, ref, watch } from 'vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // ==================== STATE ====================
 const isLoading = ref(false);
@@ -14,6 +16,7 @@ const isTableLoading = ref(false);
 const selectedYear = ref(new Date().getFullYear().toString());
 const searchAsnaf = ref('');
 const rowsNominal = ref<any[]>([]);
+const tableColumns = ref<TableColumn[]>([]);
 
 // ==================== CONSTANTS ====================
 const currentYear = new Date().getFullYear();
@@ -222,52 +225,7 @@ function cetak_laporan() {
   <div class="mx-auto p-4">
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <!-- Header Controls -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <BaseButton @click="cetak_laporan" variant="primary" :loading="isDownloading" type="button">
-          <font-awesome-icon icon="fa-solid fa-print" class="mr-2"></font-awesome-icon>
-          Cetak
-        </BaseButton>
 
-        <!-- Filters -->
-        <div class="flex flex-col sm:flex-row gap-3">
-          <!-- Search -->
-          <div class="flex items-center">
-            <label
-              for="search-asnaf"
-              class="mr-2 text-sm font-medium text-gray-600 whitespace-nowrap"
-            >
-              Cari Asnaf
-            </label>
-            <input
-              id="search-asnaf"
-              type="text"
-              v-model="searchAsnaf"
-              placeholder="Nama asnaf..."
-              class="w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
-            />
-          </div>
-
-          <!-- Year Filter -->
-          <div class="flex items-center">
-            <label
-              for="year-filter"
-              class="mr-2 text-sm font-medium text-gray-600 whitespace-nowrap"
-            >
-              Tahun
-            </label>
-            <select
-              id="year-filter"
-              v-model="selectedYear"
-              class="w-full sm:w-48 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
-            >
-              <option v-for="year in years" :key="year.id" :value="year.id">
-                {{ year.name }}
-              </option>
-            </select>
-          </div>
-        </div>
-      </div>
 
       <!-- Info Message -->
       <div
@@ -286,81 +244,133 @@ function cetak_laporan() {
       <!-- Table -->
       <div class="overflow-x-auto rounded-xl border border-gray-200 shadow">
         <SkeletonTable v-if="isTableLoading" :columns="15" :rows="10" />
-        <table v-else class="w-full border-collapse bg-white text-sm">
+        <BaseTable
+          v-else
+          class="w-full border-collapse bg-white text-sm"
+          :columns="tableColumns"
+          :data="filteredRows"
+          :with-pagination="false"
+          :show-search="false"
+          :show-add="false"
+          :show-edit="false"
+          :show-delete="false"
+          :show-numbering="false"
+          :show-actions="false"
+        >
+          <template #filters>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center">
+                <label for="search-asnaf" class="mr-2 text-sm font-medium text-gray-600 whitespace-nowrap">
+                  Cari Asnaf
+                </label>
+                <input
+                  id="search-asnaf"
+                  type="text"
+                  v-model="searchAsnaf"
+                  placeholder="Nama asnaf..."
+                  class="w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
+                />
+              </div>
+              <div class="flex items-center">
+                <label for="year-filter" class="mr-2 text-sm font-medium text-gray-600 whitespace-nowrap">
+                  Tahun
+                </label>
+                <select
+                  id="year-filter"
+                  v-model="selectedYear"
+                  class="w-full sm:w-48 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
+                >
+                  <option v-for="year in years" :key="year.id" :value="year.id">
+                    {{ year.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </template>
+          <template #custom-actions>
+            <BaseButton @click="cetak_laporan" variant="primary" :loading="isDownloading" type="button">
+              <font-awesome-icon icon="fa-solid fa-print" class="mr-2"></font-awesome-icon>
+              Cetak
+            </BaseButton>
+          </template>
           <!-- Header -->
-          <thead class="text-gray-700 text-center border-b border-gray-300">
-            <tr class="bg-gray-50 top-0 z-20">
-              <th
-                rowspan="2"
-                class="px-4 py-3 font-medium border border-gray-300 left-0 bg-gray-50 z-30 min-w-[180px]"
-              >
-                KODE / ASNAF
-              </th>
-              <th :colspan="months.length" class="px-4 py-3 font-medium border border-gray-300">
-                BULAN
-              </th>
-              <th
-                rowspan="2"
-                class="px-4 py-3 font-medium bg-gray-100 min-w-[120px] border border-gray-300"
-              >
-                JUMLAH
-              </th>
-            </tr>
-            <tr class="bg-gray-50 top-[48px] z-10">
-              <th
-                v-for="m in months"
-                :key="m.key"
-                class="px-4 py-3 font-medium border border-gray-300 min-w-[100px]"
-              >
-                {{ m.label }}
-              </th>
-            </tr>
-          </thead>
+          <template #thead>
+            <thead class="text-gray-700 text-center border-b border-gray-300">
+              <tr class="bg-gray-50 top-0 z-20">
+                <th
+                  rowspan="2"
+                  class="px-4 py-3 font-medium border border-gray-300 sticky left-0 bg-gray-50 z-30 min-w-[180px]"
+                >
+                  KODE / ASNAF
+                </th>
+                <th :colspan="months.length" class="px-4 py-3 font-medium border border-gray-300">
+                  BULAN
+                </th>
+                <th
+                  rowspan="2"
+                  class="px-4 py-3 font-medium bg-gray-100 min-w-[120px] border border-gray-300"
+                >
+                  JUMLAH
+                </th>
+              </tr>
+              <tr class="bg-gray-50 top-[48px] z-10">
+                <th
+                  v-for="m in months"
+                  :key="m.key"
+                  class="px-4 py-3 font-medium border border-gray-300 min-w-[100px]"
+                >
+                  {{ m.label }}
+                </th>
+              </tr>
+            </thead>
+          </template>
 
           <!-- Body -->
-          <tbody v-if="filteredRows && filteredRows.length > 0" class="divide-y divide-gray-100">
-            <!-- Baris pertama untuk kegiatan pertama -->
-            <tr
-              class="even:bg-gray-50 hover:bg-indigo-50 transition-colors"
-              v-for="(row, index) in filteredRows"
-              :key="`asnaf_${row.asnaf_id}`"
-            >
-              <td class="px-6 py-4 text-left font-medium text-gray-700 left-0 bg-inherit">
-                <b>#{{ row.kegiatan[0]?.kode || '-' }}</b>
-                <br />
-                {{ row.asnaf }}
-              </td>
-              <td
-                v-for="m in months"
-                :key="`${row.asnaf_id}_0_${m.key}`"
-                class="px-4 py-3 text-right"
+          <template #tbody>
+            <tbody v-if="filteredRows && filteredRows.length > 0" class="divide-y divide-gray-100">
+              <!-- Baris pertama untuk kegiatan pertama -->
+              <tr
+                class="even:bg-gray-50 hover:bg-indigo-50 transition-colors"
+                v-for="(row, index) in filteredRows"
+                :key="`asnaf_${row.asnaf_id}`"
               >
-                {{ formatRupiah(row.kegiatan[0]?.values[m.key] || 0) }}
-              </td>
-              <td
-                :rowspan="row.kegiatan.length"
-                class="px-4 py-3 text-right font-normal bg-gray-100"
-              >
-                {{ formatRupiah(row.total) }}
-              </td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr class="border border-gray-200 bg-gray-100">
-              <td class="px-6 py-4 text-left font-bold text-gray-700 left-0 bg-gray-100">Total</td>
-              <td
-                v-for="m in months"
-                :key="`total-${m.key}`"
-                class="px-4 py-3 text-right font-medium"
-              >
-                {{ formatRupiah(calculateGrandTotalBulan(m.key)) }}
-              </td>
-              <td class="px-4 py-3 text-right font-medium">
-                {{ formatRupiah(calculateGrandTotal()) }}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+                <td class="px-6 py-4 text-left font-medium text-gray-700 sticky left-0 bg-white z-10">
+                  <b>#{{ row.kegiatan[0]?.kode || '-' }}</b>
+                  <br />
+                  {{ row.asnaf }}
+                </td>
+                <td
+                  v-for="m in months"
+                  :key="`${row.asnaf_id}_0_${m.key}`"
+                  class="px-4 py-3 text-right"
+                >
+                  {{ formatRupiah(row.kegiatan[0]?.values[m.key] || 0) }}
+                </td>
+                <td
+                  :rowspan="row.kegiatan.length"
+                  class="px-4 py-3 text-right font-normal bg-gray-100"
+                >
+                  {{ formatRupiah(row.total) }}
+                </td>
+              </tr>
+            </tbody>
+          </template>
+          <template #tfoot>
+              <tr class="border border-gray-200 bg-gray-100">
+                <td class="px-6 py-4 text-left font-bold text-gray-700 sticky left-0 bg-gray-100 z-10">Total</td>
+                <td
+                  v-for="m in months"
+                  :key="`total-${m.key}`"
+                  class="px-4 py-3 text-right font-medium"
+                >
+                  {{ formatRupiah(calculateGrandTotalBulan(m.key)) }}
+                </td>
+                <td class="px-4 py-3 text-right font-medium">
+                  {{ formatRupiah(calculateGrandTotal()) }}
+                </td>
+              </tr>
+          </template>
+        </BaseTable>
       </div>
     </div>
 

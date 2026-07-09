@@ -5,6 +5,8 @@ import InputFile from '@/components/Form/InputFile.vue';
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 import Notification from '@/components/Modal/Notification.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // Composable
 import { useNotification } from '@/composables/useNotification';
@@ -46,6 +48,13 @@ interface PermohonanItem {
 
 const listPermohonan = ref<PermohonanItem[]>([]);
 const selectedIds = ref<number[]>([]);
+
+const tableColumns = ref<TableColumn[]>([
+  { key: 'select', label: '', headerClass: 'w-16 text-center px-3 py-2', cellClass: 'px-3 py-2 text-center' },
+  { key: 'nama_pemohon', label: 'Nama Pemohon', headerClass: 'text-left px-3 py-2 font-semibold text-gray-700', cellClass: 'px-3 py-2 text-left' },
+  { key: 'nomor_ktp', label: 'Nomor KTP', headerClass: 'text-left px-3 py-2 font-semibold text-gray-700', cellClass: 'px-3 py-2 text-left text-gray-600' },
+  { key: 'nominal_bantuan', label: 'Nominal Bantuan', headerClass: 'text-right px-3 py-2 font-semibold text-gray-700', cellClass: 'px-3 py-2 text-right font-semibold text-green-700' },
+]);
 
 // Form
 const beritaAcaraFile = ref<File | null>(null);
@@ -315,62 +324,50 @@ watch;
 
             <div class="border border-gray-200 rounded-lg overflow-hidden">
               <div class="max-h-[40vh] overflow-y-auto">
-                <table class="w-full text-sm">
-                  <thead class="bg-gray-100 sticky top-0">
-                    <tr>
-                      <th class="px-3 py-2 text-left w-16">
-                        <input
-                          type="checkbox"
-                          :checked="isAllSelected"
-                          @change="toggleSelectAll"
-                          class="w-4 h-4 text-green-600 rounded focus:ring-green-500"
-                        />
-                      </th>
-                      <th class="px-3 py-2 text-left font-semibold text-gray-700">Nama Pemohon</th>
-                      <th class="px-3 py-2 text-left font-semibold text-gray-700">Nomor KTP</th>
-                      <th class="px-3 py-2 text-right font-semibold text-gray-700">
-                        Nominal Bantuan
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-gray-100">
-                    <tr
-                      v-for="item in listPermohonan"
-                      :key="item.id"
-                      :class="[
-                        'hover:bg-gray-50 transition-colors',
-                        selectedIds.includes(item.id) ? 'bg-green-50' : '',
-                      ]"
-                    >
-                      <td class="px-3 py-2 text-center">
-                        <input
-                          type="checkbox"
-                          :checked="selectedIds.includes(item.id)"
-                          @change="toggleSelectItem(item.id)"
-                          class="w-4 h-4 text-green-600 rounded focus:ring-green-500"
-                        />
-                      </td>
-                      <td class="px-3 py-2">
-                        <span class="font-semibold text-gray-800">{{ item.nama_pemohon }}</span>
-                      </td>
-                      <td class="px-3 py-2 text-gray-600">{{ item.nomor_ktp }}</td>
-                      <td class="px-3 py-2 text-right font-semibold text-green-700">
-                        {{ $formatToRupiah(item.nominal_bantuan) }}
-                      </td>
-                    </tr>
+                <BaseTable
+          empty-title="Data tidak ditemukan"
+          empty-desc="Semua permohonan sudah upload berita acara"
+          empty-icon="fa-solid fa-inbox"
+                  class="w-full text-sm"
+                  :columns="tableColumns"
+                  :data="listPermohonan"
+                  :loading="isLoading"
+                  :with-pagination="false"
+                  :show-search="false"
+                  :show-add="false"
+                  :show-edit="false"
+                  :show-delete="false"
+                  :show-numbering="false"
+                  :show-actions="false"
+                >
+                  <template #header-select>
+                    <input
+                      type="checkbox"
+                      :checked="isAllSelected"
+                      @change="toggleSelectAll"
+                      class="w-4 h-4 text-green-600 rounded focus:ring-green-500"
+                    />
+                  </template>
 
-                    <!-- Empty State -->
-                    <tr v-if="listPermohonan.length === 0">
-                      <td colspan="4" class="px-3 py-8 text-center text-gray-500">
-                        <font-awesome-icon
-                          icon="fa-solid fa-inbox"
-                          class="text-3xl mb-2 text-gray-400"
-                        />
-                        <p class="text-sm">Semua permohonan sudah upload berita acara</p>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                  <template #cell-select="{ row }">
+                    <input
+                      type="checkbox"
+                      :checked="selectedIds.includes(row.id)"
+                      @change="toggleSelectItem(row.id)"
+                      class="w-4 h-4 text-green-600 rounded focus:ring-green-500"
+                    />
+                  </template>
+                  <template #cell-nama_pemohon="{ row }">
+                    <span class="font-semibold text-gray-800">{{ row.nama_pemohon }}</span>
+                  </template>
+                  <template #cell-nomor_ktp="{ row }">
+                    {{ row.nomor_ktp }}
+                  </template>
+                  <template #cell-nominal_bantuan="{ row }">
+                    {{ $formatToRupiah(row.nominal_bantuan) }}
+                  </template>
+                  
+                </BaseTable>
               </div>
             </div>
 

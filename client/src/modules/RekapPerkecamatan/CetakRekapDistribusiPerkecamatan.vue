@@ -5,11 +5,14 @@ import FooterCetak from '@/modules/FooterCetak/FooterCetak.vue';
 import { daftar_rekap_distribusi_kecamatan } from '@/service/rekap_distribusi_kecamatan';
 import { nextTick, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 const route = useRoute();
 const tahun = route.params.tahun as string;
 
 const isLoading = ref(true);
+const tableColumns = ref<TableColumn[]>([]);
 
 interface DetailBulan {
   0: number;
@@ -193,68 +196,83 @@ onMounted(async () => {
 
       <div v-else class="px-4 pb-4">
         <div class="border border-gray-300">
-          <table class="w-full text-[7pt] border-collapse table-fixed">
-            <thead class="bg-gray-100 border-b-2 border-gray-400">
-              <tr>
-                <th
-                  rowspan="2"
-                  class="w-[15%] px-2 py-1 text-left font-semibold text-gray-900 border-r border-gray-300"
-                >
-                  KECAMATAN
-                </th>
-                <th
-                  colspan="12"
-                  class="px-2 py-1 text-center font-semibold text-gray-900 border-r border-gray-300"
-                >
-                  BULAN
-                </th>
-                <th rowspan="2" class="w-[10%] px-2 py-1 text-center font-semibold text-gray-900">
-                  JUMLAH
-                </th>
-              </tr>
-              <tr>
-                <th
-                  v-for="bulan in bulanNames"
-                  :key="bulan"
-                  class="w-[5.5%] px-1 py-1 text-center font-semibold text-gray-900 border-r border-gray-300"
-                >
-                  {{ bulan }}
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-              <tr v-for="item in kecamatanList" :key="item.id" class="border-b">
-                <td class="px-2 py-1 text-left font-medium text-gray-700 border-r border-gray-300">
-                  {{ item.data.name }}
-                </td>
-                <td
-                  v-for="index in 12"
-                  :key="`rupiah-${index - 1}`"
-                  class="px-1 py-1 text-right border-r border-gray-300 whitespace-nowrap"
-                >
-                  {{ formatRupiah(item.data.detail_rupiah[(index - 1) as keyof DetailBulan]) }}
-                </td>
-                <td
-                  class="px-2 py-1 text-right font-medium bg-gray-50 text-gray-700 whitespace-nowrap"
-                >
-                  {{ formatRupiah(calculateTotal(item.data.detail_rupiah)) }}
-                </td>
-              </tr>
-              <tr class="bg-gray-100 font-bold border-t-2 border-gray-400">
-                <td class="px-2 py-1 text-left border-r border-gray-300">TOTAL KESELURUHAN</td>
-                <td
-                  v-for="index in 12"
-                  :key="`total-${index - 1}`"
-                  class="px-1 py-1 text-right border-r border-gray-300 whitespace-nowrap"
-                >
-                  {{ formatRupiah(calculateGrandTotalBulan(index - 1)) }}
-                </td>
-                <td class="px-2 py-1 text-right whitespace-nowrap">
-                  {{ formatRupiah(calculateGrandTotal()) }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <BaseTable
+            class="w-full text-[7pt] table-fixed print-table"
+            :columns="tableColumns"
+            :data="kecamatanList"
+            :with-pagination="false"
+            :show-search="false"
+            :show-add="false"
+            :show-edit="false"
+            :show-delete="false"
+            :show-numbering="false"
+            :show-actions="false"
+          >
+            <template #thead>
+              <thead class="bg-gray-100 border-b-2 border-gray-400">
+                <tr>
+                  <th
+                    rowspan="2"
+                    class="w-[15%] px-2 py-1 text-left font-semibold text-gray-900 border-r border-gray-300"
+                  >
+                    KECAMATAN
+                  </th>
+                  <th
+                    colspan="12"
+                    class="px-2 py-1 text-center font-semibold text-gray-900 border-r border-gray-300"
+                  >
+                    BULAN
+                  </th>
+                  <th rowspan="2" class="w-[10%] px-2 py-1 text-center font-semibold text-gray-900">
+                    JUMLAH
+                  </th>
+                </tr>
+                <tr>
+                  <th
+                    v-for="bulan in bulanNames"
+                    :key="bulan"
+                    class="w-[5.5%] px-1 py-1 text-center font-semibold text-gray-900 border-r border-gray-300"
+                  >
+                    {{ bulan }}
+                  </th>
+                </tr>
+              </thead>
+            </template>
+            <template #tbody>
+              <tbody class="divide-y divide-gray-200">
+                <tr v-for="item in kecamatanList" :key="item.id" class="border-b">
+                  <td class="px-2 py-1 text-left font-medium text-gray-700 border-r border-gray-300">
+                    {{ item.data.name }}
+                  </td>
+                  <td
+                    v-for="index in 12"
+                    :key="`rupiah-${index - 1}`"
+                    class="px-1 py-1 text-right border-r border-gray-300 whitespace-nowrap"
+                  >
+                    {{ formatRupiah(item.data.detail_rupiah[(index - 1) as keyof DetailBulan]) }}
+                  </td>
+                  <td
+                    class="px-2 py-1 text-right font-medium bg-gray-50 text-gray-700 whitespace-nowrap"
+                  >
+                    {{ formatRupiah(calculateTotal(item.data.detail_rupiah)) }}
+                  </td>
+                </tr>
+                <tr class="bg-gray-100 font-bold border-t-2 border-gray-400">
+                  <td class="px-2 py-1 text-left border-r border-gray-300">TOTAL KESELURUHAN</td>
+                  <td
+                    v-for="index in 12"
+                    :key="`total-${index - 1}`"
+                    class="px-1 py-1 text-right border-r border-gray-300 whitespace-nowrap"
+                  >
+                    {{ formatRupiah(calculateGrandTotalBulan(index - 1)) }}
+                  </td>
+                  <td class="px-2 py-1 text-right whitespace-nowrap">
+                    {{ formatRupiah(calculateGrandTotal()) }}
+                  </td>
+                </tr>
+              </tbody>
+            </template>
+          </BaseTable>
         </div>
         <div class="mt-auto">
           <FooterCetak />

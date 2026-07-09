@@ -9,10 +9,11 @@ import EditIcon from '@/components/Icons/EditIcon.vue';
 import DangerButton from '@/components/Button/DangerButton.vue';
 import DeleteIcon from '@/components/Icons/DeleteIcon.vue';
 import Pagination from '@/components/Pagination/Pagination.vue';
-import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue';
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 import FormAdd from '@/modules/DaftarKeanggotaan/widgets/FormAdd.vue';
 import FormEdit from '@/modules/DaftarKeanggotaan/widgets/FormEdit.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // Composable
 import { usePagination } from '@/composables/usePaginations';
@@ -57,6 +58,14 @@ interface Data {
 }
 
 const dataDaftarKeanggotaan = ref<Data[]>([]);
+
+const tableColumns = ref<TableColumn[]>([
+  { key: 'kode', label: 'Kode', headerClass: 'w-[10%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+  { key: 'tipe', label: 'Tipe Member', headerClass: 'w-[15%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+  { key: 'fullname', label: 'Nama Member', headerClass: 'w-[15%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+  { key: 'info_member', label: 'Info Member', headerClass: 'w-[35%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+  { key: 'datetime', label: 'Datetimes', headerClass: 'w-[15%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+]);
 
 // Function: Modal
 const isModalAddOpen = ref(false);
@@ -123,145 +132,98 @@ async function deleteData(id: number) {
 </script>
 
 <template>
-  <div class="mx-auto p-4">
+  <div class="p-4">
     <!-- Header -->
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <BaseButton
-          @click="openModalAdd()"
-          variant="primary"
-          :loading="isModalAddOpen || isModalEditOpen"
-          type="button"
-        >
-          <font-awesome-icon icon="fa-solid fa-plus" class="mr-2" />
-          Tambah Keanggotaan
-        </BaseButton>
-
-        <!-- Search -->
-        <div class="flex items-center w-full sm:w-auto">
-          <label for="search" class="mr-2 text-sm font-medium text-gray-600">Filter</label>
-          <input
-            id="search"
-            type="text"
-            v-model="search"
-            @change="fetchData"
-            placeholder="Cari Nama / Kode / Nomor Whatsapp . . ."
-            class="w-full sm:w-96 rounded-s-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
-          />
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mt-4">
+        <BaseTable
+          empty-title="Tidak ada data"
+          empty-desc="Belum ada data keanggotaan."
+          empty-icon="fa-solid fa-users"
+        :columns="tableColumns"
+        :data="dataDaftarKeanggotaan"
+        :loading="isTableLoading"
+        :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+        :show-search="true"
+        search-placeholder="Cari Nama / Kode / Nomor Whatsapp . . ."
+        @search="search = $event; fetchData()"
+        :show-add="true"
+        add-label="Tambah Keanggotaan"
+        @add="openModalAdd"
+        :show-edit="false"
+        :show-delete="false"
+        @page-change="pageNow"
+      >
+        <template #filters>
           <select
             id="type"
             v-model="type"
             @change="fetchData()"
-            class="block w-full sm:w-64 rounded-e-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:ring-2 focus:ring-green-900 focus:border-green-900 transition"
+            class="block w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:ring-2 focus:ring-green-900 focus:border-green-900 transition"
           >
             <option value="perorangan">Perorangan</option>
             <option value="instansi">Instansi</option>
             <option value="">Semua</option>
           </select>
-        </div>
-      </div>
+        </template>
+        
+        
 
-      <!-- Table -->
-      <div class="overflow-hidden rounded-xl border border-gray-200 shadow">
-        <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-        <table v-else class="w-full border-collapse bg-white text-sm">
-          <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
-            <tr>
-              <th class="w-[10%] px-6 py-3 font-medium">Kode</th>
-              <th class="w-[15%] px-6 py-3 font-medium">Tipe Member</th>
-              <th class="w-[15%] px-6 py-3 font-medium">Nama Member</th>
-              <th class="w-[35%] px-6 py-3 font-medium">Info Member</th>
-              <th class="w-[15%] px-6 py-3 font-medium">Datetimes</th>
-              <th class="w-[10%] px-6 py-3 font-medium">Aksi</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <template v-if="dataDaftarKeanggotaan.length > 0">
-              <tr
-                v-for="data in dataDaftarKeanggotaan"
-                :key="data.id"
-                class="hover:bg-gray-100 transition-colors"
-              >
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ data.kode }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ data.tipe.toUpperCase() }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ data.fullname }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  <table class="border border-gray-300 w-full text-sm text-left">
-                    <tbody>
-                      <tr class="border border-gray-300">
-                        <td class="w-[45%] bg-gray-100 px-4 py-2 font-medium">Desa</td>
-                        <td class="px-4 py-2">{{ data.desa_name || '-' }}</td>
-                      </tr>
-                      <tr class="border border-gray-300">
-                        <td class="w-[45%] bg-gray-100 px-4 py-2 font-medium">Kecamatan</td>
-                        <td class="px-4 py-2">{{ data.kecamatan_name || '-' }}</td>
-                      </tr>
-                      <tr class="border border-gray-300">
-                        <td class="w-[45%] bg-gray-100 px-4 py-2 font-medium">Nomor Whatsapp</td>
-                        <td class="px-4 py-2">{{ data.whatsapp_number || '-' }}</td>
-                      </tr>
-                      <tr class="border border-gray-300">
-                        <td class="w-[45%] bg-gray-100 px-4 py-2 font-medium">Nomor KTP</td>
-                        <td class="px-4 py-2">{{ data.nomor_ktp || '-' }}</td>
-                      </tr>
-                      <tr class="border border-gray-300">
-                        <td class="w-[45%] bg-gray-100 px-4 py-2 font-medium">Nomor KK</td>
-                        <td class="px-4 py-2">{{ data.nomor_kk || '-' }}</td>
-                      </tr>
-                      <tr class="border border-gray-300">
-                        <td class="w-[45%] bg-gray-100 px-4 py-2 font-medium">Tanggal Lahir</td>
-                        <td class="px-4 py-2">{{ data.birth_date || '-' }}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ data.datetime }}
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex justify-center gap-2">
-                    <LightButton @click="openModalEdit(data)">
-                      <EditIcon />
-                    </LightButton>
-                    <DangerButton @click="deleteData(data.id)">
-                      <DeleteIcon />
-                    </DangerButton>
-                  </div>
-                </td>
+        <template #cell-kode="{ value }">
+          {{ value }}
+        </template>
+        <template #cell-tipe="{ value }">
+          {{ value.toUpperCase() }}
+        </template>
+        <template #cell-fullname="{ value }">
+          {{ value }}
+        </template>
+        <template #cell-info_member="{ row }">
+          <table class="border border-gray-300 w-full text-sm text-left">
+            <tbody>
+              <tr class="border border-gray-300">
+                <td class="w-[45%] bg-gray-100 px-4 py-2 font-medium">Desa</td>
+                <td class="px-4 py-2">{{ row.desa_name || '-' }}</td>
               </tr>
-            </template>
-
-            <!-- Empty State -->
-            <tr v-else>
-              <td :colspan="totalColumns" class="px-6 py-8 text-center text-gray-500">
-                <font-awesome-icon icon="fa-solid fa-users" class="text-4xl mb-2 text-gray-400" />
-                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada data</h3>
-                <p class="text-sm">Belum ada data keanggotaan.</p>
-              </td>
-            </tr>
-          </tbody>
-
-          <!-- Pagination -->
-          <tfoot class="bg-gray-100 font-bold">
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
+              <tr class="border border-gray-300">
+                <td class="w-[45%] bg-gray-100 px-4 py-2 font-medium">Kecamatan</td>
+                <td class="px-4 py-2">{{ row.kecamatan_name || '-' }}</td>
+              </tr>
+              <tr class="border border-gray-300">
+                <td class="w-[45%] bg-gray-100 px-4 py-2 font-medium">Nomor Whatsapp</td>
+                <td class="px-4 py-2">{{ row.whatsapp_number || '-' }}</td>
+              </tr>
+              <tr class="border border-gray-300">
+                <td class="w-[45%] bg-gray-100 px-4 py-2 font-medium">Nomor KTP</td>
+                <td class="px-4 py-2">{{ row.nomor_ktp || '-' }}</td>
+              </tr>
+              <tr class="border border-gray-300">
+                <td class="w-[45%] bg-gray-100 px-4 py-2 font-medium">Nomor KK</td>
+                <td class="px-4 py-2">{{ row.nomor_kk || '-' }}</td>
+              </tr>
+              <tr class="border border-gray-300">
+                <td class="w-[45%] bg-gray-100 px-4 py-2 font-medium">Tanggal Lahir</td>
+                <td class="px-4 py-2">{{ row.birth_date || '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </template>
+        <template #cell-datetime="{ value }">
+          {{ value }}
+        </template>
+        
+        <template #row-actions="{ row }">
+          <div class="flex justify-center gap-2">
+            <LightButton @click="openModalEdit(row)">
+              <EditIcon />
+            </LightButton>
+            <DangerButton @click="deleteData(row.id)">
+              <DeleteIcon />
+            </DangerButton>
+          </div>
+        </template>
+      </BaseTable>
       </div>
     </div>
 

@@ -4,6 +4,8 @@ import { onMounted, ref } from 'vue';
 import Pagination from '@/components/Pagination/Pagination.vue';
 import Notification from '@/components/Modal/Notification.vue';
 import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // Composable
 import { usePagination } from '@/composables/usePaginations';
@@ -18,6 +20,7 @@ const isTableLoading = ref(false);
 // Composable: pagination
 const itemsPerPage = ref<number>(100);
 const totalColumns = ref<number>(4);
+const tableColumns = ref<TableColumn[]>([]);
 
 const { currentPage, perPage, totalRow, totalPages, nextPage, prevPage, pageNow, pages } =
   usePagination(fetchData, { perPage: itemsPerPage.value });
@@ -50,7 +53,7 @@ async function fetchData() {
     });
 
     dataSurveyorLog.value = response.data;
-    totalRow.value = response.total;
+    totalRow.value = response.total || response.data?.length || 0;
     console.log(dataSurveyorLog.value);
   } catch (error: any) {
     displayNotification(error.response?.data?.message || 'Gagal mengambil data surveyor', 'error');
@@ -68,77 +71,76 @@ onMounted(async () => {
   <div class="mx-auto p-4">
     <!-- Header -->
     <div class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-end gap-4">
-        <!-- Search -->
-        <div class="flex items-center w-full sm:w-auto">
-          <label for="search" class="mr-2 text-sm font-medium text-gray-600">Cari</label>
-          <input
-            id="search"
-            type="text"
-            v-model="search"
-            @change="fetchData"
-            placeholder="Cari surveyor..."
-            class="w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
-          />
-        </div>
-      </div>
-
       <!-- Table -->
       <div class="overflow-hidden rounded-xl border border-gray-200 shadow">
         <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-        <table v-else class="w-full border-collapse bg-white text-sm">
-          <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
-            <tr>
-              <th class="w-[20%] px-6 py-3 font-medium">Datetimes</th>
-              <th class="w-[40%] px-6 py-3 font-medium">Message</th>
-              <th class="w-[20%] px-6 py-3 font-medium">Surveyor</th>
-              <th class="w-[20%] px-6 py-3 font-medium">IP</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <template v-if="dataSurveyorLog.length > 0">
-              <tr
-                v-for="data in dataSurveyorLog"
-                :key="data.id"
-                class="hover:bg-gray-50 transition-colors"
-              >
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ data.createdAt }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ data.message }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ data.nama_surveyor }}
-                </td>
-                <td class="px-6 py-4 text-center font-medium text-gray-800">
-                  {{ data.ip }}
+        <BaseTable
+          v-else
+          class="w-full border-collapse bg-white text-sm"
+          :columns="tableColumns"
+          :data="dataSurveyorLog"
+          :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+          @page-change="pageNow"
+          :show-search="true"
+          search-placeholder="Cari surveyor..."
+          @search="search = $event; fetchData()"
+          :show-add="false"
+          :show-edit="false"
+          :show-delete="false"
+          :show-numbering="false"
+          :show-actions="false"
+        >
+          <template #thead>
+            <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
+              <tr>
+                <th class="w-[20%] px-6 py-3 font-medium">Datetimes</th>
+                <th class="w-[40%] px-6 py-3 font-medium">Message</th>
+                <th class="w-[20%] px-6 py-3 font-medium">Surveyor</th>
+                <th class="w-[20%] px-6 py-3 font-medium">IP</th>
+              </tr>
+            </thead>
+          </template>
+          <template #tbody>
+            <tbody class="divide-y divide-gray-100">
+              <template v-if="dataSurveyorLog.length > 0">
+                <tr
+                  v-for="data in dataSurveyorLog"
+                  :key="data.id"
+                  class="hover:bg-gray-50 transition-colors"
+                >
+                  <td class="px-6 py-4 text-center font-medium text-gray-800">
+                    {{ data.createdAt }}
+                  </td>
+                  <td class="px-6 py-4 text-center font-medium text-gray-800">
+                    {{ data.message }}
+                  </td>
+                  <td class="px-6 py-4 text-center font-medium text-gray-800">
+                    {{ data.nama_surveyor }}
+                  </td>
+                  <td class="px-6 py-4 text-center font-medium text-gray-800">
+                    {{ data.ip }}
+                  </td>
+                </tr>
+              </template>
+
+              <!-- Empty State -->
+              <tr v-else>
+                <td :colspan="totalColumns" class="empty-state-cell">
+                  <div class="empty-state animate-fade-in">
+                    <div class="empty-state-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
+                    </div>
+                    <p class="empty-state-title">Tidak ada data</p>
+                    <p class="empty-state-desc">Belum ada data.</p>
+                  </div>
                 </td>
               </tr>
-            </template>
-
-            <!-- Empty State -->
-            <tr v-else>
-              <td :colspan="totalColumns" class="px-6 py-8 text-center text-gray-500">
-                <p class="text-sm">Belum ada data.</p>
-              </td>
-            </tr>
-          </tbody>
+            </tbody>
+          </template>
 
           <!-- Pagination -->
-          <tfoot>
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
+          
+        </BaseTable>
       </div>
     </div>
 

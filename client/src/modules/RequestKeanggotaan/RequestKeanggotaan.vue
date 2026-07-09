@@ -7,7 +7,8 @@ import { computed, onMounted, ref } from 'vue';
 import ButtonReject from '@/components/Button/ButtonReject.vue';
 import Notification from '@/components/Modal/Notification.vue';
 import Confirmation from '@/components/Modal/Confirmation.vue';
-import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 
 // Composable
@@ -25,6 +26,15 @@ const totalColumns = ref<number>(7);
 
 const { currentPage, perPage, totalRow, totalPages, nextPage, prevPage, pageNow, pages } =
   usePagination(fetchData, { perPage: itemsPerPage.value });
+
+const tableColumns = ref<TableColumn[]>([
+  { key: 'nama', label: 'Nama', headerClass: 'w-[20%] text-center', cellClass: 'text-center align-middle' },
+  { key: 'tgl_lahir', label: 'Tgl Lahir', headerClass: 'w-[15%] text-center', cellClass: 'text-center align-middle' },
+  { key: 'whatsapp', label: 'WhatsApp', headerClass: 'w-[15%] text-center', cellClass: 'text-center align-middle' },
+  { key: 'username', label: 'Username', headerClass: 'w-[15%] text-center', cellClass: 'text-center align-middle' },
+  { key: 'desa', label: 'Desa', headerClass: 'w-[15%] text-center', cellClass: 'text-center align-middle' },
+  { key: 'status', label: 'Status', headerClass: 'w-[10%] text-center', cellClass: 'text-center align-middle' },
+]);
 
 // Composable: notification
 const { showNotification, notificationType, notificationMessage, displayNotification } =
@@ -139,147 +149,130 @@ const handleReject = async (id: number) => {
     </div>
 
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
-      <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-      <table v-else class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <!-- Header dengan grouping -->
-        <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
-          <tr>
-            <th class="w-[20%] text-center px-6 py-4 font-medium font-bold text-gray-900">Nama</th>
-            <th class="w-[15%] text-center px-6 py-4 font-medium font-bold text-gray-900">
-              Tgl Lahir
-            </th>
-            <th class="w-[15%] text-center px-6 py-4 font-medium font-bold text-gray-900">
-              WhatsApp
-            </th>
-            <th class="w-[15%] text-center px-6 py-4 font-medium font-bold text-gray-900">
-              Username
-            </th>
-            <th class="w-[15%] text-center px-6 py-4 font-medium font-bold text-gray-900">Desa</th>
-            <th class="w-[10%] text-center px-6 py-4 font-medium font-bold text-gray-900">
-              Status
-            </th>
-            <th class="w-[10%] text-center px-6 py-4 font-medium font-bold text-gray-900">Aksi</th>
-          </tr>
-        </thead>
+      <BaseTable
+          empty-title="Tidak ada data"
+          empty-desc="Belum ada data request keanggotaan."
+          empty-icon="fa-solid fa-user-plus"
+        :columns="tableColumns"
+        :data="data"
+        :loading="isTableLoading"
+        :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+        :show-search="false"
+        :show-add="false"
+        :show-edit="false"
+        :show-delete="false"
+        @page-change="pageNow"
+      >
+        
 
-        <!-- Isi Data -->
-        <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-          <tr v-for="(item, idx) in data" :key="item.id">
-            <td class="px-3 py-2 text-center">{{ item.fullname }}</td>
-            <td class="px-3 py-2 text-center">{{ item.birth_date }}</td>
-            <td class="px-3 py-2 text-center">{{ item.whatsapp_number }}</td>
-            <td class="px-3 py-2 text-center">{{ item.username }}</td>
-            <td class="px-3 py-2 text-center">{{ item.nama_desa }}</td>
-            <td class="px-3 py-2 text-center">{{ item.status }}</td>
-            <td class="px-3 py-2 text-center">
-              <div class="flex flex-col items-center gap-2 w-full max-w-xs">
-                <div class="flex flex-col gap-2 items-stretch">
-                  <template v-if="item.status === 'verified'">
-                    <span
-                      class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold"
-                    >
-                      ✔ Verified
-                    </span>
-                  </template>
-                  <template v-else-if="item.status === 'unverified'">
-                    <span
-                      class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold"
-                    >
-                      ✖ Unverified
-                    </span>
-                  </template>
-                  <template v-else>
-                    <span
-                      class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-semibold"
-                    >
-                      ⚠ Unknown
-                    </span>
-                  </template>
+        <template #cell-nama="{ row: item }">
+          {{ item.fullname }}
+        </template>
 
-                  <!-- Approve -->
-                  <SuccessButton
-                    v-if="item.status == 'process'"
-                    class="w-full flex justify-center"
-                    @click="
-                      displayConfirmation(
-                        'Konfirmasi Approve',
-                        `Yakin mau approve ${item.fullname}?`,
-                        () => handleApprove(item.id),
-                      )
-                    "
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="w-5 h-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  </SuccessButton>
+        <template #cell-tgl_lahir="{ row: item }">
+          {{ item.birth_date }}
+        </template>
 
-                  <!-- Reject -->
-                  <ButtonReject
-                    v-if="item.status == 'process'"
-                    class="w-full flex justify-center"
-                    @click="
-                      displayConfirmation(
-                        'Konfirmasi Reject',
-                        `Yakin mau reject ${item.fullname}?`,
-                        () => handleReject(item.id),
-                      )
-                    "
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="w-5 h-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </ButtonReject>
-                </div>
-              </div>
-            </td>
-          </tr>
+        <template #cell-whatsapp="{ row: item }">
+          {{ item.whatsapp_number }}
+        </template>
 
-          <!-- Kalau data kosong -->
-          <tr v-if="data.length === 0">
-            <td :colspan="totalColumns" class="px-6 py-8 text-center text-gray-500">
-              <font-awesome-icon icon="fa-solid fa-user-plus" class="text-4xl mb-2 text-gray-400" />
-              <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada data</h3>
-              <p class="text-sm">Belum ada data request keanggotaan.</p>
-            </td>
-          </tr>
-        </tbody>
+        <template #cell-username="{ row: item }">
+          {{ item.username }}
+        </template>
 
-        <!-- Footer -->
-        <tfoot class="bg-gray-50 font-bold">
-          <Pagination
-            :total-row="totalRow"
-            :currentPage="currentPage"
-            :totalPages="totalPages"
-            :pages="pages"
-            :totalColumns="totalColumns"
-            @prev-page="prevPage"
-            @next-page="nextPage"
-            @page-now="pageNow"
-          />
-        </tfoot>
-      </table>
+        <template #cell-desa="{ row: item }">
+          {{ item.nama_desa }}
+        </template>
+
+        <template #cell-status="{ row: item }">
+          {{ item.status }}
+        </template>
+
+        <template #row-actions="{ row: item }">
+          <div class="flex flex-col items-center gap-2 w-full max-w-xs">
+            <div class="flex flex-col gap-2 items-stretch">
+              <template v-if="item.status === 'verified'">
+                <span
+                  class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold"
+                >
+                  ✔ Verified
+                </span>
+              </template>
+              <template v-else-if="item.status === 'unverified'">
+                <span
+                  class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold"
+                >
+                  ✖ Unverified
+                </span>
+              </template>
+              <template v-else>
+                <span
+                  class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-semibold"
+                >
+                  ⚠ Unknown
+                </span>
+              </template>
+
+              <!-- Approve -->
+              <SuccessButton
+                v-if="item.status == 'process'"
+                class="w-full flex justify-center"
+                @click="
+                  displayConfirmation(
+                    'Konfirmasi Approve',
+                    `Yakin mau approve ${item.fullname}?`,
+                    () => handleApprove(item.id),
+                  )
+                "
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-5 h-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </SuccessButton>
+
+              <!-- Reject -->
+              <ButtonReject
+                v-if="item.status == 'process'"
+                class="w-full flex justify-center"
+                @click="
+                  displayConfirmation(
+                    'Konfirmasi Reject',
+                    `Yakin mau reject ${item.fullname}?`,
+                    () => handleReject(item.id),
+                  )
+                "
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-5 h-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </ButtonReject>
+            </div>
+          </div>
+        </template>
+      </BaseTable>
     </div>
   </div>
 

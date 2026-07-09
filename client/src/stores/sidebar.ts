@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useSidebarStore = defineStore('sidebar', () => {
-  const isSidebarOpen = ref(false)
+  const isSidebarOpen = ref(window.innerWidth >= 1024)
   const selected = useStorage('selected', ref('eCommerce'))
   const page = useStorage('page', ref('Dashboard'))
 
@@ -15,12 +15,12 @@ export const useSidebarStore = defineStore('sidebar', () => {
 })
 
 export const useSelectedTab = defineStore('selectedTab', {
-  state: () => ({ sharedArray: [] }),
+  state: () => ({ sharedArray: [] as any[] }),
   actions: {
-    addItem(item) {
+    addItem(item: any) {
       this.sharedArray.push(item)
     },
-    removeItem(index) {
+    removeItem(index: number) {
       this.sharedArray.splice(index, 1)
     },
     clearArray() {

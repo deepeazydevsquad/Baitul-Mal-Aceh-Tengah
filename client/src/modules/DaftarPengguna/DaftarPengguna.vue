@@ -9,10 +9,11 @@ import EditIcon from '@/components/Icons/EditIcon.vue';
 import DangerButton from '@/components/Button/DangerButton.vue';
 import DeleteIcon from '@/components/Icons/DeleteIcon.vue';
 import Pagination from '@/components/Pagination/Pagination.vue';
-import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue';
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 import FormAdd from '@/modules/DaftarPengguna/widgets/FormAdd.vue';
 import FormEdit from '@/modules/DaftarPengguna/widgets/FormEdit.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // Composable
 import { usePagination } from '@/composables/usePaginations';
@@ -54,6 +55,13 @@ interface daftar_pengguna {
 }
 
 const dataDaftarPengguna = ref<daftar_pengguna[]>([]);
+
+const tableColumns = ref<TableColumn[]>([
+  { key: 'kode_username', label: 'Kode / Username', headerClass: 'w-[20%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+  { key: 'nama_jabatan', label: 'Nama / Jabatan', headerClass: 'w-[20%] text-center', cellClass: 'text-center font-medium text-gray-800 break-words' },
+  { key: 'grup', label: 'Grup', headerClass: 'w-[20%] text-center', cellClass: 'text-center font-medium text-gray-800 break-words' },
+  { key: 'createdAt', label: 'DateTimes', headerClass: 'w-[20%] text-center', cellClass: 'text-center font-medium text-gray-800' },
+]);
 
 // Modal state
 const isAddModalOpen = ref(false);
@@ -117,111 +125,58 @@ async function deleteData(id: number) {
 </script>
 
 <template>
-  <div class="mx-auto p-4">
+  <div class="p-4">
     <!-- Header -->
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <BaseButton
-          :loading="isAddModalOpen || isEditModalOpen"
-          @click="openAddModal"
-          variant="primary"
-          type="button"
-        >
-          <font-awesome-icon icon="fa-solid fa-plus" class="mr-2" />
-          Tambah Pengguna
-        </BaseButton>
-
-        <!-- Search -->
-        <div class="flex items-center w-full sm:w-auto">
-          <label for="search" class="mr-2 text-sm font-medium text-gray-600">Cari</label>
-          <input
-            id="search"
-            type="text"
-            v-model="search"
-            @change="fetchData"
-            placeholder="Cari pengguna..."
-            class="w-full sm:w-64 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-[#14532d] focus:ring-2 focus:ring-[#14532d] transition"
-          />
-        </div>
-      </div>
-
-      <!-- Table -->
-      <div class="rounded-xl border border-gray-200 shadow">
-        <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-        <table v-else class="table-fixed w-full border-collapse bg-white text-sm">
-          <thead class="bg-gray-50 text-gray-700 text-center">
-            <tr>
-              <th class="w-[20%] px-6 py-3 font-medium">Kode / Username</th>
-              <th class="w-[20%] px-6 py-3 font-medium">Nama / Jabatan</th>
-              <th class="w-[20%] px-6 py-3 font-medium">Grup</th>
-              <th class="w-[20%] px-6 py-3 font-medium">DateTimes</th>
-              <th class="w-[20%] px-6 py-3 font-medium">Aksi</th>
-            </tr>
-          </thead>
-
-          <tbody class="divide-y divide-gray-100">
-            <template v-if="dataDaftarPengguna.length > 0">
-              <tr
-                v-for="pengguna in dataDaftarPengguna"
-                :key="pengguna.id"
-                class="hover:bg-gray-50 transition-colors text-center"
-              >
-                <td class="px-4 py-2 text-gray-600">
-                  <b>#{{ pengguna.kode }}</b>
-                  <br />
-                  ( {{ pengguna.username }} )
-                </td>
-                <td class="px-6 py-4 text-gray-600 break-words">
-                  {{ pengguna.name }}
-                  <br />
-                  ( Jabatan : {{ pengguna.jabatan }} )
-                </td>
-                <td class="px-6 py-4 text-gray-600 break-words">
-                  {{ pengguna.grup }}
-                </td>
-                <td class="px-6 py-4 text-gray-600">
-                  {{ pengguna.createdAt }}
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex justify-center gap-2">
-                    <LightButton @click="openEditModal(pengguna)">
-                      <EditIcon />
-                    </LightButton>
-                    <DangerButton @click="deleteData(pengguna.id)">
-                      <DeleteIcon />
-                    </DangerButton>
-                  </div>
-                </td>
-              </tr>
-            </template>
-
-            <!-- Empty State -->
-            <tr v-else>
-              <td :colspan="totalColumns" class="px-6 py-8 text-center text-gray-500">
-                <font-awesome-icon
-                  icon="fa-solid fa-database"
-                  class="text-2xl mb-2 text-gray-400"
-                />
-                <p class="text-sm">Belum ada pengguna.</p>
-              </td>
-            </tr>
-          </tbody>
-
-          <!-- Pagination -->
-          <tfoot>
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mt-4">
+        <BaseTable
+          empty-title="Data tidak ditemukan"
+          empty-desc="Belum ada pengguna."
+          empty-icon="fa-solid fa-database"
+        :columns="tableColumns"
+        :data="dataDaftarPengguna"
+        :loading="isTableLoading"
+        :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+        :show-search="true"
+        search-placeholder="Cari pengguna..."
+        @search="search = $event; fetchData()"
+        :show-add="true"
+        add-label="Tambah Pengguna"
+        @add="openAddModal"
+        :show-edit="false"
+        :show-delete="false"
+        @page-change="pageNow"
+      >
+        
+        <template #cell-kode_username="{ row }">
+          <b>#{{ row.kode }}</b>
+          <br />
+          ( {{ row.username }} )
+        </template>
+        <template #cell-nama_jabatan="{ row }">
+          {{ row.name }}
+          <br />
+          ( Jabatan : {{ row.jabatan }} )
+        </template>
+        <template #cell-grup="{ value }">
+          {{ value }}
+        </template>
+        <template #cell-createdAt="{ value }">
+          {{ value }}
+        </template>
+        
+        <template #row-actions="{ row }">
+          <div class="flex justify-center gap-2">
+            <LightButton @click="openEditModal(row)">
+              <EditIcon />
+            </LightButton>
+            <DangerButton @click="deleteData(row.id)">
+              <DeleteIcon />
+            </DangerButton>
+          </div>
+        </template>
+      </BaseTable>
       </div>
     </div>
 

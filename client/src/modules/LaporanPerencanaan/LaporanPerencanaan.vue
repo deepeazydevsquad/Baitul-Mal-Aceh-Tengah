@@ -11,6 +11,8 @@ import jsPDF from 'jspdf';
 
 import { get_laporan_perencanaan } from '@/service/laporan_perencanaan';
 import BaseButton from '@/components/Button/BaseButton.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 const { showNotification, notificationType, notificationMessage, displayNotification } =
   useNotification();
@@ -21,6 +23,7 @@ const isTableLoading = ref(false);
 
 const itemsPerPage = ref<number>(10);
 const totalColumns = ref<number>(10);
+const tableColumns = ref<TableColumn[]>([]);
 
 const { currentPage, perPage, totalRow, totalPages, nextPage, prevPage, pageNow, pages } =
   usePagination(fetchData, { perPage: itemsPerPage.value });
@@ -106,33 +109,53 @@ const cetak_laporan = () => {
 </script>
 
 <template>
-  <div class="mx-auto p-4">
-    <div class="flex flex-wrap items-end justify-between mb-4 gap-4">
-      <div class="flex flex-wrap gap-4">
-        <!-- Filter Tahun -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
-          <select
-            v-model="selectedYear"
-            class="border border-gray-300 rounded-lg px-3 py-2 text-sm w-40"
-          >
-            <option :value="null">Semua</option>
-            <option v-for="tahun in tahunOptions" :key="tahun" :value="tahun">{{ tahun }}</option>
-          </select>
-        </div>
+  <div class="p-4">
+    <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
+    <div v-else class="space-y-4">
+      <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mt-4">
+        <BaseTable
+        class="w-full border-collapse bg-white text-sm"
+        :columns="tableColumns"
+        :data="datas"
+        :loading="isTableLoading"
+        :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+        @page-change="pageNow"
+        :show-search="false"
+        :show-add="false"
+        :show-edit="false"
+        :show-delete="false"
+        :show-numbering="false"
+        :show-actions="false"
+      >
+        <template #filters>
+          <div class="flex items-center gap-4">
+            <!-- Filter Tahun -->
+            <div class="flex items-center gap-2">
+              <label class="text-sm font-medium text-gray-600">Filter Tahun</label>
+              <select
+                v-model="selectedYear"
+                class="border border-gray-300 rounded-lg px-3 py-2 text-sm w-40 focus:border-[#14532d] focus:ring-2 focus:ring-[#14532d] transition"
+              >
+                <option :value="null">Semua</option>
+                <option v-for="tahun in tahunOptions" :key="tahun" :value="tahun">{{ tahun }}</option>
+              </select>
+            </div>
 
-        <!-- Filter Program -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Program</label>
-          <select
-            v-model="selectedProgram"
-            class="border border-gray-300 rounded-lg px-3 py-2 text-sm w-48"
-          >
-            <option value="">Semua</option>
-            <option v-for="prog in programOptions" :key="prog" :value="prog">{{ prog }}</option>
-          </select>
-        </div>
-        <div class="flex items-end justify-between gap-4 mb-0">
+            <!-- Filter Program -->
+            <div class="flex items-center gap-2">
+              <label class="text-sm font-medium text-gray-600">Filter Program</label>
+              <select
+                v-model="selectedProgram"
+                class="border border-gray-300 rounded-lg px-3 py-2 text-sm w-48 focus:border-[#14532d] focus:ring-2 focus:ring-[#14532d] transition"
+              >
+                <option value="">Semua</option>
+                <option v-for="prog in programOptions" :key="prog" :value="prog">{{ prog }}</option>
+              </select>
+            </div>
+          </div>
+        </template>
+
+        <template #custom-actions>
           <BaseButton
             @click="cetak_laporan()"
             variant="primary"
@@ -142,19 +165,9 @@ const cetak_laporan = () => {
             <font-awesome-icon icon="fa-solid fa-print" class="mr-2" />
             Cetak
           </BaseButton>
-        </div>
-      </div>
+        </template>
 
-      <div class="flex items-end justify-between gap-4 mb-0">
-        <!-- <font-awesome-icon icon="fa-solid fa-download" class="mr-2" />
-          {{ isDownloading ? 'Downloading...' : 'Download PDF' }} -->
-      </div>
-    </div>
-    <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
-    <div v-else class="space-y-4">
-      <div class="overflow-hidden rounded-xl border border-gray-200 shadow">
-        <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-        <table v-else class="w-full border-collapse bg-white text-sm">
+        <template #thead>
           <!-- Header -->
           <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
             <tr>
@@ -179,7 +192,8 @@ const cetak_laporan = () => {
               <th class="px-6 py-3 font-medium border border-gray-300">Jumlah</th>
             </tr>
           </thead>
-
+        </template>
+        <template #tbody>
           <!-- Body -->
           <tbody class="divide-y divide-gray-100">
             <template v-if="datas && datas.length > 0">
@@ -237,27 +251,34 @@ const cetak_laporan = () => {
             </template>
             <template v-else>
               <tr>
-                <td colspan="9" class="px-6 py-4 text-gray-600 text-center">
-                  Data tidak ditemukan
+                <td colspan="9" class="empty-state-cell">
+                  <div class="empty-state animate-fade-in">
+                    <div class="empty-state-icon">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="w-8 h-8"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                        />
+                      </svg>
+                    </div>
+                    <p class="empty-state-title">Data tidak ditemukan</p>
+                    <p class="empty-state-desc">Belum ada data tersedia atau coba gunakan kata kunci lain.</p>
+                  </div>
                 </td>
               </tr>
             </template>
           </tbody>
-
-          <!-- Pagination -->
-          <tfoot class="bg-gray-100 font-bold">
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
+        </template>
+        
+      </BaseTable>
       </div>
     </div>
 

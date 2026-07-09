@@ -14,6 +14,8 @@ import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 import FormAdd from '@/modules/TargetDistribusi/Widgets/FormAdd.vue';
 import FormEdit from '@/modules/TargetDistribusi/Widgets/FormEdit.vue';
 import InputText from '@/components/Form/InputText.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
+import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 // Composable
 import { usePagination } from '@/composables/usePaginations';
@@ -30,6 +32,7 @@ const isTableLoading = ref(false);
 // Composable: pagination
 const itemsPerPage = ref<number>(100);
 const totalColumns = ref<number>(6);
+const tableColumns = ref<TableColumn[]>([]);
 
 const { currentPage, perPage, totalRow, totalPages, nextPage, prevPage, pageNow, pages } =
   usePagination(fetchData, { perPage: itemsPerPage.value });
@@ -175,167 +178,173 @@ async function deleteData(tahun: number, bulan: number) {
     <!-- Header -->
     <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />
     <div v-else class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <BaseButton
-          @click="openModalAdd()"
-          variant="primary"
-          :loading="isModalAddOpen || isModalEditOpen"
-          type="button"
-        >
-          <font-awesome-icon icon="fa-solid fa-plus" class="mr-2" />
-          Tambah Target
-        </BaseButton>
-
-        <!-- Filter Section -->
-        <div class="flex items-center gap-2">
-          <InputText
-            v-model="filterTahun"
-            type="text"
-            placeholder="Cari Tahun..."
-            class="w-36"
-            :label_status="false"
-          />
-          <select
-            id="filterBulan"
-            v-model="filterBulan"
-            class="w-40 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
-          >
-            <option value="">Semua Bulan</option>
-            <option v-for="b in bulanOptions" :key="b.value" :value="b.value">{{ b.label }}</option>
-          </select>
-        </div>
-      </div>
-
       <!-- Table -->
-      <div class="overflow-hidden rounded-xl border border-gray-200 shadow">
-        <SkeletonTable v-if="isTableLoading" :columns="totalColumns" :rows="itemsPerPage" />
-        <table v-else class="w-full border-collapse bg-white text-sm">
-          <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
-            <tr>
-              <th class="w-[15%] px-6 py-3 font-medium">Tahun</th>
-              <th class="w-[15%] px-6 py-3 font-medium">Bulan</th>
-              <th class="w-[20%] px-6 py-3 font-medium">Nama</th>
-              <th class="w-[15%] px-6 py-3 font-medium">Target Orang</th>
-              <th class="w-[25%] px-6 py-3 font-medium">Target Rupiah</th>
-              <th class="w-[10%] px-6 py-3 font-medium">Aksi</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <template v-if="datas && datas.length > 0">
-              <template v-for="(yearData, year, yearIndex) in groupedByYear" :key="year">
-                <template
-                  v-for="(monthData, monthKey, monthIndex) in groupByBulan(yearData)"
-                  :key="monthKey"
-                >
-                  <tr
-                    v-for="(item, itemIndex) in monthData"
-                    :key="item.id"
-                    class="hover:bg-gray-50 transition-colors"
+      <div class="overflow-hidden rounded-xl border border-gray-200 shadow mt-4">
+        <BaseTable
+          class="w-full border-collapse bg-white text-sm"
+          :columns="tableColumns"
+          :data="datas"
+          :loading="isTableLoading"
+          :pagination="{ currentPage, perPage, totalRow, totalPages, pages }"
+        @page-change="pageNow"
+          :show-search="false"
+          :show-add="false"
+          :show-edit="false"
+          :show-delete="false"
+          :show-numbering="false"
+          :show-actions="false"
+        >
+          <!-- Custom Filters -->
+          <template #filters>
+            <div class="flex items-center gap-2">
+              <InputText
+                v-model="filterTahun"
+                type="text"
+                placeholder="Cari Tahun..."
+                class="w-36"
+                :label_status="false"
+              />
+              <select
+                id="filterBulan"
+                v-model="filterBulan"
+                class="w-40 rounded-lg border-gray-300 shadow-sm px-3 py-2 text-gray-700 focus:border-green-900 focus:ring-2 focus:ring-green-900 transition"
+              >
+                <option value="">Semua Bulan</option>
+                <option v-for="b in bulanOptions" :key="b.value" :value="b.value">{{ b.label }}</option>
+              </select>
+            </div>
+          </template>
+
+          <!-- Custom Actions (Add Button) -->
+          <template #actions>
+            <BaseButton
+              @click="openModalAdd()"
+              variant="primary"
+              :loading="isModalAddOpen || isModalEditOpen"
+              type="button"
+            >
+              <font-awesome-icon icon="fa-solid fa-plus" class="mr-2" />
+              Tambah Target
+            </BaseButton>
+          </template>
+          <template #thead>
+            <thead class="bg-gray-50 text-gray-700 text-center border-b border-gray-300">
+              <tr>
+                <th class="w-[15%] px-6 py-3 font-medium">Tahun</th>
+                <th class="w-[15%] px-6 py-3 font-medium">Bulan</th>
+                <th class="w-[20%] px-6 py-3 font-medium">Nama</th>
+                <th class="w-[15%] px-6 py-3 font-medium">Target Orang</th>
+                <th class="w-[25%] px-6 py-3 font-medium">Target Rupiah</th>
+                <th class="w-[10%] px-6 py-3 font-medium">Aksi</th>
+              </tr>
+            </thead>
+          </template>
+          <template #tbody>
+            <tbody class="divide-y divide-gray-100">
+              <template v-if="datas && datas.length > 0">
+                <template v-for="(yearData, year, yearIndex) in groupedByYear" :key="year">
+                  <template
+                    v-for="(monthData, monthKey, monthIndex) in groupByBulan(yearData)"
+                    :key="monthKey"
                   >
-                    <!-- Kolom Tahun -->
-                    <td
-                      v-if="monthIndex === 0 && itemIndex === 0"
-                      :rowspan="yearData.length"
-                      class="px-6 py-4 text-center font-medium text-gray-800 align-top"
-                      :class="{ 'border-t border-gray-300': yearIndex !== 0 }"
+                    <tr
+                      v-for="(item, itemIndex) in monthData"
+                      :key="item.id"
+                      class="hover:bg-gray-50 transition-colors"
                     >
-                      {{ year }}
-                    </td>
-                    <!-- Kolom Bulan -->
-                    <td
-                      v-if="itemIndex === 0"
-                      :rowspan="monthData.length"
-                      class="px-6 py-4 text-center font-medium text-gray-800 align-top"
-                      :class="{ 'border-t border-gray-300': yearIndex !== 0 || monthIndex !== 0 }"
-                    >
-                      {{ item.bulan_name }}
-                    </td>
+                      <!-- Kolom Tahun -->
+                      <td
+                        v-if="monthIndex === 0 && itemIndex === 0"
+                        :rowspan="yearData.length"
+                        class="px-6 py-4 text-center font-medium text-gray-800 align-top"
+                        :class="{ 'border-t border-gray-300': yearIndex !== 0 }"
+                      >
+                        {{ year }}
+                      </td>
+                      <!-- Kolom Bulan -->
+                      <td
+                        v-if="itemIndex === 0"
+                        :rowspan="monthData.length"
+                        class="px-6 py-4 text-center font-medium text-gray-800 align-top"
+                        :class="{ 'border-t border-gray-300': yearIndex !== 0 || monthIndex !== 0 }"
+                      >
+                        {{ item.bulan_name }}
+                      </td>
 
-                    <!-- Kolom Data -->
-                    <td
-                      class="px-6 py-4 text-left font-medium text-gray-800"
-                      :class="{
-                        'border-t border-gray-300':
-                          (itemIndex === 0 && monthIndex !== 0) ||
-                          (itemIndex === 0 && yearIndex !== 0),
-                      }"
-                    >
-                      <template v-if="item.asnaf_name"> {{ item.asnaf_name }} (zakat) </template>
-                      <template v-else>
-                        {{ item.tipe.charAt(0).toUpperCase() + item.tipe.slice(1) }}
-                      </template>
-                    </td>
-                    <td
-                      class="px-6 py-4 text-center font-medium text-gray-800"
-                      :class="{
-                        'border-t border-gray-300':
-                          (itemIndex === 0 && monthIndex !== 0) ||
-                          (itemIndex === 0 && yearIndex !== 0),
-                      }"
-                    >
-                      {{ item.target_orang }}
-                    </td>
-                    <td
-                      class="px-6 py-4 text-center font-medium text-gray-800"
-                      :class="{
-                        'border-t border-gray-300':
-                          (itemIndex === 0 && monthIndex !== 0) ||
-                          (itemIndex === 0 && yearIndex !== 0),
-                      }"
-                    >
-                      Rp {{ item.target_rupiah.toLocaleString('id-ID') }}
-                    </td>
+                      <!-- Kolom Data -->
+                      <td
+                        class="px-6 py-4 text-left font-medium text-gray-800"
+                        :class="{
+                          'border-t border-gray-300':
+                            (itemIndex === 0 && monthIndex !== 0) ||
+                            (itemIndex === 0 && yearIndex !== 0),
+                        }"
+                      >
+                        <template v-if="item.asnaf_name"> {{ item.asnaf_name }} (zakat) </template>
+                        <template v-else>
+                          {{ item.tipe.charAt(0).toUpperCase() + item.tipe.slice(1) }}
+                        </template>
+                      </td>
+                      <td
+                        class="px-6 py-4 text-center font-medium text-gray-800"
+                        :class="{
+                          'border-t border-gray-300':
+                            (itemIndex === 0 && monthIndex !== 0) ||
+                            (itemIndex === 0 && yearIndex !== 0),
+                        }"
+                      >
+                        {{ item.target_orang }}
+                      </td>
+                      <td
+                        class="px-6 py-4 text-center font-medium text-gray-800"
+                        :class="{
+                          'border-t border-gray-300':
+                            (itemIndex === 0 && monthIndex !== 0) ||
+                            (itemIndex === 0 && yearIndex !== 0),
+                        }"
+                      >
+                        Rp {{ item.target_rupiah.toLocaleString('id-ID') }}
+                      </td>
 
-                    <!-- Kolom Aksi -->
-                    <td
-                      v-if="itemIndex === 0"
-                      :rowspan="monthData.length"
-                      class="px-6 py-4 align-middle"
-                      :class="{ 'border-t border-gray-300': yearIndex !== 0 || monthIndex !== 0 }"
-                    >
-                      <div class="flex justify-center gap-2">
-                        <LightButton @click="openModalEdit(item.tahun, item.bulan)">
-                          <EditIcon />
-                        </LightButton>
-                        <DangerButton @click="deleteData(item.tahun, item.bulan)">
-                          <DeleteIcon />
-                        </DangerButton>
-                      </div>
-                    </td>
-                  </tr>
+                      <!-- Kolom Aksi -->
+                      <td
+                        v-if="itemIndex === 0"
+                        :rowspan="monthData.length"
+                        class="px-6 py-4 align-middle"
+                        :class="{ 'border-t border-gray-300': yearIndex !== 0 || monthIndex !== 0 }"
+                      >
+                        <div class="flex justify-center gap-2">
+                          <LightButton @click="openModalEdit(item.tahun, item.bulan)">
+                            <EditIcon />
+                          </LightButton>
+                          <DangerButton @click="deleteData(item.tahun, item.bulan)">
+                            <DeleteIcon />
+                          </DangerButton>
+                        </div>
+                      </td>
+                    </tr>
+                  </template>
                 </template>
               </template>
-            </template>
 
-            <!-- Empty State -->
-            <tr v-else>
-              <td :colspan="totalColumns" class="px-6 py-8 text-center text-gray-500">
-                <font-awesome-icon
-                  icon="fa-solid fa-database"
-                  class="text-4xl mb-2 text-gray-400"
-                />
-                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada data</h3>
-                <p class="text-sm">
-                  Silakan gunakan filter di atas untuk mencari data atau tambah data baru.
-                </p>
-              </td>
-            </tr>
-          </tbody>
+              <!-- Empty State -->
+              <tr v-else>
+                <td :colspan="totalColumns" class="empty-state-cell">
+                  <div class="empty-state animate-fade-in">
+                    <div class="empty-state-icon">
+                      <font-awesome-icon icon="fa-solid fa-database" class="text-4xl" />
+                    </div>
+                    <p class="empty-state-title">Tidak ada data</p>
+                    <p class="empty-state-desc">Silakan gunakan filter di atas untuk mencari data atau tambah data baru.</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </template>
 
           <!-- Pagination -->
-          <tfoot class="bg-gray-100 font-bold">
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="totalRow"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
-        </table>
+          
+        </BaseTable>
       </div>
     </div>
 
