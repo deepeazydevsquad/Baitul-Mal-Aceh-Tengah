@@ -49,7 +49,7 @@ const titleClass = computed(() => {
     >
       <div
         v-if="showNotification"
-        class="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 sm:px-0"
+        class="fixed inset-0 z-[99999] flex items-center justify-center px-4 py-6 sm:px-0"
       >
         <!-- Overlay -->
         <div

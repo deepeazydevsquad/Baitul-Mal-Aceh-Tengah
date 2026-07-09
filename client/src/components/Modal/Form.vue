@@ -1,4 +1,5 @@
 <template>
+  <Teleport to="body">
   <Transition
     enter-active-class="transition duration-200 ease-out"
     enter-from-class="transform scale-95 opacity-0"
@@ -9,7 +10,7 @@
   >
     <div
       v-if="formStatus"
-      class="fixed inset-0 z-50 overflow-y-auto"
+      class="fixed inset-0 z-[99999] overflow-y-auto"
       aria-labelledby="modal-title"
       role="dialog"
       aria-modal="true"
@@ -53,6 +54,7 @@
       </div>
     </div>
   </Transition>
+  </Teleport>
 </template>
 
 <script setup lang="ts">

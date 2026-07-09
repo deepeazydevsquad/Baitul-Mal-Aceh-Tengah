@@ -155,7 +155,7 @@ watch(
     <Teleport to="body">
       <div
         v-if="props.formStatus"
-        class="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-999"
+        class="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-[99999]"
         @click.self="HideModal"
       >
         <LoadingSpinner v-if="isLoading" label="Memuat halaman..." />

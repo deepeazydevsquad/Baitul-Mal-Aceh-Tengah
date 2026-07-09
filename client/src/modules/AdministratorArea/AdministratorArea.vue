@@ -110,10 +110,10 @@ onMounted(() => {
     <div class="flex h-screen overflow-hidden">
       <Sidebar :menu_info="menu_info" />
       <div class="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
-        <Header class="z-50 bg-gray-300" />
+        <Header class="z-30 bg-gray-300" />
         <main>
           <div class="mx-auto max-w-screen p-4 md:p-6 2xl:p-10">
-            <Content class="z-100"></Content>
+            <Content class="z-10"></Content>
             <div
               class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5"
             ></div>

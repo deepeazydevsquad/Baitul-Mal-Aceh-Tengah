@@ -3,7 +3,7 @@
     <Transition name="fade">
       <div
         v-if="loading"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm"
       >
         <div class="bg-white px-6 py-5 rounded-xl flex flex-col items-center shadow-lg">
           <svg class="w-12 h-12 animate-spin text-blue-600 mb-3" fill="none" viewBox="0 0 24 24">

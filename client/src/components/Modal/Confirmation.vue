@@ -7,6 +7,7 @@ const props = defineProps<{
 </script>
 
 <template>
+  <Teleport to="body">
   <Transition
     enter-active-class="transition ease-out duration-200"
     enter-from-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
@@ -17,7 +18,7 @@ const props = defineProps<{
   >
     <div
       v-if="showConfirmDialog"
-      class="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 sm:px-0"
+      class="fixed inset-0 z-[99999] flex items-center justify-center px-4 py-6 sm:px-0"
       aria-labelledby="modal-title"
       role="dialog"
       aria-modal="true"
@@ -75,4 +76,5 @@ const props = defineProps<{
       </div>
     </div>
   </Transition>
+  </Teleport>
 </template>

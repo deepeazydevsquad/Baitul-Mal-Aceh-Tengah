@@ -98,7 +98,7 @@ defineExpose({
       <Teleport to="body">
         <div
           v-if="showConfirmation"
-          class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm"
           @click.self="hideLogoutConfirmation"
         >
           <div class="bg-white rounded-2xl shadow-lg max-w-md w-full mx-4">

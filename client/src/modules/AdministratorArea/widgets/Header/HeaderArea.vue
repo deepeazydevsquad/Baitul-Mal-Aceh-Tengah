@@ -17,7 +17,7 @@ const handleLogoutClick = () => {
 </script>
 
 <template>
-  <header class="admin-header sticky top-0 z-998 flex items-center justify-between px-4 py-4 lg:px-8 w-full" style="height: 4.5rem">
+  <header class="admin-header sticky top-0 z-30 flex items-center justify-between px-4 py-4 lg:px-8 w-full" style="height: 4.5rem">
     <div class="header-inner flex items-center gap-4 relative z-10 w-full justify-between">
       
       <!-- Left Section (Green background area from gradient) -->

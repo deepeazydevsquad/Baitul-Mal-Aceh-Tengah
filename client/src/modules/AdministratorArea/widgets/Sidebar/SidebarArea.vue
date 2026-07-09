@@ -120,7 +120,7 @@ watch(() => sidebarStore.isSidebarOpen, (isOpen) => {
 
 <template>
   <aside
-    class="sidebar-container h-screen flex flex-col fixed left-0 top-0 z-[9998] border-r border-gray-100 transition-all duration-300 ease-in-out lg:relative"
+    class="sidebar-container h-screen flex flex-col fixed left-0 top-0 z-40 border-r border-gray-100 transition-all duration-300 ease-in-out lg:relative"
     :class="[sidebarStore.isSidebarOpen ? 'w-[260px] translate-x-0' : 'w-[260px] lg:w-[85px] -translate-x-full lg:translate-x-0']"
   >
     <!-- ===== Header (Logo) ===== -->
