@@ -31,11 +31,11 @@ jobs:
     - name: Deploy to Ubuntu server via SSH
       uses: appleboy/ssh-action@v1
       with:
-        host: ${{ secrets.IP_SERVER_DATABASE_MACHINE }}
-        username: ${{ secrets.SSH_USER_DATABASE_MACHINE }}
-        key: ${{ secrets.SSH_PRIVATE_KEY_DATABASE_MACHINE }}
+        host: ${{ secrets.IP_SERVER_OUTLETPULSA }}
+        username: ${{ secrets.SSH_USER_OUTLETPULSA }}
+        key: ${{ secrets.SSH_PRIVATE_KEY_OUTLETPULSA }}
         script: |
-          cd /home/dbmachine/baitulmal
+          cd /home/outletpulsa/baitulmalacehtengah
 
           # Pull latest images
           docker pull muammar88/baitulmal_client:1.0.0
@@ -46,7 +46,7 @@ jobs:
           docker-compose up -d --force-recreate
 
           echo "⏳ Waiting for MySQL to be ready..."
-          until docker exec mysql_container_baitulmal mysqladmin ping -uroot -p"root_password" --silent; do
+          until docker exec mysql_container_baitulmal mysqladmin ping -uroot -p"PASSWORD_ROOT_YANG_SANGAT_KUAT" --silent; do
             echo "   ... still waiting for MySQL"
             sleep 5
           done
@@ -58,7 +58,7 @@ jobs:
           done
 
           echo "🗑 Dropping and creating database..."
-          docker exec -i mysql_container_baitulmal mysql -uroot -p"root_password" -e "DROP DATABASE IF EXISTS baitulmalacehtengah_db; CREATE DATABASE baitulmalacehtengah_db;"
+          docker exec -i mysql_container_baitulmal mysql -uroot -p"PASSWORD_ROOT_YANG_SANGAT_KUAT" -e "DROP DATABASE IF EXISTS baitulmalacehtengah_db; CREATE DATABASE baitulmalacehtengah_db;"
 
           echo "📜 Running Sequelize migrations..."
           if docker exec -i Container_server_baitulmal npx sequelize-cli db:migrate; then
