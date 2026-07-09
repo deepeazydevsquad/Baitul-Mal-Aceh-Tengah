@@ -323,7 +323,7 @@ watch(
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 text-sm align-top">
-            <template v-if="dataBakalPenerimaBantuan.length > 0">
+            <template v-if="dataBakalPenerimaBantuan && dataBakalPenerimaBantuan.length > 0">
               <tr
                 v-for="data in dataBakalPenerimaBantuan"
                 :key="data.id"

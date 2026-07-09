@@ -190,7 +190,7 @@ const handleStatus = (payload: any) => {
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
-            <template v-if="datas.length > 0">
+            <template v-if="datas && datas.length > 0">
               <tr
                 v-for="data in datas"
                 :key="data.id"

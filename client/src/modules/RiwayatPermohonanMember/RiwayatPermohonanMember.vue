@@ -159,7 +159,7 @@ async function deleteData(id: number) {
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
-            <template v-if="datas.length > 0">
+            <template v-if="datas && datas.length > 0">
               <tr v-for="data in datas" :key="data.id" class="hover:bg-gray-50 transition-colors">
                 <td class="px-6 py-4 text-left font-medium text-gray-800">
                   <table class="w-full mx-auto border border-gray-300 rounded-lg">

@@ -158,7 +158,7 @@ onMounted(async () => {
         </thead>
 
         <tbody>
-          <template v-if="datas.length > 0">
+          <template v-if="datas && datas.length > 0">
             <template v-for="asnaf in datas" :key="asnaf.nama">
               <!-- Baris Asnaf -->
               <tr class="font-semibold text-black text-[8pt] bg-gray-50">

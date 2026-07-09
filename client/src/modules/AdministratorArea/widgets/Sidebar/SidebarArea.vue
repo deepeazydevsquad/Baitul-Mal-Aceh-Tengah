@@ -88,94 +88,244 @@ onMounted(() => {
   }
 });
 </script>
+
 <template>
   <aside
-    class="absolute left-0 top-0 z-9998 flex h-screen w-72.5 flex-col overflow-y-hidden bg-white duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 shadow-lg"
+    class="sidebar-container w-[260px] h-screen flex flex-col fixed left-0 top-0 z-9998 border-r border-gray-100 transition-transform duration-300 ease-in-out lg:static lg:translate-x-0"
+    :class="[sidebarStore.isSidebarOpen ? 'translate-x-0' : '-translate-x-full']"
   >
-    <div class="flex items-center justify-center gap-2 px-6 py-2.5 lg:py-3.5">
-      <router-link to="/">
-        <img :src="'/images/ziwah.png'" alt="Logo" class="h-14" />
-      </router-link>
-      <button class="block lg:hidden">
-        <svg
-          class="fill-current"
-          width="20"
-          height="18"
-          viewBox="0 0 20 18"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
+    <!-- ===== Header (Logo) ===== -->
+    <div class="px-5 pt-4 pb-4 border-b border-gray-100">
+      <div class="flex items-center justify-between">
+        <!-- Logo + title -->
+        <router-link to="/" class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-green-50 flex-shrink-0">
+            <img
+              :src="'/images/ziwah.png'"
+              alt="Logo ZIWAH"
+              class="w-9 h-9 object-contain"
+            />
+          </div>
+          <div class="flex flex-col min-w-0">
+            <h1 class="text-gray-800 font-bold text-[13px] tracking-tight truncate leading-tight">
+              Baitul Mal
+            </h1>
+            <p class="text-[10px] text-amber-500 uppercase tracking-widest font-semibold truncate">
+              Kabupaten Aceh Tengah
+            </p>
+          </div>
+        </router-link>
+
+        <!-- Close button (mobile only) -->
+        <button
+          class="block lg:hidden close-btn ml-2 flex-shrink-0 p-1.5 rounded-lg"
+          @click="sidebarStore.toggleSidebar()"
+          aria-label="Tutup sidebar"
         >
-          <path
-            fill="#000000"
-            fill-rule="evenodd"
-            d="M19 8.175H2.98748L9.36248 1.6875C9.69998 1.35 9.69998 0.825 9.36248 0.4875C9.02498 0.15 8.49998 0.15 8.16248 0.4875L0.399976 8.3625C0.0624756 8.7 0.0624756 9.225 0.399976 9.5625L8.16248 17.4375C8.31248 17.5875 8.53748 17.7 8.76248 17.7C8.98748 17.7 9.17498 17.625 9.36248 17.475C9.69998 17.1375 9.69998 16.6125 9.36248 16.275L3.02498 9.8625H19C19.45 9.8625 19.825 9.4875 19.825 9.0375C19.825 8.55 19.45 8.175 19 8.175Z"
-            clip-rule="evenodd"
-          />
-        </svg>
-      </button>
+          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
     </div>
-    <div class="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
-      <nav class="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
-        <div>
-          <ul class="mb-6 flex flex-col gap-1.5">
-            <li v-for="(item, key) in menu_info?.menu" :key="key">
-              <router-link
-                :to="''"
-                class="group relative flex items-center gap-2.5 rounded-md py-2 px-4 font-medium text-gray-500 duration-300 ease-in-out hover:bg-graydark hover:text-white dark:hover:bg-meta-4"
-                @click="menuClick(item.name, item.path, item.tab)"
-                :class="{
-                  'bg-graydark text-white dark:bg-meta-4': sideBarPage.sharedString === item.name,
-                }"
-              >
-                <font-awesome-icon :icon="item.icon" :style="{ width: '30px' }" /> {{ item.name }}
-                <svg
-                  v-if="item.path === '#'"
-                  class="absolute right-4 top-1/2 -translate-y-1/2 fill-current"
-                  :class="{ 'rotate-180': sideBarPage.sharedString === item.name }"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                    d="M4.41107 6.9107C4.73651 6.58527 5.26414 6.58527 5.58958 6.9107L10.0003 11.3214L14.4111 6.91071C14.7365 6.58527 15.2641 6.58527 15.5896 6.91071C15.915 7.23614 15.915 7.76378 15.5896 8.08922L10.5896 13.0892C10.2641 13.4147 9.73651 13.4147 9.41107 13.0892L4.41107 8.08922C4.08563 7.76378 4.08563 7.23614 4.41107 6.9107Z"
-                    fill=""
-                  />
-                </svg>
-              </router-link>
-              <div
-                v-if="item.path === '#'"
-                class="translate transform overflow-hidden"
-                v-show="sideBarPage.sharedString === item.name"
-              >
-                <ul class="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
-                  <li v-for="(item1, keys) in menu_info?.submenu[item.id]" :key="keys">
-                    <router-link
-                      :to="''"
-                      :class="
-                        subMenuActive == item1.path
-                          ? 'text-green-900 font-semibold hover:text-green-700'
-                          : 'text-gray-500 hover:text-gray-400 font-medium '
-                      "
-                      class="group relative flex items-center gap-2.5 rounded-md px-4 my-2 duration-300 ease-in-out"
-                      @click="subMenuClick(item.name, item1.name, item1.path, item1.tab)"
-                    >
-                      <font-awesome-icon :icon="['far', 'circle']" /> {{ item1.name }}
-                    </router-link>
-                  </li>
-                </ul>
-              </div>
-              <div
-                class="translate transform overflow-hidden"
-                v-show="sideBarPage.sharedString === item.name"
-              ></div>
-            </li>
-          </ul>
+
+    <!-- ===== Navigation ===== -->
+    <nav class="flex-1 overflow-y-auto py-4 px-3 no-scrollbar space-y-1">
+
+      <!-- Section label -->
+      <div class="px-3 mb-3">
+        <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+          Menu Utama
+        </h3>
+      </div>
+
+      <!-- Menu items -->
+      <div
+        v-for="(item, key) in menu_info?.menu"
+        :key="key"
+        class="space-y-0.5 menu-entry"
+        :style="{ animationDelay: `${Number(key) * 45}ms` }"
+      >
+        <!-- Main menu button -->
+        <button
+          @click="menuClick(item.name, item.path, item.tab)"
+          class="sidebar-link w-full text-left flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200"
+          :class="sideBarPage.sharedString === item.name ? 'link--active' : 'link--inactive'"
+        >
+          <div class="flex items-center gap-3">
+            <!-- Icon wrapper -->
+            <span
+              class="icon-wrap w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200"
+              :class="sideBarPage.sharedString === item.name ? 'icon-wrap--active' : 'icon-wrap--inactive'"
+            >
+              <font-awesome-icon :icon="item.icon" class="text-sm" />
+            </span>
+            <span class="text-[13px] font-medium">{{ item.name }}</span>
+          </div>
+
+          <!-- Chevron -->
+          <svg
+            v-if="item.path === '#'"
+            class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-300"
+            :class="sideBarPage.sharedString === item.name ? 'rotate-90' : ''"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        <!-- Animated submenu -->
+        <Transition name="submenu">
+          <div
+            v-if="item.path === '#' && sideBarPage.sharedString === item.name"
+            class="pl-8 pt-2 space-y-1.5 overflow-hidden pb-1"
+          >
+            <button
+              v-for="(item1, keys) in menu_info?.submenu[item.id]"
+              :key="keys"
+              @click="subMenuClick(item.name, item1.name, item1.path, item1.tab)"
+              class="w-full text-left px-3 py-2.5 rounded-lg text-[12px] font-medium transition-colors flex items-center gap-2"
+              :class="
+                subMenuActive === item1.path
+                  ? 'submenu--active'
+                  : 'submenu--inactive'
+              "
+            >
+              <!-- Dot -->
+              <svg class="flex-shrink-0" width="7" height="7" viewBox="0 0 8 8">
+                <circle cx="4" cy="4" r="3"
+                  :fill="subMenuActive === item1.path ? '#0E561E' : '#9ca3af'"
+                  :stroke="subMenuActive === item1.path ? '#0E561E' : 'transparent'"
+                  stroke-width="1.5"
+                />
+              </svg>
+              <span>{{ item1.name }}</span>
+            </button>
+          </div>
+        </Transition>
+      </div>
+    </nav>
+
+    <!-- ===== Footer (User info) ===== -->
+    <div class="p-4 border-t border-gray-100">
+      <div class="sidebar-user-card rounded-xl p-3 flex items-center gap-3">
+        <!-- Avatar -->
+        <div class="w-8 h-8 rounded-lg bg-green-600 flex items-center justify-center text-xs font-bold text-white flex-shrink-0 shadow-md shadow-green-500/20">
+          {{ (SettingGlob.sharedObject.name ?? 'A').charAt(0).toUpperCase() }}
         </div>
-      </nav>
+        <div class="flex-1 min-w-0">
+          <p class="text-[12px] font-semibold text-gray-700 truncate">
+            {{ SettingGlob.sharedObject.name ?? 'Administrator' }}
+          </p>
+          <p class="text-[10px] text-gray-400 truncate uppercase tracking-widest font-medium">
+            {{ SettingGlob.sharedObject.grup ?? 'Admin' }}
+          </p>
+        </div>
+      </div>
     </div>
+
   </aside>
 </template>
+
+<style scoped>
+/* ===== CONTAINER ===== */
+.sidebar-container {
+  background: #ffffff;
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.06);
+}
+
+/* ===== CLOSE BUTTON ===== */
+.close-btn {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s;
+}
+.close-btn:hover {
+  background: #e5e7eb;
+}
+
+/* ===== MENU LINK ===== */
+.link--inactive {
+  color: #6b7280;
+}
+.link--inactive:hover {
+  background: #f0faf2;
+  color: #0E561E;
+}
+.link--inactive:hover .icon-wrap--inactive {
+  background: #d1e7d5;
+  color: #0E561E;
+}
+
+.link--active {
+  background: #0E561E;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(14, 86, 30, 0.25);
+}
+
+/* ===== ICON WRAP ===== */
+.icon-wrap--inactive {
+  background: #f3f4f6;
+  color: #9ca3af;
+}
+.icon-wrap--active {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fbbf24;
+}
+
+/* ===== SUBMENU ===== */
+.submenu--inactive {
+  color: #9ca3af;
+}
+.submenu--inactive:hover {
+  background: #f0faf2;
+  color: #0E561E;
+}
+.submenu--active {
+  color: #0E561E;
+  background: #e6f4ea;
+  font-weight: 600;
+}
+
+/* ===== USER CARD ===== */
+.sidebar-user-card {
+  background: #f8fdf9;
+  border: 1px solid #e6f4ea;
+}
+
+/* ===== SCROLLBAR ===== */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ===== ANIMATIONS ===== */
+
+/* Stagger fade-in for menu entries on load */
+.menu-entry {
+  animation: menuFadeIn 0.3s ease both;
+}
+@keyframes menuFadeIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Submenu expand/collapse */
+.submenu-enter-active,
+.submenu-leave-active {
+  transition: all 0.25s ease;
+}
+.submenu-enter-from,
+.submenu-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+  max-height: 0;
+}
+.submenu-enter-to,
+.submenu-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 500px;
+}
+
+/* Chevron */
+.rotate-90 { transform: rotate(90deg); }
+</style>

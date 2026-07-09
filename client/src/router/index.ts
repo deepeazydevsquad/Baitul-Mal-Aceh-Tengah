@@ -1,28 +1,29 @@
-import Beranda from '@/modules/Cetak/Beranda.vue';
-import LaporanKesekretariatan from '@/modules/Cetak/LaporanKesekretariatan.vue';
-import LaporanPengumpulan from '@/modules/Cetak/LaporanPengumpulan.vue';
-import LaporanPerencanaan from '@/modules/Cetak/LaporanPerencanaan.vue';
-import LaporanTahunan from '@/modules/Cetak/LaporanTahunan.vue';
-import LaporanUmum from '@/modules/Cetak/LaporanUmum.vue';
-import CetakLaporanAsnafFakir from '@/modules/LaporanAsnaf/CetakAsnaf/CetakLaporanAsnafFakir.vue';
-import CetakLaporanAsnafFilsabilillah from '@/modules/LaporanAsnaf/CetakAsnaf/CetakLaporanAsnafFilsabilillah.vue';
-import CetakLaporanAsnafGharim from '@/modules/LaporanAsnaf/CetakAsnaf/CetakLaporanAsnafGharim.vue';
-import CetakLaporanAsnafMiskin from '@/modules/LaporanAsnaf/CetakAsnaf/CetakLaporanAsnafMiskin.vue';
-import CetakLaporanAsnafIbnuSabil from '@/modules/LaporanAsnaf/CetakAsnaf/CetakLaporanAsnafIbnuSabil.vue';
-import CetakLaporanAsnafMualaf from '@/modules/LaporanAsnaf/CetakAsnaf/CetakLaporanAsnafMualaf.vue';
-import Register from '@/modules/Register/Register.vue';
-import CetakRekapDistribusiPerAsnaf from '@/modules/RekapDistribusiPerAsnaf/CetakRekapDistribusiPerAsnaf.vue';
-import CetakRekapDistribusiPerkecamatan from '@/modules/RekapPerkecamatan/CetakRekapDistribusiPerkecamatan.vue';
-import CetakRekapPengumpulanPerkecamatan from '@/modules/RekapPengumpulanPerKecamatan/CetakRekapPengumpulanPerkecamatan.vue';
-import CetakRekapPengumpulan from '@/modules/RekapPengumpulan/CetakRekapPengumpulan.vue';
-import CetakRekapDistribusiPerKodeAsnaf from '@/modules/RekapDistribusiPerKodeAsnaf/CetakRekapDistribusiPerKodeAsnaf.vue';
-import AdministratorAreaView from '@/views/AdministratorView.vue';
-import homeView from '@/views/HomeView.vue';
-import LoginAdminView from '@/views/LoginAdminView.vue';
-import MemberAreaView from '@/views/MemberAreaView.vue';
-import SurveyLapanganView from '@/views/SurveyLapanganView.vue';
 import { createRouter, createWebHistory } from 'vue-router';
-import Kalkulator from '@/modules/Kalkulator/Kalkulator.vue';
+
+const Beranda = () => import('@/modules/Cetak/Beranda.vue');
+const LaporanKesekretariatan = () => import('@/modules/Cetak/LaporanKesekretariatan.vue');
+const LaporanPengumpulan = () => import('@/modules/Cetak/LaporanPengumpulan.vue');
+const LaporanPerencanaan = () => import('@/modules/Cetak/LaporanPerencanaan.vue');
+const LaporanTahunan = () => import('@/modules/Cetak/LaporanTahunan.vue');
+const LaporanUmum = () => import('@/modules/Cetak/LaporanUmum.vue');
+const CetakLaporanAsnafFakir = () => import('@/modules/LaporanAsnaf/CetakAsnaf/CetakLaporanAsnafFakir.vue');
+const CetakLaporanAsnafFilsabilillah = () => import('@/modules/LaporanAsnaf/CetakAsnaf/CetakLaporanAsnafFilsabilillah.vue');
+const CetakLaporanAsnafGharim = () => import('@/modules/LaporanAsnaf/CetakAsnaf/CetakLaporanAsnafGharim.vue');
+const CetakLaporanAsnafMiskin = () => import('@/modules/LaporanAsnaf/CetakAsnaf/CetakLaporanAsnafMiskin.vue');
+const CetakLaporanAsnafIbnuSabil = () => import('@/modules/LaporanAsnaf/CetakAsnaf/CetakLaporanAsnafIbnuSabil.vue');
+const CetakLaporanAsnafMualaf = () => import('@/modules/LaporanAsnaf/CetakAsnaf/CetakLaporanAsnafMualaf.vue');
+const Register = () => import('@/modules/Register/Register.vue');
+const CetakRekapDistribusiPerAsnaf = () => import('@/modules/RekapDistribusiPerAsnaf/CetakRekapDistribusiPerAsnaf.vue');
+const CetakRekapDistribusiPerkecamatan = () => import('@/modules/RekapPerkecamatan/CetakRekapDistribusiPerkecamatan.vue');
+const CetakRekapPengumpulanPerkecamatan = () => import('@/modules/RekapPengumpulanPerKecamatan/CetakRekapPengumpulanPerkecamatan.vue');
+const CetakRekapPengumpulan = () => import('@/modules/RekapPengumpulan/CetakRekapPengumpulan.vue');
+const CetakRekapDistribusiPerKodeAsnaf = () => import('@/modules/RekapDistribusiPerKodeAsnaf/CetakRekapDistribusiPerKodeAsnaf.vue');
+const AdministratorAreaView = () => import('@/views/AdministratorView.vue');
+const homeView = () => import('@/views/HomeView.vue');
+const LoginAdminView = () => import('@/views/LoginAdminView.vue');
+const MemberAreaView = () => import('@/views/MemberAreaView.vue');
+const SurveyLapanganView = () => import('@/views/SurveyLapanganView.vue');
+const Kalkulator = () => import('@/modules/Kalkulator/Kalkulator.vue');
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

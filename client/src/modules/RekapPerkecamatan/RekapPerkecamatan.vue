@@ -324,7 +324,7 @@ onMounted(async () => {
           </thead>
 
           <!-- Body -->
-          <tbody v-if="filteredKecamatanList.length > 0" class="divide-y divide-gray-100">
+          <tbody v-if="filteredKecamatanList && filteredKecamatanList.length > 0" class="divide-y divide-gray-100">
             <!-- Data per Kecamatan -->
             <tr
               v-for="item in filteredKecamatanList"

@@ -64,7 +64,7 @@ defineExpose({
 
 <template>
   <div>
-    <button
+    <!-- <button
       @click="showLogoutConfirmation"
       class="flex items-center gap-3.5 py-4 px-6 text-sm font-medium duration-300 ease-in-out text-green-900 hover:text-green-700 lg:text-base w-full text-left"
     >
@@ -85,8 +85,8 @@ defineExpose({
           fill=""
         />
       </svg>
-      Log Out
-    </button>
+      
+    </button> -->
     <Transition
       enter-active-class="transition ease-out duration-200"
       enter-from-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"

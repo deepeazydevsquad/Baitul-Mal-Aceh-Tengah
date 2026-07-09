@@ -222,7 +222,7 @@ function formatToRupiah(angka: number | string) {
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
-            <template v-if="datas">
+            <template v-if="datas && datas.length > 0">
               <tr v-for="data in datas" :key="data.id" class="hover:bg-gray-50 transition-colors">
                 <td class="px-6 py-4 text-center align-middle">
                   <center>

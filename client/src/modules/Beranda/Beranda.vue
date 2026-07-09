@@ -464,7 +464,7 @@ onMounted(fetchData);
               <th class="px-4 py-3">Capaian</th>
             </tr>
           </thead>
-          <tbody v-if="apiData" class="divide-y divide-gray-200">
+          <tbody v-if="apiData && apiData.length > 0" class="divide-y divide-gray-200">
             <tr class="hover:bg-gray-50 transition-colors duration-200">
               <td class="px-4 py-2 font-medium text-left">Infaq</td>
               <td class="px-4 py-2">{{ formatRupiah(apiData.infaq.target_pengumpulan) }}</td>
@@ -498,7 +498,7 @@ onMounted(fetchData);
               <td colspan="7" class="px-4 py-8 text-center text-gray-500">Tidak ada data</td>
             </tr>
           </tbody>
-          <tfoot v-if="apiData" class="bg-gray-200 font-bold text-gray-800">
+          <tfoot v-if="apiData && apiData.length > 0" class="bg-gray-200 font-bold text-gray-800">
             <tr>
               <td class="px-4 py-3 text-left">TOTAL</td>
               <td class="px-4 py-3">

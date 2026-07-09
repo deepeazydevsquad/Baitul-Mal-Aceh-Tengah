@@ -318,7 +318,7 @@ function cetak_laporan() {
           </thead>
 
           <!-- Body -->
-          <tbody v-if="filteredRows.length > 0" class="divide-y divide-gray-100">
+          <tbody v-if="filteredRows && filteredRows.length > 0" class="divide-y divide-gray-100">
             <!-- Baris pertama untuk kegiatan pertama -->
             <tr
               class="even:bg-gray-50 hover:bg-indigo-50 transition-colors"

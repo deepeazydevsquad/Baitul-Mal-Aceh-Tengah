@@ -182,7 +182,7 @@ const cetak_laporan = () => {
 
           <!-- Body -->
           <tbody class="divide-y divide-gray-100">
-            <template v-if="datas.length > 0">
+            <template v-if="datas && datas.length > 0">
               <!-- Kategori Row -->
               <template v-for="asnaf in datas" :key="asnaf.nama">
                 <tr class="bg-gray-100 text-center">

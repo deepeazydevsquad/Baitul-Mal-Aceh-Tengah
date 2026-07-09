@@ -221,7 +221,7 @@ async function deleteData(tahun: number, bulan: number) {
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
-            <template v-if="datas && datas.length">
+            <template v-if="datas && datas.length > 0">
               <template v-for="(yearData, year, yearIndex) in groupedByYear" :key="year">
                 <template
                   v-for="(monthData, monthKey, monthIndex) in groupByBulan(yearData)"

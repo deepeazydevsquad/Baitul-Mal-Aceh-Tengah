@@ -1,40 +1,31 @@
 <script setup lang="ts">
 import { onClickOutside } from '@vueuse/core';
-import { ref } from 'vue';
+import { computed, ref, useTemplateRef } from 'vue';
 import Notification from '@/components/Modal/Notification.vue';
-import Logout from '@/modules/AdministratorArea/widgets/Header/Logout.vue';
 import ModalEditProfile from '@/modules/AdministratorArea/widgets/Header/ModalEditProfile.vue';
-// import { CompanyCode, Name, Jabatan } from '@/stores/profile'
+import Logout from './Logout.vue';
 import { SettingStore } from '@/stores/settings';
 
-const target = ref(null);
-const dropdownOpen = ref(false);
-const logoutRef = ref(null);
-
-// const settings = SettingStore()
 const SettingGlob = SettingStore();
-// const name = Name()
-// const jabatan = Jabatan()
+const isOpen = ref(false);
+const dropdownRef = useTemplateRef<HTMLElement>('dropdownRef');
+const logoutRef = ref<any>(null);
 
-onClickOutside(target, () => {
-  dropdownOpen.value = false;
+onClickOutside(dropdownRef, () => {
+  isOpen.value = false;
 });
+
 const handleLogoutClick = () => {
   if (logoutRef.value) {
     logoutRef.value.showLogoutConfirmation();
   }
+  isOpen.value = false;
 };
-
-const closeDropdown = () => {
-  dropdownOpen.value = false;
-};
-
-const showModal = ref(false);
 
 const ModalEdit = ref(false);
-
 const openModalEdit = () => {
   ModalEdit.value = true;
+  isOpen.value = false;
 };
 
 const showNotification = ref(false);
@@ -42,7 +33,6 @@ const notificationType = ref<'success' | 'error'>('success');
 const notificationMessage = ref('');
 
 function showNotif(payload: { type: 'success' | 'error'; message: string }) {
-  console.log('📩 Parent menerima notif:', payload);
   notificationType.value = payload.type;
   notificationMessage.value = payload.message;
   showNotification.value = true;
@@ -51,78 +41,93 @@ function showNotif(payload: { type: 'success' | 'error'; message: string }) {
     showNotification.value = false;
   }, 4000);
 }
+
+// Generate initials from user name
+const userInitials = computed(() => {
+  const name = SettingGlob.sharedObject.name;
+  if (!name) return 'A';
+  const nameParts = name.split(' ');
+  if (nameParts.length > 1) {
+    return (nameParts[0][0] + nameParts[1][0]).toUpperCase();
+  }
+  return nameParts[0].substring(0, 2).toUpperCase();
+});
 </script>
 
 <template>
-  <div class="relative" ref="target">
-    <router-link
-      class="flex items-center gap-4"
-      to="#"
-      @click.prevent="dropdownOpen = !dropdownOpen"
+  <div class="relative" ref="dropdownRef">
+    <!-- Trigger Button -->
+    <button
+      @click="isOpen = !isOpen"
+      class="flex items-center gap-3 p-1.5 pr-3 bg-white  hover:border-gray-200 hover:bg-gray-50 transition-all"
     >
-      <span class="hidden text-right lg:block">
-        <span class="block text-sm font-medium text-green-900 dark:text-white">{{
-          SettingGlob.sharedObject.name
-        }}</span>
-        <span class="block text-xs font-bold text-green-900 dark:text-white"
-          >As {{ SettingGlob.sharedObject.grup }}</span
-        >
-      </span>
-      <span class="h-12 w-12 rounded-full">
-        <img src="@/assets/images/user/avatar.png" alt="User" />
-      </span>
-      <svg
-        :class="dropdownOpen && 'rotate-180'"
-        class="hidden fill-current sm:block"
-        width="12"
-        height="8"
-        viewBox="0 0 12 8"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
+      <!-- Avatar Box -->
+      <div
+        class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center text-xs font-black text-white shadow-md shadow-amber-500/20"
       >
-        <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
-          d="M0.410765 0.910734C0.736202 0.585297 1.26384 0.585297 1.58928 0.910734L6.00002 5.32148L10.4108 0.910734C10.7362 0.585297 11.2638 0.585297 11.5893 0.910734C11.9147 1.23617 11.9147 1.76381 11.5893 2.08924L6.58928 7.08924C6.26384 7.41468 5.7362 7.41468 5.41077 7.08924L0.410765 2.08924C0.0853277 1.76381 0.0853277 1.23617 0.410765 0.910734Z"
-          fill=""
-        />
+        {{ userInitials }}
+      </div>
+      
+      <!-- User Info -->
+      <div class="hidden lg:block text-left">
+        <p class="text-[11.5px] font-bold text-gray-800 leading-none">
+          {{ SettingGlob.sharedObject.name || 'Administrator' }}
+        </p>
+        <p class="text-[9px] text-gray-500 mt-1 uppercase tracking-widest font-bold">
+          {{ SettingGlob.sharedObject.grup || 'Admin' }}
+        </p>
+      </div>
+
+      <!-- Chevron -->
+      <svg
+        :class="isOpen ? 'rotate-180' : ''"
+        class="w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ml-1"
+        fill="none" stroke="currentColor" viewBox="0 0 24 24"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
       </svg>
-    </router-link>
-    <div
-      v-show="dropdownOpen"
-      class="absolute right-0 mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark"
-    >
-      <ul class="flex flex-col gap-5 border-b border-stroke px-6 py-6 dark:border-strokedark">
-        <li>
+    </button>
+
+    <!-- Dropdown Menu -->
+    <Transition name="dropdown">
+      <div
+        v-if="isOpen"
+        class="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden"
+      >
+        <div class="p-4 border-b border-gray-100 bg-gray-50/50">
+          <p class="text-[13px] font-bold text-gray-800">
+            {{ SettingGlob.sharedObject.name || 'Administrator' }}
+          </p>
+          <p class="text-[11px] font-medium text-gray-500 mt-0.5">{{ SettingGlob.sharedObject.grup || 'Admin' }}</p>
+        </div>
+        <div class="p-2">
           <button
             @click="openModalEdit"
-            class="flex items-center gap-3.5 text-sm font-medium duration-300 text-green-900 ease-in-out hover:text-green-700 lg:text-base"
+            class="w-full flex items-center gap-3 p-2.5 rounded-xl text-xs font-semibold text-gray-600 hover:bg-green-50 hover:text-green-700 transition-all"
           >
-            <svg
-              class="fill-current"
-              width="22"
-              height="22"
-              viewBox="0 0 22 22"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M11 9.62499C8.42188 9.62499 6.35938 7.59687 6.35938 5.12187C6.35938 2.64687 8.42188 0.618744 11 0.618744C13.5781 0.618744 15.6406 2.64687 15.6406 5.12187C15.6406 7.59687 13.5781 9.62499 11 9.62499ZM11 2.16562C9.28125 2.16562 7.90625 3.50624 7.90625 5.12187C7.90625 6.73749 9.28125 8.07812 11 8.07812C12.7188 8.07812 14.0938 6.73749 14.0938 5.12187C14.0938 3.50624 12.7188 2.16562 11 2.16562Z"
-              />
-              <path
-                d="M17.7719 21.4156H4.2281C3.5406 21.4156 2.9906 20.8656 2.9906 20.1781V17.0844C2.9906 13.7156 5.7406 10.9656 9.10935 10.9656H12.925C16.2937 10.9656 19.0437 13.7156 19.0437 17.0844V20.1781C19.0094 20.8312 18.4594 21.4156 17.7719 21.4156ZM4.53748 19.8687H17.4969V17.0844C17.4969 14.575 15.4344 12.5125 12.925 12.5125H9.07498C6.5656 12.5125 4.5031 14.575 4.5031 17.0844V19.8687H4.53748Z"
-              />
+            <!-- User Cog Icon -->
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
             Edit Profile
           </button>
-        </li>
-      </ul>
-      <div @click="handleLogoutClick">
-        <Logout ref="logoutRef" @close-dropdown="closeDropdown" />
+
+          <button
+            @click="handleLogoutClick"
+            class="w-full flex items-center gap-3 p-2.5 rounded-xl text-xs font-semibold text-red-500 hover:bg-red-50 hover:text-red-600 transition-all mt-1"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Logout
+          </button>
+        </div>
       </div>
-    </div>
+    </Transition>
   </div>
 
+  <!-- Modals -->
   <ModalEditProfile
     :formStatus="ModalEdit"
     @cancel="ModalEdit = false"
@@ -136,4 +141,23 @@ function showNotif(payload: { type: 'success' | 'error'; message: string }) {
     :notificationMessage="notificationMessage"
     @close="showNotification = false"
   />
+
+  <Logout ref="logoutRef" @close-dropdown="isOpen = false" />
 </template>
+
+<style scoped>
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.95);
+}
+.dropdown-enter-to,
+.dropdown-leave-from {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+</style>

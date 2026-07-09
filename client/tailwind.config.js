@@ -8,7 +8,9 @@ export default {
   darkMode: 'class',
   theme: {
     fontFamily: {
-      satoshi: ['Satoshi', 'sans-serif'],
+      sans: ['Poppins', 'sans-serif'],
+      poppins: ['Poppins', 'sans-serif'],
+      satoshi: ['Poppins', 'sans-serif'], // Alias for backward compatibility with old classes
     },
     screens: {
       '2xsm': '375px',

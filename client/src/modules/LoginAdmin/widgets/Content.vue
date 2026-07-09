@@ -89,7 +89,7 @@ onMounted(() => {
           <div class="justify-start text-neutral-800 text-xl font-medium tracking-tight">
             Selamat Datang di
           </div>
-          <img class="w-96 h-32" src="/images/ziwah.png" />
+          <img class="w-96 h-auto object-contain" src="/images/ziwah.png" />
           <div
             class="self-stretch justify-start text-yellow-500 text-[52px] leading-[120%] font-bold tracking-wide"
           >

@@ -373,7 +373,7 @@ onMounted(async () => {
       </div>
 
       <!-- Ringkasan Cards -->
-      <div v-if="apiData" class="grid grid-cols-3 gap-3 mb-4">
+      <div v-if="apiData && apiData.length > 0" class="grid grid-cols-3 gap-3 mb-4">
         <div class="p-2 rounded-lg bg-green-50 text-center border border-green-200">
           <h3 class="text-xs font-semibold text-gray-700 mb-1">Total Pengumpulan</h3>
           <p class="text-sm font-bold text-gray-900">{{ formatRupiah(totalPengumpulan) }}</p>
@@ -389,7 +389,7 @@ onMounted(async () => {
       </div>
 
       <!-- Charts -->
-      <div v-if="apiData" class="grid grid-cols-2 gap-3 mb-4">
+      <div v-if="apiData && apiData.length > 0" class="grid grid-cols-2 gap-3 mb-4">
         <!-- Chart Pengumpulan -->
         <div class="p-2 rounded-lg border border-gray-300 bg-white">
           <VueApexCharts
@@ -420,7 +420,7 @@ onMounted(async () => {
       </div>
 
       <!-- Tabel Data -->
-      <div v-if="apiData" class="overflow-hidden border border-gray-300 rounded-lg">
+      <div v-if="apiData && apiData.length > 0" class="overflow-hidden border border-gray-300 rounded-lg">
         <table class="w-full border-collapse bg-white text-[8pt]">
           <thead class="bg-gray-100 text-gray-900 border-b-2 border-gray-400">
             <tr>
