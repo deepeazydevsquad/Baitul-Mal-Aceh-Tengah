@@ -121,65 +121,81 @@ onMounted(() => {
       </div>
     </div>
     <!-- Right Column -->
-    <div class="w-full lg:w-1/2 flex items-center justify-center p-6">
-      <div class="w-full max-w-md">
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 relative overflow-hidden">
+      <div class="w-full max-w-md z-10 flex flex-col gap-6">
+        
+        <!-- Header Section -->
+        <div class="text-center space-y-3 mt-8 lg:mt-0">
+          <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#0E561E]/10 text-[#0E561E] mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+          </div>
+          <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Login Member</h2>
+          <p class="text-sm text-gray-500 px-4 leading-relaxed">
+            Masuk ke portal member untuk mengakses, mengajukan, dan memantau layanan bantuan dari Baitul Mal.
+          </p>
+        </div>
+
+        <!-- Information Callout -->
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3 shadow-sm">
+          <div class="mt-0.5 bg-blue-100 p-1 rounded-full text-blue-600 flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+            </svg>
+          </div>
+          <p class="text-xs text-blue-800 leading-relaxed">
+            <span class="font-semibold block mb-0.5 text-blue-900">Informasi Pengguna</span>
+            Pastikan Anda menjaga kerahasiaan password. Jika Anda belum memiliki akun, silakan mendaftar terlebih dahulu.
+          </p>
+        </div>
+
+        <!-- Login Form -->
         <form
-          class="bg-white rounded-lg shadow-md px-8 pt-6 pb-8 mb-4 mt-8 lg:mt-0"
+          class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-8"
           @submit.prevent="LoginProcess"
         >
-          <div
-            class="text-center justify-center text-green-900 text-xl font-bold capitalize leading-loose tracking-tight mb-[32px]"
-          >
-            login area member
-          </div>
-          <div>
-            <div class="mb-4">
-              <label class="block text-gray-700 text-sm mb-2" for="usernameMember">Username</label>
+          <div class="space-y-5">
+            <div>
+              <label class="block text-gray-700 text-sm font-medium mb-2" for="usernameMember">Username</label>
               <input
                 v-model="form.username"
-                class="border border-gray-200 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:border-green-900 focus:ring-green-900"
+                class="border border-gray-200 rounded-lg w-full py-2.5 px-4 text-gray-700 leading-tight focus:outline-none focus:border-[#0E561E] focus:ring-1 focus:ring-[#0E561E] transition-colors"
                 id="usernameMember"
                 type="text"
                 placeholder="Masukkan username anda"
               />
             </div>
-            <div class="mb-8">
+            <div>
               <div class="flex justify-between mb-2">
-                <label class="block text-gray-700 text-sm" for="password"> Password </label>
-                <a class="text-green-900 text-sm font-semibold leading-tight" @click="lupaPassword"
+                <label class="block text-gray-700 text-sm font-medium" for="password">Password</label>
+                <a class="text-[#0E561E] text-sm font-semibold leading-tight hover:underline cursor-pointer" @click="lupaPassword"
                   >Lupa Password?</a
                 >
               </div>
               <input
                 v-model="form.password"
-                class="border border-gray-200 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:border-green-900 focus:ring-green-900"
+                class="border border-gray-200 rounded-lg w-full py-2.5 px-4 text-gray-700 leading-tight focus:outline-none focus:border-[#0E561E] focus:ring-1 focus:ring-[#0E561E] transition-colors"
                 id="password"
                 type="password"
                 placeholder="Masukkan password anda"
               />
             </div>
-            <!-- <div class="flex mb-4">
-              <input type="checkbox" class="shrink-0 mt-0.5 border-gray-200 rounded-sm text-blue-600 focus:ring-green-900 checked:border-green-900 disabled:opacity-50 disabled:pointer-events-none"
-                id="hs-default-checkbox"/>
-              <label for="hs-default-checkbox" class="text-sm text-gray-500 ms-3">Ingat Saya</label>
-            </div> -->
-            <div class="flex flex-col items-center justify-between gap-3">
+            <div class="pt-2">
               <button
-                class="w-full bg-[#0E561E] text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline"
+                class="w-full bg-[#0E561E] hover:bg-[#0b4217] transition-colors text-white font-semibold py-2.5 px-4 rounded-lg focus:outline-none focus:shadow-outline shadow-md shadow-[#0E561E]/20"
                 type="submit"
               >
                 Masuk
               </button>
-              <div class="w-64 h-5 text-center justify-center">
-                <span class="text-gray-600 text-sm font-normal leading-tight"
-                  >Belum punya akun?</span
-                >
+              <div class="w-full text-center mt-6">
+                <span class="text-gray-600 text-sm font-normal">Belum punya akun?</span>
                 <a
                   href="/registrasi"
-                  class="text-green-900 text-sm font-semibold leading-tight hover:underline"
+                  class="text-[#0E561E] text-sm font-semibold hover:underline ml-1 cursor-pointer"
                 >
-                  Daftar disini</a
-                >
+                  Daftar disini
+                </a>
               </div>
             </div>
           </div>
