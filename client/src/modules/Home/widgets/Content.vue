@@ -98,8 +98,18 @@ onMounted(() => {
   <div class="h-screen h-screen-not-full flex">
     <!-- Left Column -->
     <div class="bg-left hidden lg:flex w-full lg:w-1/2 px-[75px] items-center justify-center">
-      <div class="pt-8 inline-flex flex-col justify-start items-start gap-8">
+      <div class="pt-8 inline-flex flex-col justify-start items-start gap-7">
+
+        <!-- Header: Badge + Logo + Title -->
         <div class="self-stretch flex flex-col justify-start items-start gap-3">
+          <!-- Live badge -->
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-50 border border-yellow-200">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
+            </span>
+            <span class="text-xs font-medium text-yellow-700 tracking-wide">Portal Bantuan Resmi</span>
+          </div>
           <div class="justify-start text-neutral-800 text-xl font-medium tracking-tight">
             Selamat Datang di
           </div>
@@ -110,14 +120,46 @@ onMounted(() => {
             Kabupaten Aceh Tengah
           </div>
         </div>
+
+        <!-- Description -->
         <div class="w-96 flex flex-col justify-start items-start gap-4">
           <div
-            class="self-stretch justify-start text-neutral-800 text-base font-normal tracking-tight"
+            class="self-stretch justify-start text-neutral-600 text-base font-normal tracking-tight leading-relaxed"
           >
             Ayo, kita cari tahu bersama program-program bantuan apa saja yang sedang tersedia di
             Baitul Mal Kabupaten Aceh Tengah.
           </div>
         </div>
+
+        <!-- Service Points -->
+        <div class="w-96 flex flex-col gap-3">
+          <div class="h-px bg-neutral-200/60"></div>
+          <div class="flex items-center gap-3">
+            <div class="w-7 h-7 flex items-center justify-center rounded-lg bg-[#0E561E]/8 text-[#0E561E] shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+            </div>
+            <span class="text-neutral-700 text-sm">Program bantuan sosial & ekonomi untuk masyarakat asnaf</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-7 h-7 flex items-center justify-center rounded-lg bg-[#0E561E]/8 text-[#0E561E] shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+            </div>
+            <span class="text-neutral-700 text-sm">Penyaluran zakat, infak, dan sedekah yang transparan</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-7 h-7 flex items-center justify-center rounded-lg bg-yellow-400/15 text-yellow-600 shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+            </div>
+            <span class="text-neutral-700 text-sm">Akses layanan mudah secara online kapan saja</span>
+          </div>
+        </div>
+
       </div>
     </div>
     <!-- Right Column -->
