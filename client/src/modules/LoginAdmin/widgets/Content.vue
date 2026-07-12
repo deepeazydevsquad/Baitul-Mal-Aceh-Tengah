@@ -83,8 +83,8 @@ onMounted(() => {
 </script>
 <template>
   <div class="h-screen flex bg-white">
-    <div class="bg-left hidden lg:flex w-full lg:w-1/2 px-[75px] items-center justify-center">
-      <div class="pt-8 inline-flex flex-col justify-start items-start gap-7">
+    <div class="bg-left hidden lg:flex w-full lg:w-1/2 px-8 items-center justify-center">
+      <div class="w-full max-w-[550px] pt-8 flex flex-col justify-start items-start gap-7">
 
         <!-- Header: Badge + Logo + Title -->
         <div class="self-stretch flex flex-col justify-start items-start gap-3">
