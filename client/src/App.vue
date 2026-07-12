@@ -4,12 +4,12 @@ import { RouterLink, RouterView } from 'vue-router'
 import { useHead } from '@vueuse/head'
 
 useHead({
-  title: 'Aplikasi Muzakki & Mustahik Kabupaten Aceh Tengah',
+  title: 'SiZiwah Kabupaten Aceh Tengah',
   link: [{ rel: 'icon', type: 'image/png', href: 'public/favicon.png' }],
   meta: [
     {
-      name: 'Aplikasi Muzakki & Mustahik',
-      content: 'Aplikasi Muzakki & Mustahik Kabupaten Aceh Tengah',
+      name: 'SiZiwah Kabupaten Aceh Tengah',
+      content: 'SiZiwah Kabupaten Aceh Tengah',
     },
   ],
 })
