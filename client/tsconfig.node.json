@@ -1,9 +1,6 @@
 {
   "extends": "@tsconfig/node22/tsconfig.json",
   "include": [
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.vue",
     "vite.config.*",
     "vitest.config.*",
     "cypress.config.*",
@@ -25,10 +22,3 @@
     }
   }
 }
-  // "compilerOptions": {
-    // "module": "ESNext",
-    // "moduleResolution": "Bundler",
-    // "types": ["node", "vue", "vite/client"],
-    // "skipLibCheck": true,
-    // "noEmit": true
-  

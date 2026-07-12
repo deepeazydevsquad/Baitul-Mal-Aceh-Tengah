@@ -73,10 +73,10 @@ const LoginProcess = async () => {
         window.location.href = '/member-area';
       }, 1200);
     } else {
-      displayNotification(error.response.data.message, 'error');
+      displayNotification(response.data.message, 'error');
     }
-  } catch (error) {
-    displayNotification(error.response.data.message, 'error');
+  } catch (error: any) {
+    displayNotification(error.response?.data?.message || error.message || 'Terjadi kesalahan', 'error');
   }
 };
 
