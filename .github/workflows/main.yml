@@ -45,8 +45,8 @@ jobs:
             docker pull muammar88/baitulmal_server:1.0.0
 
             # Restart services menggunakan docker-compose (sebagai pengganti PM2 di environment dockerized)
-            docker-compose down
-            docker-compose up -d --force-recreate
+            docker compose down
+            docker compose up -d --force-recreate
 
             echo "⏳ Waiting for MySQL to be ready..."
             until docker exec mysql_container_baitulmal mysqladmin ping -uroot -p"PASSWORD_ROOT_YANG_SANGAT_KUAT" --silent; do
