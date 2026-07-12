@@ -5,8 +5,6 @@ import FooterCetak from '@/modules/FooterCetak/FooterCetak.vue';
 import { list } from '@/service/rekap_pengumpulan';
 import { nextTick, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import BaseTable from '@/components/Table/BaseTable.vue';
-import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 const route = useRoute();
 const tahun = route.params.tahun as string;
@@ -34,7 +32,6 @@ interface RowData {
 
 const rows = ref<RowData[]>([]);
 const isLoading = ref(true);
-const tableColumns = ref<TableColumn[]>([]);
 
 async function fetchData() {
   isLoading.value = true;
@@ -154,20 +151,7 @@ onMounted(async () => {
       </div>
 
       <!-- Tabel -->
-      <BaseTable
-        class="w-full text-[6.5pt] mt-5 print-table"
-        style="table-layout: auto"
-        :columns="tableColumns"
-        :data="rows"
-        :with-pagination="false"
-        :show-search="false"
-        :show-add="false"
-        :show-edit="false"
-        :show-delete="false"
-        :show-numbering="false"
-        :show-actions="false"
-      >
-        <template #thead>
+      <table class="w-full border-collapse text-[6.5pt] mt-5 print-table" style="table-layout: auto">
           <thead class="border border-black text-center">
             <tr>
               <th rowspan="2" class="border border-black px-2 py-1 w-[15%]">JENIS PENGUMPULAN</th>
@@ -180,8 +164,7 @@ onMounted(async () => {
               </th>
             </tr>
           </thead>
-        </template>
-        <template #tbody>
+        
           <tbody>
             <template v-if="rows.length > 0">
               <tr
@@ -214,19 +197,12 @@ onMounted(async () => {
             </template>
 
             <tr v-else>
-              <td colspan="14" class="empty-state-cell">
-                  <div class="empty-state animate-fade-in">
-                    <div class="empty-state-icon">
-                      <font-awesome-icon icon="fa-solid fa-print" class="text-4xl" />
-                    </div>
-                    <p class="empty-state-title">Tidak ada data</p>
-                    <p class="empty-state-desc">Rekap Pengumpulan Tidak Ditemukan</p>
-                  </div>
-                </td>
+              <td colspan="14" class="border border-black px-2 py-3 text-center text-gray-700">
+                Rekap Pengumpulan Tidak Ditemukan
+              </td>
             </tr>
           </tbody>
-        </template>
-      </BaseTable>
+        </table>
       <div class="mt-auto">
         <FooterCetak />
       </div>

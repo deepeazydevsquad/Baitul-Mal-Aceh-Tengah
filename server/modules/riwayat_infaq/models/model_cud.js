@@ -41,6 +41,7 @@ class Model_cud {
             body.tipe_pembayaran == "cash" ? "kantor_baitulmal" : "bank",
           nama_petugas: decoded.name,
           jabatan_petugas: decoded.jabatan,
+          wakalah_id: body.wakalah_id || null,
           createdAt: myDate,
           updatedAt: myDate,
         },

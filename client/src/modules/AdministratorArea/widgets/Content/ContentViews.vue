@@ -68,6 +68,7 @@ import TargetPengumpulan from '@/modules/TargetPengumpulan/TargetPengumpulan.vue
 import TemplatePesanWhatsapp from '@/modules/TemplatePesanWhatsapp/TemplatePesanWhatsapp.vue';
 import UrutanBagianMonev from '@/modules/UrutanBagianMonev/UrutanBagianMonev.vue';
 import ValidasiPermohonanBantuan from '@/modules/ValidasiPermohonanBantuan/ValidasiPermohonanBantuan.vue';
+import Wakalah from '@/modules/Wakalah/Wakalah.vue';
 
 const tabComponents: Record<string, any> = {
   pengaturan_whatsapp: PengaturanWhatsapp,
@@ -124,6 +125,7 @@ const tabComponents: Record<string, any> = {
   laporan_pengumpulan: LaporanPengumpulan,
   kriteria: Kriteria,
   bakal_penerima_bantuan: BakalPenerimaBantuan,
+  wakalah: Wakalah,
 };
 
 const selectedTab = useSelectedTab();

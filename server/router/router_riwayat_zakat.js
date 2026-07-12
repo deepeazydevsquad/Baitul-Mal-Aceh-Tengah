@@ -68,6 +68,11 @@ router.post(
       .withMessage("Tipe Pembayaran Tidak Boleh Kosong")
       .isIn(["transfer", "cash"])
       .withMessage("Tipe Pembayaran tidak valid"),
+    body("wakalah_id")
+      .optional({ nullable: true, checkFalsy: true })
+      .isInt()
+      .withMessage("Wakalah ID Harus Angka")
+      .custom(validation.check_id_wakalah_optional),
   ],
   controllers.add
 );

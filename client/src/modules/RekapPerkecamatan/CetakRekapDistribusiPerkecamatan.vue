@@ -5,14 +5,11 @@ import FooterCetak from '@/modules/FooterCetak/FooterCetak.vue';
 import { daftar_rekap_distribusi_kecamatan } from '@/service/rekap_distribusi_kecamatan';
 import { nextTick, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import BaseTable from '@/components/Table/BaseTable.vue';
-import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 const route = useRoute();
 const tahun = route.params.tahun as string;
 
 const isLoading = ref(true);
-const tableColumns = ref<TableColumn[]>([]);
 
 interface DetailBulan {
   0: number;
@@ -196,19 +193,7 @@ onMounted(async () => {
 
       <div v-else class="px-4 pb-4">
         <div class="border border-gray-300">
-          <BaseTable
-            class="w-full text-[7pt] table-fixed print-table"
-            :columns="tableColumns"
-            :data="kecamatanList"
-            :with-pagination="false"
-            :show-search="false"
-            :show-add="false"
-            :show-edit="false"
-            :show-delete="false"
-            :show-numbering="false"
-            :show-actions="false"
-          >
-            <template #thead>
+          <table class="w-full text-[7pt] table-fixed print-table border-collapse">
               <thead class="bg-gray-100 border-b-2 border-gray-400">
                 <tr>
                   <th
@@ -237,8 +222,7 @@ onMounted(async () => {
                   </th>
                 </tr>
               </thead>
-            </template>
-            <template #tbody>
+            
               <tbody class="divide-y divide-gray-200">
                 <tr v-for="item in kecamatanList" :key="item.id" class="border-b">
                   <td class="px-2 py-1 text-left font-medium text-gray-700 border-r border-gray-300">
@@ -271,8 +255,7 @@ onMounted(async () => {
                   </td>
                 </tr>
               </tbody>
-            </template>
-          </BaseTable>
+            </table>
         </div>
         <div class="mt-auto">
           <FooterCetak />

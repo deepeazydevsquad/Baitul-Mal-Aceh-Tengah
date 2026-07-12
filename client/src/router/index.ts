@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 const Beranda = () => import('@/modules/Cetak/Beranda.vue');
+
+
 const LaporanKesekretariatan = () => import('@/modules/Cetak/LaporanKesekretariatan.vue');
 const LaporanPengumpulan = () => import('@/modules/Cetak/LaporanPengumpulan.vue');
 const LaporanPerencanaan = () => import('@/modules/Cetak/LaporanPerencanaan.vue');
@@ -12,12 +14,14 @@ const CetakLaporanAsnafGharim = () => import('@/modules/LaporanAsnaf/CetakAsnaf/
 const CetakLaporanAsnafMiskin = () => import('@/modules/LaporanAsnaf/CetakAsnaf/CetakLaporanAsnafMiskin.vue');
 const CetakLaporanAsnafIbnuSabil = () => import('@/modules/LaporanAsnaf/CetakAsnaf/CetakLaporanAsnafIbnuSabil.vue');
 const CetakLaporanAsnafMualaf = () => import('@/modules/LaporanAsnaf/CetakAsnaf/CetakLaporanAsnafMualaf.vue');
-const Register = () => import('@/modules/Register/Register.vue');
 const CetakRekapDistribusiPerAsnaf = () => import('@/modules/RekapDistribusiPerAsnaf/CetakRekapDistribusiPerAsnaf.vue');
 const CetakRekapDistribusiPerkecamatan = () => import('@/modules/RekapPerkecamatan/CetakRekapDistribusiPerkecamatan.vue');
 const CetakRekapPengumpulanPerkecamatan = () => import('@/modules/RekapPengumpulanPerKecamatan/CetakRekapPengumpulanPerkecamatan.vue');
 const CetakRekapPengumpulan = () => import('@/modules/RekapPengumpulan/CetakRekapPengumpulan.vue');
 const CetakRekapDistribusiPerKodeAsnaf = () => import('@/modules/RekapDistribusiPerKodeAsnaf/CetakRekapDistribusiPerKodeAsnaf.vue');
+
+
+const Register = () => import('@/modules/Register/Register.vue');
 const AdministratorAreaView = () => import('@/views/AdministratorView.vue');
 const homeView = () => import('@/views/HomeView.vue');
 const LoginAdminView = () => import('@/views/LoginAdminView.vue');

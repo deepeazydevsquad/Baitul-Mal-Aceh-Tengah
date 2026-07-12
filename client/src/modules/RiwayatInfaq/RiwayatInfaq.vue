@@ -102,6 +102,9 @@ interface RiwayatInfaq {
   jabatan_petugas: string;
   konfirmasi_pembayaran: string;
   datetimes: string;
+  wakalah_id: number | null;
+  wakalah_nama: string | null;
+  wakalah_nik: string | null;
 }
 
 const dataRiwayatInfaq = ref<RiwayatInfaq[]>([]);
@@ -770,16 +773,23 @@ async function displayBukti(param: Displaybuktiparam) {
           <template #cell-info_munfiq="{ row: riwayat_infaq }">
             <table class="w-full border border-gray-300 rounded-lg">
               <tbody>
-                <tr class="border border-gray-300">
+                <tr class="border-b border-gray-300">
                   <td class="w-[40%] bg-gray-100 px-4 py-2 font-medium">Nama Munfiq</td>
-                  <td class="px-4 py-2 font-medium">
+                  <td class="px-4 py-2 font-medium w-full text-right">
                     {{ riwayat_infaq.member_name }}
                   </td>
                 </tr>
-                <tr class="border border-gray-300">
-                  <td class="w-[45%] bg-gray-100 px-4 py-2 font-medium">NIK Munfiq</td>
-                  <td class="px-4 py-2 font-medium">
+                <tr class="border-b border-gray-300">
+                  <td class="w-[40%] bg-gray-100 px-4 py-2 font-medium">NIK Munfiq</td>
+                  <td class="px-4 py-2 font-medium w-full text-right">
                     {{ riwayat_infaq.member_nik }}
+                  </td>
+                </tr>
+                <tr v-if="riwayat_infaq.wakalah_id" class="border border-gray-300">
+                  <td class="bg-gray-100 px-4 py-2 font-medium">Wakalah</td>
+                  <td class="px-4 py-2 font-medium w-full text-right">
+                    {{ riwayat_infaq.wakalah_nama }} <br />
+                    <span class="text-xs text-gray-500 font-normal">{{ riwayat_infaq.wakalah_nik }}</span>
                   </td>
                 </tr>
               </tbody>

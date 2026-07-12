@@ -1,4 +1,4 @@
-const { Op, Riwayat_pengumpulan, Member } = require("../models");
+const { Op, Riwayat_pengumpulan, Member, Wakalah } = require("../models");
 const multer = require("multer");
 const sharp = require("sharp");
 const path = require("path");
@@ -11,6 +11,16 @@ validation.check_id_member = async (value) => {
   const check = await Member.findByPk(value);
   if (!check) {
     throw new Error("Member tidak terdaftar di pangkalan data");
+  }
+  return true;
+};
+
+// Validasi id wakalah opsional
+validation.check_id_wakalah_optional = async (value) => {
+  if (value === null || value === undefined || value === "") return true;
+  const check = await Wakalah.findByPk(value);
+  if (!check) {
+    throw new Error("Wakalah tidak terdaftar di pangkalan data");
   }
   return true;
 };

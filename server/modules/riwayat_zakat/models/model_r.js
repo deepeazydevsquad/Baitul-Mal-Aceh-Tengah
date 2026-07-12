@@ -1,4 +1,4 @@
-const { Op, Riwayat_pengumpulan, Member, Setting } = require("../../../models");
+const { Op, Riwayat_pengumpulan, Member, Setting, Wakalah } = require("../../../models");
 const moment = require("moment");
 const { get_info_lokasi } = require("../../../helper/locationHelper");
 
@@ -87,6 +87,11 @@ class Model_r {
           attributes: ["id", "fullname", "nomor_ktp"],
           where: memberWhere,
         },
+        {
+          model: Wakalah,
+          attributes: ["id", "nama", "nik"],
+          required: false,
+        }
       ],
       where,
     };
@@ -118,6 +123,9 @@ class Model_r {
           member_id: row.Member?.id,
           member_name: row.Member?.fullname,
           member_nik: row.Member?.nomor_ktp,
+          wakalah_id: row.Wakalah?.id || null,
+          wakalah_nama: row.Wakalah?.nama || null,
+          wakalah_nik: row.Wakalah?.nik || null,
         };
       });
 

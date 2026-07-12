@@ -3,12 +3,15 @@
     class="footer-laporan flex justify-between items-center mt-6 pt-3 border-t border-gray-300 text-xs text-gray-700"
   >
     <!-- Kiri: Logo -->
-    <div class="flex items-center gap-2">
+    <div class="flex flex-col items-center justify-center gap-1">
       <img
         src="../../../public/images/ziwah.png"
         alt="Logo ZIWAH"
-        class="h-10 object-contain print:h-8"
+        class="h-7 object-contain print:h-5"
       />
+      <span class="font-bold text-warning text-xs print:text-[10px] uppercase text-center">
+        KABUPATEN ACEH TENGAH
+      </span>
     </div>
 
     <!-- Tengah: Tanggal cetak -->

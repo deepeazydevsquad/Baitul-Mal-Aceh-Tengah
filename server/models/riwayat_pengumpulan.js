@@ -12,6 +12,9 @@ module.exports = (sequelize, DataTypes) => {
       Riwayat_pengumpulan.belongsTo(models.Member, {
         foreignKey: "member_id",
       });
+      Riwayat_pengumpulan.belongsTo(models.Wakalah, {
+        foreignKey: "wakalah_id",
+      });
     }
   }
   Riwayat_pengumpulan.init(
@@ -39,6 +42,7 @@ module.exports = (sequelize, DataTypes) => {
       nama_petugas: DataTypes.STRING,
       jabatan_petugas: DataTypes.STRING,
       konfirmasi_pembayaran: DataTypes.ENUM(["sudah_dikirim", "belum_dikirim"]),
+      wakalah_id: DataTypes.INTEGER,
     },
     {
       sequelize,

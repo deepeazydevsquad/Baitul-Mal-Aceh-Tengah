@@ -118,6 +118,7 @@ const arr_router = [
   "bakal_penerima_bantuan",
   "logo",
   "member_area",
+  "wakalah"
 ];
 
 const arr = {};

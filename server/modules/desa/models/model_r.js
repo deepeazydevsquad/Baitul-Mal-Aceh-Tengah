@@ -34,11 +34,13 @@ class Model_r {
         ? parseInt(body.pageNumber, 10)
         : 1;
       console.log(body.search);
-    const where = body.search
-      ? {
-          [Op.or]: [{ name: { [Op.like]: `%${body.search}%` } }],
-        }
-      : {};
+    const where = {};
+    if (body.search) {
+      where.name = { [Op.like]: `%${body.search}%` };
+    }
+    if (body.kecamatan_id) {
+      where.kecamatan_id = body.kecamatan_id;
+    }
 
     try {
       const result = await Desa.findAndCountAll({

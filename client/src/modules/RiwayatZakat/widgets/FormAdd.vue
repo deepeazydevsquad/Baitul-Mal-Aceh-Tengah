@@ -11,6 +11,7 @@ import { useNotification } from '@/composables/useNotification';
 
 // Service
 import { list_member, add_riwayat_zakat } from '@/service/riwayat_zakat';
+import { list_wakalah } from '@/service/wakalah';
 import SelectField from '@/components/Form/SelectField.vue';
 
 // Composable: notification
@@ -42,6 +43,7 @@ const resetForm = () => {
     nominal: 0,
     tipe_zakat: '',
     tipe_pembayaran: '',
+    wakalah_id: null,
   };
 
   // Reset errors
@@ -51,13 +53,19 @@ const resetForm = () => {
 // Function: Fetch data
 const isLoading = ref(false);
 const optionsMember = ref([]);
+const optionsWakalah = ref<any[]>([]);
 
 async function fetchData() {
   isLoading.value = true;
   try {
     const responseMember = await list_member();
+    const responseWakalah = await list_wakalah();
 
     optionsMember.value = responseMember.data;
+    optionsWakalah.value = responseWakalah.data.map((w: any) => ({
+      id: w.id,
+      name: `${w.nama} - ${w.nik}`
+    }));
   } catch (error) {
     displayNotification('Terjadi kesalahan saat memuat data.', 'error');
   } finally {
@@ -106,11 +114,13 @@ const form = ref<{
   nominal: number;
   tipe_zakat: string;
   tipe_pembayaran: string;
+  wakalah_id: number | null;
 }>({
   member_id: null,
   nominal: 0,
   tipe_zakat: '',
   tipe_pembayaran: '',
+  wakalah_id: null,
 });
 
 const handleSubmit = async () => {
@@ -122,6 +132,7 @@ const handleSubmit = async () => {
     nominal: form.value.nominal,
     tipe_zakat: form.value.tipe_zakat,
     tipe_pembayaran: form.value.tipe_pembayaran,
+    wakalah_id: form.value.wakalah_id,
   };
 
   console.log(formData);
@@ -245,6 +256,18 @@ watch(
               { id: 'cash', name: 'Cash' },
             ]"
             :required="true"
+          />
+        </div>
+
+        <div>
+          <SelectField
+            v-model="form.wakalah_id"
+            id="wakalah_id"
+            label="Wakalah (Opsional)"
+            placeholder="Pilih Wakalah"
+            :error="errors.wakalah_id"
+            :options="[{ id: null, name: '-- Tidak Menggunakan Wakalah --' }, ...optionsWakalah]"
+            :required="false"
           />
         </div>
         <!-- Actions -->

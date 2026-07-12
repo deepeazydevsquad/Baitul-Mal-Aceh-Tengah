@@ -103,6 +103,9 @@ interface RiwayatZakat {
   jabatan_petugas: string;
   konfirmasi_pembayaran: string;
   datetimes: string;
+  wakalah_id: number | null;
+  wakalah_nama: string | null;
+  wakalah_nik: string | null;
 }
 
 const dataRiwayatZakat = ref<RiwayatZakat[]>([]);
@@ -666,10 +669,17 @@ async function displayBukti(param: Displaybuktiparam) {
                     {{ riwayat_zakat.member_name }}
                   </td>
                 </tr>
-                <tr class="border border-gray-300">
+                <tr class="border-b border-gray-300">
                   <td class="bg-gray-100 px-4 py-2 font-medium">NIK Muzakki</td>
                   <td class="px-4 py-2 font-medium w-full text-right">
                     {{ riwayat_zakat.member_nik }}
+                  </td>
+                </tr>
+                <tr v-if="riwayat_zakat.wakalah_id" class="border border-gray-300">
+                  <td class="bg-gray-100 px-4 py-2 font-medium">Wakalah</td>
+                  <td class="px-4 py-2 font-medium w-full text-right">
+                    {{ riwayat_zakat.wakalah_nama }} <br />
+                    <span class="text-xs text-gray-500 font-normal">{{ riwayat_zakat.wakalah_nik }}</span>
                   </td>
                 </tr>
               </tbody>

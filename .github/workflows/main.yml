@@ -35,38 +35,45 @@ jobs:
         username: ${{ secrets.SSH_USER_OUTLETPULSA }}
         key: ${{ secrets.SSH_PRIVATE_KEY_OUTLETPULSA }}
         script: |
-          cd /home/outletpulsa/baitulmalacehtengah
+            # Menghentikan eksekusi script apabila ada perintah yang gagal (Fail Fast)
+            set -e
 
-          # Pull latest images
-          docker pull muammar88/baitulmal_client:1.0.0
-          docker pull muammar88/baitulmal_server:1.0.0
+            cd /home/outletpulsa/baitulmalacehtengah
 
-          # Restart services
-          docker-compose down
-          docker-compose up -d --force-recreate
+            # Pull latest images dari DockerHub yang berisi source code dan dependency terbaru
+            docker pull muammar88/baitulmal_client:1.0.0
+            docker pull muammar88/baitulmal_server:1.0.0
 
-          echo "⏳ Waiting for MySQL to be ready..."
-          until docker exec mysql_container_baitulmal mysqladmin ping -uroot -p"PASSWORD_ROOT_YANG_SANGAT_KUAT" --silent; do
-            echo "   ... still waiting for MySQL"
-            sleep 5
-          done
+            # Restart services menggunakan docker-compose (sebagai pengganti PM2 di environment dockerized)
+            docker-compose down
+            docker-compose up -d --force-recreate
 
-          echo "⏳ Waiting for Container_server_baitulmal to be running..."
-          until [ "$(docker inspect -f '{{.State.Running}}' Container_server_baitulmal)" == "true" ]; do
-            echo "   ... still waiting for Container_server_baitulmal"
-            sleep 5
-          done
+            echo "⏳ Waiting for MySQL to be ready..."
+            until docker exec mysql_container_baitulmal mysqladmin ping -uroot -p"PASSWORD_ROOT_YANG_SANGAT_KUAT" --silent; do
+              echo "   ... still waiting for MySQL"
+              sleep 5
+            done
 
-          echo "🗑 Dropping and creating database..."
-          docker exec -i mysql_container_baitulmal mysql -uroot -p"PASSWORD_ROOT_YANG_SANGAT_KUAT" -e "DROP DATABASE IF EXISTS baitulmalacehtengah_db; CREATE DATABASE baitulmalacehtengah_db;"
+            echo "⏳ Waiting for Container_server_baitulmal to be running..."
+            until [ "$(docker inspect -f '{{.State.Running}}' Container_server_baitulmal)" == "true" ]; do
+              echo "   ... still waiting for Container_server_baitulmal"
+              sleep 5
+            done
 
-          echo "📜 Running Sequelize migrations..."
-          if docker exec -i Container_server_baitulmal npx sequelize-cli db:migrate; then
+            # Reset Database: Menghapus database lama dan membuat baru agar struktur sesuai dengan migration
+            echo "🗑 Dropping and creating database for a clean state..."
+            docker exec -i mysql_container_baitulmal mysql -uroot -p"PASSWORD_ROOT_YANG_SANGAT_KUAT" -e "DROP DATABASE IF EXISTS baitulmalacehtengah_db; CREATE DATABASE baitulmalacehtengah_db;"
+
+            # Menjalankan seluruh migration
+            echo "📜 Running Sequelize migrations..."
+            docker exec -i Container_server_baitulmal npx sequelize-cli db:migrate
+
+            # Menjalankan seluruh proses seeding HANYA JIKA migration di atas berhasil
             echo "🌱 Seeding database..."
-            docker exec -i Container_server_baitulmal npx sequelize-cli db:seed:all --debug
-            echo "🔄 Restarting Container_server..."
+            docker exec -i Container_server_baitulmal npx sequelize-cli db:seed:all
+
+            # Restart aplikasi server untuk memastikan memuat data/schema baru dengan aman
+            echo "🔄 Restarting Container_server to apply all changes..."
             docker restart Container_server_baitulmal
-          else
-            echo "⚠️ Migration failed. Skipping seed."
-          fi
-          
+
+            echo "✅ Deployment completed successfully!"

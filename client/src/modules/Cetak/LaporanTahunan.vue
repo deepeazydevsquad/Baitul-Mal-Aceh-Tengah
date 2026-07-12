@@ -5,8 +5,6 @@ import VueApexCharts from 'vue3-apexcharts';
 import Logos from '@/components/Logo/Logo.vue';
 import { get_laporan_tahunan } from '@/service/laporan_tahunan';
 import FooterCetak from '../FooterCetak/FooterCetak.vue';
-import BaseTable from '@/components/Table/BaseTable.vue';
-import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 const route = useRoute();
 const tahun = route.params.tahun;
@@ -35,7 +33,6 @@ const datas = ref<Data[]>([]);
 const totalPengumpulan = ref(0);
 const totalDistribusi = ref(0);
 const persentase = ref(0);
-const tableColumns = ref<TableColumn[]>([]);
 
 // Chart State
 const seriesPengumpulan = ref<any[]>([]);
@@ -218,20 +215,8 @@ onMounted(async () => {
 
     <!-- Tabel Data -->
     <div class="mb-4 overflow-hidden border border-gray-300 rounded-lg">
-      <BaseTable
-        class="w-full text-xs"
-        :columns="tableColumns"
-        :data="datas"
-        :with-pagination="false"
-        :show-search="false"
-        :show-add="false"
-        :show-edit="false"
-        :show-delete="false"
-        :show-numbering="false"
-        :show-actions="false"
-      >
-        <template #thead>
-          <thead class="bg-gray-100 text-gray-900 text-center border-b-2 border-gray-400">
+      <table class="w-full text-xs border-collapse print-table">
+        <thead class="bg-gray-100 text-gray-900 text-center border-b-2 border-gray-400">
             <tr>
               <th rowspan="2" class="px-3 py-2 font-bold align-middle border-r border-gray-300">
                 Tahun
@@ -249,8 +234,6 @@ onMounted(async () => {
               <th class="px-2 py-2 font-semibold">Total</th>
             </tr>
           </thead>
-        </template>
-        <template #tbody>
           <tbody class="divide-y divide-gray-200">
             <tr v-for="(data, index) in datas" :key="index" class="text-center">
               <td class="px-3 py-2 font-semibold text-gray-900 border-r border-gray-300">
@@ -279,8 +262,7 @@ onMounted(async () => {
               </td>
             </tr>
           </tbody>
-        </template>
-      </BaseTable>
+        </table>
     </div>
 
     <!-- Chart -->

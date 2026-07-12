@@ -6,8 +6,6 @@ import { get_laporan_pengumpulan } from '@/service/laporan_pengumpulan';
 import { nextTick, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import VueApexCharts from 'vue3-apexcharts';
-import BaseTable from '@/components/Table/BaseTable.vue';
-import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
 const route = useRoute();
 const tahun = parseInt(route.params.tahun as string);
@@ -29,18 +27,7 @@ interface Data {
 
 const data = ref<Data | null>(null);
 
-const targetCapaianColumns = ref<TableColumn[]>([
-  { key: 'jenis', label: 'Kategori', headerClass: 'text-left py-1 px-2 font-semibold text-gray-900 border-r border-gray-300', cellClass: 'py-1 px-2 border-r border-gray-300' },
-  { key: 'target', label: 'Target', headerClass: 'text-right py-1 px-2 font-semibold text-gray-900 border-r border-gray-300', cellClass: 'py-1 px-2 text-right border-r border-gray-300' },
-  { key: 'realisasi', label: 'Realisasi', headerClass: 'text-right py-1 px-2 font-semibold text-gray-900 border-r border-gray-300', cellClass: 'py-1 px-2 text-right border-r border-gray-300' },
-  { key: 'persentase', label: '(%)', headerClass: 'text-right py-1 px-2 font-semibold text-gray-900', cellClass: 'py-1 px-2 text-right' }
-]);
 
-const komposisiColumns = ref<TableColumn[]>([
-  { key: 'jenis', label: 'Kategori', headerClass: 'text-left py-1 px-2 font-semibold text-gray-900 border-r border-gray-300', cellClass: 'py-1 px-2 border-r border-gray-300' },
-  { key: 'rek_penampung', label: 'Rek Penampung', headerClass: 'text-right py-1 px-2 font-semibold text-gray-900 border-r border-gray-300', cellClass: 'py-1 px-2 text-right border-r border-gray-300' },
-  { key: 'rek_kasda', label: 'Rek Kasda', headerClass: 'text-right py-1 px-2 font-semibold text-gray-900', cellClass: 'py-1 px-2 text-right' }
-]);
 
 // Chart
 const series = ref<any[]>([]);
@@ -419,32 +406,27 @@ onMounted(async () => {
     <div v-if="data" class="mb-4">
       <div class="p-2 rounded-lg border border-gray-300 bg-white">
         <h3 class="text-xs font-bold text-gray-900 mb-2">Target dan Capaian</h3>
-        <BaseTable
-          class="w-full text-[8pt]"
-          :columns="targetCapaianColumns"
-          :data="data.dataPerJenis"
-          :with-pagination="false"
-          :show-search="false"
-          :show-add="false"
-          :show-edit="false"
-          :show-delete="false"
-          :show-numbering="false"
-          :show-actions="false"
-        >
-          <template #cell-jenis="{ row }">
-            {{ row.jenis }}
-          </template>
-          <template #cell-target="{ row }">
-            {{ $formatToRupiah(row.target) }}
-          </template>
-          <template #cell-realisasi="{ row }">
-            {{ $formatToRupiah(row.realisasi) }}
-          </template>
-          <template #cell-persentase="{ row }">
-            {{ (row.persentase ?? 0).toFixed(2) }}%
-          </template>
-
-          <template #tfoot>
+        <table class="w-full text-[8pt] border-collapse border border-gray-300 print-table text-black">
+          <thead class="bg-gray-100 border-b-2 border-gray-400">
+            <tr>
+              <th class="text-left py-1 px-2 font-semibold text-gray-900 border-r border-gray-300">Kategori</th>
+              <th class="text-right py-1 px-2 font-semibold text-gray-900 border-r border-gray-300">Target</th>
+              <th class="text-right py-1 px-2 font-semibold text-gray-900 border-r border-gray-300">Realisasi</th>
+              <th class="text-right py-1 px-2 font-semibold text-gray-900">(%)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <template v-if="data.dataPerJenis && data.dataPerJenis.length > 0">
+              <tr v-for="(row, i) in data.dataPerJenis" :key="i">
+                <td class="py-1 px-2 border-r border-gray-300">{{ row.jenis }}</td>
+                <td class="py-1 px-2 text-right border-r border-gray-300">{{ $formatToRupiah(row.target) }}</td>
+                <td class="py-1 px-2 text-right border-r border-gray-300">{{ $formatToRupiah(row.realisasi) }}</td>
+                <td class="py-1 px-2 text-right">{{ (row.persentase ?? 0).toFixed(2) }}%</td>
+              </tr>
+            </template>
+            <tr v-else>
+              <td colspan="4" class="text-center py-2">Data tidak ditemukan</td>
+            </tr>
             <tr class="bg-gray-100 font-bold border-t-2 border-gray-400">
               <td class="py-1 px-2 border-r border-gray-300">Total</td>
               <td class="py-1 px-2 text-right border-r border-gray-300">
@@ -455,8 +437,8 @@ onMounted(async () => {
               </td>
               <td class="py-1 px-2 text-right">{{ (data.persentaseTotal ?? 0).toFixed(2) }}%</td>
             </tr>
-          </template>
-        </BaseTable>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -519,29 +501,25 @@ onMounted(async () => {
     <div v-if="data" class="mb-4">
       <div class="p-2 rounded-lg border border-gray-300 bg-white">
         <h3 class="text-xs font-bold text-gray-900 mb-2">Komposisi Sumber Dana</h3>
-        <BaseTable
-          class="w-full text-[8pt]"
-          :columns="komposisiColumns"
-          :data="data.dataPerJenis"
-          :with-pagination="false"
-          :show-search="false"
-          :show-add="false"
-          :show-edit="false"
-          :show-delete="false"
-          :show-numbering="false"
-          :show-actions="false"
-        >
-          <template #cell-jenis="{ row }">
-            {{ row.jenis }}
-          </template>
-          <template #cell-rek_penampung="{ row }">
-            {{ $formatToRupiah(row.realisasi * 0.6) }}
-          </template>
-          <template #cell-rek_kasda="{ row }">
-            {{ $formatToRupiah(row.realisasi * 0.4) }}
-          </template>
-
-          <template #tfoot>
+        <table class="w-full text-[8pt] border-collapse border border-gray-300 print-table text-black">
+          <thead class="bg-gray-100 border-b-2 border-gray-400">
+            <tr>
+              <th class="text-left py-1 px-2 font-semibold text-gray-900 border-r border-gray-300">Kategori</th>
+              <th class="text-right py-1 px-2 font-semibold text-gray-900 border-r border-gray-300">Rek Penampung</th>
+              <th class="text-right py-1 px-2 font-semibold text-gray-900">Rek Kasda</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <template v-if="data.dataPerJenis && data.dataPerJenis.length > 0">
+              <tr v-for="(row, i) in data.dataPerJenis" :key="i">
+                <td class="py-1 px-2 border-r border-gray-300">{{ row.jenis }}</td>
+                <td class="py-1 px-2 text-right border-r border-gray-300">{{ $formatToRupiah(row.realisasi * 0.6) }}</td>
+                <td class="py-1 px-2 text-right">{{ $formatToRupiah(row.realisasi * 0.4) }}</td>
+              </tr>
+            </template>
+            <tr v-else>
+              <td colspan="3" class="text-center py-2">Data tidak ditemukan</td>
+            </tr>
             <tr class="bg-gray-100 font-bold border-t-2 border-gray-400">
               <td class="py-1 px-2 border-r border-gray-300">Total keseluruhan</td>
               <td class="py-1 px-2 text-right border-r border-gray-300">
@@ -551,8 +529,8 @@ onMounted(async () => {
                 {{ $formatToRupiah(data.totalRealisasi * 0.4) }}
               </td>
             </tr>
-          </template>
-        </BaseTable>
+          </tbody>
+        </table>
       </div>
     </div>
 
