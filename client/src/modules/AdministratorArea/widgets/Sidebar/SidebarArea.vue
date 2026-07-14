@@ -124,25 +124,25 @@ watch(() => sidebarStore.isSidebarOpen, (isOpen) => {
     :class="[sidebarStore.isSidebarOpen ? 'w-[260px] translate-x-0' : 'w-[260px] lg:w-[85px] -translate-x-full lg:translate-x-0']"
   >
     <!-- ===== Header (Logo) ===== -->
-    <div class="px-5 pt-4 pb-4 border-b border-gray-100">
+    <div class="px-5 pt-3 pb-4 border-b border-gray-100">
       <div class="flex items-center justify-between">
         <!-- Logo + title -->
-        <router-link to="/" class="flex items-center gap-3 min-w-0">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-green-50 flex-shrink-0">
-            <img
-              :src="'/images/ziwah.png'"
-              alt="Logo ZIWAH"
-              class="w-9 h-9 object-contain"
-            />
-          </div>
-          <div class="flex flex-col min-w-0 transition-opacity duration-300" :class="sidebarStore.isSidebarOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden lg:hidden'">
-            <h1 class="text-gray-800 font-bold text-[13px] tracking-tight truncate leading-tight">
-              Baitul Mal
-            </h1>
-            <p class="text-[10px] text-amber-500 uppercase tracking-widest font-semibold truncate">
-              Kabupaten Aceh Tengah
-            </p>
-          </div>
+        <router-link to="/" class="relative block min-w-0 h-10 w-full">
+          <!-- Full Logo -->
+          <img
+            src="/images/logo.png"
+            alt="Logo Site"
+            class="absolute top-0 left-0 h-10 w-auto object-contain transition-all duration-300 ease-in-out"
+            :class="sidebarStore.isSidebarOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 pointer-events-none'"
+          />
+          <!-- Single Logo -->
+          <img
+            src="/images/logo-single.png"
+            alt="Logo Site"
+            class="absolute top-0 left-1/2 h-10 w-auto object-contain transition-all duration-300 ease-in-out"
+            style="transform: translateX(-50%)"
+            :class="!sidebarStore.isSidebarOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-75 pointer-events-none'"
+          />
         </router-link>
 
         <!-- Close button (mobile only) -->
@@ -159,10 +159,14 @@ watch(() => sidebarStore.isSidebarOpen, (isOpen) => {
     </div>
 
     <!-- ===== Navigation ===== -->
-    <nav class="flex-1 py-4 px-3 no-scrollbar space-y-1" :class="sidebarStore.isSidebarOpen ? 'overflow-y-auto' : 'overflow-visible'">
+    <nav class="flex-1 py-4 px-2 no-scrollbar space-y-1" :class="sidebarStore.isSidebarOpen ? 'overflow-y-auto' : 'overflow-visible'">
 
-      <!-- Section label -->
-      <div class="px-3 mb-3" :class="sidebarStore.isSidebarOpen ? 'block' : 'hidden'">
+      <!-- Section label: opacity+translateY only -->
+      <div class="px-3 mb-3 transition-all duration-300 origin-left"
+        :style="sidebarStore.isSidebarOpen
+          ? 'opacity:1; transform:translateY(0); pointer-events:auto'
+          : 'opacity:0; transform:translateY(-4px); pointer-events:none; height:0; margin:0; overflow:hidden'"
+      >
         <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
           Menu Utama
         </h3>
@@ -178,26 +182,37 @@ watch(() => sidebarStore.isSidebarOpen, (isOpen) => {
         <!-- Main menu button -->
         <button
           @click="menuClick(item.name, item.path, item.tab)"
-          class="sidebar-link w-full text-left flex items-center px-3 py-2.5 rounded-xl transition-all duration-200"
-          :class="[sidebarStore.isSidebarOpen ? 'justify-between' : 'justify-center', sideBarPage.sharedString === item.name ? 'link--active' : 'link--inactive']"
+          class="sidebar-link w-full text-left flex items-center h-11 rounded-xl transition-colors duration-200 relative menu-btn"
+          :class="sideBarPage.sharedString === item.name ? 'link--active' : 'link--inactive'"
           :title="item.name"
         >
-          <div class="flex items-center gap-3">
-            <!-- Icon wrapper -->
-            <span
-              class="icon-wrap w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200"
-              :class="sideBarPage.sharedString === item.name ? 'icon-wrap--active' : 'icon-wrap--inactive'"
-            >
-              <font-awesome-icon :icon="item.icon" class="text-sm" />
-            </span>
-            <span class="text-[13px] font-medium whitespace-nowrap" :class="sidebarStore.isSidebarOpen ? 'block' : 'hidden'">{{ item.name }}</span>
-          </div>
+          <!-- Icon: fixed position, centered when sidebar collapsed -->
+          <span
+            class="icon-wrap w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors duration-200"
+            :class="sideBarPage.sharedString === item.name ? 'icon-wrap--active' : 'icon-wrap--inactive'"
+          >
+            <font-awesome-icon :icon="item.icon" class="text-sm" />
+          </span>
 
-          <!-- Chevron -->
+          <!-- Label: normal flex child, shrinks naturally with sidebar width.
+               Only opacity animates (GPU). overflow-hidden clips the text. -->
+          <span
+            class="menu-label flex-1 min-w-0 overflow-hidden text-[13px] font-medium whitespace-nowrap"
+            :style="sidebarStore.isSidebarOpen
+              ? 'opacity:1; margin-left:10px'
+              : 'opacity:0; margin-left:10px; pointer-events:none'"
+          >
+            {{ item.name }}
+          </span>
+
+          <!-- Chevron: fades when collapsed -->
           <svg
-            v-if="item.path === '#' && sidebarStore.isSidebarOpen"
-            class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-300"
-            :class="sideBarPage.sharedString === item.name ? 'rotate-90' : ''"
+            v-if="item.path === '#'"
+            class="chevron-icon w-3.5 h-3.5 flex-shrink-0 mr-1"
+            :style="[
+               sidebarStore.isSidebarOpen ? 'opacity:1' : 'opacity:0',
+               sideBarPage.sharedString === item.name ? 'transform:rotate(90deg)' : 'transform:rotate(0deg)'
+            ]"
             fill="none" stroke="currentColor" viewBox="0 0 24 24"
           >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
@@ -268,13 +283,20 @@ watch(() => sidebarStore.isSidebarOpen, (isOpen) => {
     </nav>
 
     <!-- ===== Footer (User info) ===== -->
-    <div class="p-4 border-t border-gray-100">
-      <div class="sidebar-user-card rounded-xl p-3 flex items-center gap-3">
-        <!-- Avatar -->
-        <div class="w-8 h-8 rounded-lg bg-green-600 flex items-center justify-center text-xs font-bold text-white flex-shrink-0 shadow-md shadow-green-500/20">
-          {{ (SettingGlob.sharedObject.name ?? 'A').charAt(0).toUpperCase() }}
-        </div>
-        <div class="flex-1 min-w-0" :class="sidebarStore.isSidebarOpen ? 'block' : 'hidden'">
+    <div class="border-t border-gray-100 p-2">
+      <div class="sidebar-user-card rounded-xl p-2 flex items-center gap-2">
+        <!-- Avatar: always visible -->
+        <span class="menu-icon-slot flex-shrink-0 flex items-center justify-center">
+          <div class="w-8 h-8 rounded-lg bg-green-600 flex items-center justify-center text-xs font-bold text-white flex-shrink-0 shadow-md shadow-green-500/20">
+            {{ (SettingGlob.sharedObject.name ?? 'A').charAt(0).toUpperCase() }}
+          </div>
+        </span>
+        <!-- Info: GPU fade+slide -->
+        <div class="min-w-0 flex-1 menu-label"
+          :style="sidebarStore.isSidebarOpen
+            ? 'opacity:1; transform:translateX(0); pointer-events:auto'
+            : 'opacity:0; transform:translateX(-8px); pointer-events:none'"
+        >
           <p class="text-[12px] font-semibold text-gray-700 truncate">
             {{ SettingGlob.sharedObject.name ?? 'Administrator' }}
           </p>
@@ -391,4 +413,22 @@ watch(() => sidebarStore.isSidebarOpen, (isOpen) => {
 .rotate-90 { transform: rotate(90deg); }
 .fade-enter-active, .fade-leave-active { transition: opacity 0.2s, transform 0.2s; }
 .fade-enter-from, .fade-leave-to { opacity: 0; transform: translateX(-10px); }
+
+/* ===== GPU-ACCELERATED MENU BUTTON LAYOUT ===== */
+.menu-btn {
+  /* padding-left: centers 32px icon in the 69px collapsed button: (69-32)/2 = ~18px */
+  padding-left: 18px;
+  padding-right: 6px;
+}
+.menu-label {
+  /* Only opacity is transitioned — no layout properties change */
+  text-align: left;
+  transition: opacity 0.25s ease;
+  will-change: opacity;
+}
+.chevron-icon {
+  flex-shrink: 0;
+  transition: opacity 0.25s ease, transform 0.3s ease;
+  will-change: opacity, transform;
+}
 </style>

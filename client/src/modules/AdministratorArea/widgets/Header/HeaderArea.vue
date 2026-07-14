@@ -38,11 +38,11 @@ const handleLogoutClick = () => {
 
         <!-- Welcome Title -->
         <div class="hidden sm:block">
-          <h2 class="text-[10px] font-bold text-green-100 uppercase tracking-[0.25em] mb-0.5">
-            Aplikasi Mustahik & Muzakki
+          <h2 class="text-[10px] font-bold text-white uppercase tracking-[0.25em] mb-0.5">
+            Aplikasi SiZiwah
           </h2>
           <div class="flex items-center gap-2">
-            <p class="text-[13px] font-semibold text-white tracking-wide">
+            <p class="text-[13px] font-semibold text-yellow-400 tracking-wide">
               Kabupaten Aceh Tengah
             </p>
           </div>
