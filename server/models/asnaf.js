@@ -25,6 +25,11 @@ module.exports = (sequelize, DataTypes) => {
   Asnaf.init(
     {
       name: DataTypes.STRING,
+      tipe: {
+        type: DataTypes.ENUM("zakat", "infaq"),
+        defaultValue: "zakat",
+        allowNull: false,
+      },
     },
     {
       sequelize,

@@ -65,10 +65,11 @@ const programOption = ref<{ id: number; name: string }[]>([]);
 interface Option {
   value: number;
   label: string;
+  tipe?: string;
 }
 
 function mapOptions(options?: Option[]) {
-  return options?.map((o) => ({ id: o.value, name: o.label })) ?? [];
+  return options?.map((o) => ({ id: o.value, name: o.label, tipe: o.tipe })) ?? [];
 }
 
 const dataDesa = ref<{ id: number; nama: string }[]>([]);
@@ -187,7 +188,7 @@ const validateForm = () => {
     isValid = false;
   }
 
-  if (form.value.sumber_dana == 'zakat' && !form.value.asnaf_id) {
+  if (!form.value.asnaf_id) {
     errors.value.asnaf_id = 'Asnaf wajib diisi.';
     isValid = false;
   }
@@ -541,7 +542,9 @@ watch(
 
 const filteredAsnafOptions = computed(() => {
   if (form.value.sumber_dana === 'zakat') {
-    return [{ id: '', name: '-- Pilih Asnaf --' }, ...asnafOption.value];
+    return [{ id: '', name: '-- Pilih Asnaf --' }, ...asnafOption.value.filter(a => a.tipe === 'zakat')];
+  } else if (form.value.sumber_dana === 'infaq') {
+    return [{ id: '', name: '-- Pilih Asnaf --' }, ...asnafOption.value.filter(a => a.tipe === 'infaq')];
   } else {
     return [{ id: '', name: '-- Pilih Asnaf --' }];
   }
@@ -694,7 +697,7 @@ function openImageInNewTab() {
                 id="asnaf_id"
                 v-model="form.asnaf_id"
                 label="Kategori Asnaf"
-                :disabled="form.sumber_dana !== 'zakat'"
+                :disabled="!form.sumber_dana"
                 :options="filteredAsnafOptions"
                 required
                 :error="errors.asnaf_id"

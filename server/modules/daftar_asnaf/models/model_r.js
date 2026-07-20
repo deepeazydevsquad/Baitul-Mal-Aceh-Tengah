@@ -28,7 +28,7 @@ class Model_r {
       limit,
       offset: (page - 1) * limit,
       order: [["id", "ASC"]],
-      attributes: ["id", "name", "createdAt", "updatedAt"],
+      attributes: ["id", "name", "tipe", "createdAt", "updatedAt"],
       where,
     };
 
@@ -40,6 +40,7 @@ class Model_r {
         return {
           id: row.id,
           name: row.name,
+          tipe: row.tipe || "zakat",
           createdAt: moment(row.createdAt).format("YYYY-MM-DD HH:mm:ss"),
           updatedAt: moment(row.updatedAt).format("YYYY-MM-DD HH:mm:ss"),
         };
@@ -63,7 +64,7 @@ class Model_r {
     try {
       const item = await Asnaf.findOne({
         where: { id },
-        attributes: ["id", "name", "createdAt", "updatedAt"],
+        attributes: ["id", "name", "tipe", "createdAt", "updatedAt"],
       });
 
       if (!item) {
@@ -74,6 +75,7 @@ class Model_r {
       return {
         id: row.id,
         name: row.name,
+        tipe: row.tipe || "zakat",
         createdAt: moment(row.createdAt).format("YYYY-MM-DD HH:mm:ss"),
         updatedAt: moment(row.updatedAt).format("YYYY-MM-DD HH:mm:ss"),
       };

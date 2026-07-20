@@ -34,7 +34,7 @@ class Model_r {
     const [type_year, type_asnaf_id, type_program_id] = await Promise.all([
       this.generateYears(2024),
       Asnaf.findAll({
-        attributes: ["id", "name"],
+        attributes: ["id", "name", "tipe"],
         group: ["id"],
         raw: true,
       }),
@@ -45,11 +45,14 @@ class Model_r {
       }),
     ]);
 
+    console.log("==> type_asnaf_id from db:", type_asnaf_id);
+
     return {
       type_year,
       type_asnaf_id: type_asnaf_id.map((item) => ({
         value: item.id.toString(),
         label: item.name,
+        tipe: item.tipe,
       })),
       type_program_id: type_program_id.map((item) => ({
         value: item.id.toString(),

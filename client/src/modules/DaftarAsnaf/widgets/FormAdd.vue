@@ -4,6 +4,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import Notification from '@/components/Modal/Notification.vue'
 import BaseButton from '@/components/Button/BaseButton.vue'
 import InputText from '@/components/Form/InputText.vue'
+import SelectField from '@/components/Form/SelectField.vue'
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue'
 import TextArea from '@/components/Form/TextArea.vue'
 
@@ -31,12 +32,12 @@ const emit = defineEmits<{
 
 // State
 const isSubmitting = ref(false)
-const form = ref<{ name: string }>({ name: '' })
+const form = ref<{ name: string; tipe: string }>({ name: '', tipe: 'zakat' })
 const errors = ref<Record<string, string>>({})
 
 // Reset form
 const resetForm = () => {
-  form.value = { name: '' }
+  form.value = { name: '', tipe: 'zakat' }
   errors.value = {}
 }
 
@@ -47,6 +48,11 @@ const validateForm = () => {
 
   if (!form.value.name) {
     errors.value.name = 'Nama asnaf tidak boleh kosong.'
+    isValid = false
+  }
+
+  if (!form.value.tipe) {
+    errors.value.tipe = 'Tipe asnaf harus dipilih.'
     isValid = false
   }
 
@@ -123,6 +129,18 @@ onBeforeUnmount(() => document.removeEventListener('keydown', handleEscape))
           type="text"
           placeholder="Masukkan nama Asnaf"
           :error="errors.name"
+        />
+
+        <!-- Tipe asnaf -->
+        <SelectField
+          id="tipe"
+          v-model="form.tipe"
+          label="Tipe Asnaf"
+          :options="[
+            { id: 'zakat', name: 'Zakat' },
+            { id: 'infaq', name: 'Infaq' },
+          ]"
+          :error="errors.tipe"
         />
 
         <!-- Actions -->

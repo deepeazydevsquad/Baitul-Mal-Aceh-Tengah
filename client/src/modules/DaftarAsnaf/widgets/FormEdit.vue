@@ -4,6 +4,7 @@ import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import Notification from '@/components/Modal/Notification.vue'
 import BaseButton from '@/components/Button/BaseButton.vue'
 import InputText from '@/components/Form/InputText.vue'
+import SelectField from '@/components/Form/SelectField.vue'
 import TextArea from '@/components/Form/TextArea.vue'
 
 // Composable
@@ -30,14 +31,14 @@ const emit = defineEmits<{
 }>()
 
 // Form state
-const form = ref<{ name: string }>({ name: '' })
+const form = ref<{ name: string; tipe: string }>({ name: '', tipe: 'zakat' })
 const errors = ref<Record<string, string>>({})
 const isSubmitting = ref(false)
 const isLoading = ref(false)
 
 // Reset form
 const resetForm = () => {
-  form.value = { name: '' }
+  form.value = { name: '', tipe: 'zakat' }
   errors.value = {}
 }
 
@@ -51,6 +52,11 @@ const validateForm = () => {
     isValid = false
   }
 
+  if (!form.value.tipe) {
+    errors.value.tipe = 'Tipe asnaf harus dipilih.'
+    isValid = false
+  }
+
   return isValid
 }
 
@@ -61,6 +67,7 @@ const fetchData = async () => {
   try {
     const response = await get_info_edit_daftar_asnaf(props.selectedAsnaf.id)
     form.value.name = response.data.name
+    form.value.tipe = response.data.tipe || 'zakat'
   } catch (error) {
     displayNotification('Gagal mengambil data asnaf', 'error')
   } finally {
@@ -83,6 +90,7 @@ const handleSubmit = async () => {
     const payload = {
       id: Number(props.selectedAsnaf.id),
       name: String(form.value.name).trim(),
+      tipe: String(form.value.tipe).trim(),
     }
 
     console.log('Payload dikirim ke backend:', payload)
@@ -175,6 +183,19 @@ watch(
             type="text"
             placeholder="Masukkan Nama Asnaf"
             :error="errors.name"
+          />
+        </div>
+
+        <div>
+          <SelectField
+            id="tipe"
+            v-model="form.tipe"
+            label="Tipe Asnaf"
+            :options="[
+              { id: 'zakat', name: 'Zakat' },
+              { id: 'infaq', name: 'Infaq' },
+            ]"
+            :error="errors.tipe"
           />
         </div>
 

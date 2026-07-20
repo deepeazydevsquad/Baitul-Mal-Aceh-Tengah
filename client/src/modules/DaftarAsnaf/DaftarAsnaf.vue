@@ -45,6 +45,7 @@ const { showConfirmDialog, confirmTitle, confirmMessage, displayConfirmation, co
 interface DaftarAsnaf {
   id: number;
   name: string;
+  tipe: 'zakat' | 'infaq';
   createdAt: string;
   updatedAt: string;
 }
@@ -52,7 +53,8 @@ interface DaftarAsnaf {
 const DaftardataAsnaf = ref<DaftarAsnaf[]>([]);
 
 const tableColumns = ref<TableColumn[]>([
-  { key: 'name', label: 'Daftar Asnaf', headerClass: 'w-[50%] text-center', cellClass: 'text-left font-medium text-gray-800' },
+  { key: 'name', label: 'Daftar Asnaf', headerClass: 'w-[40%] text-center', cellClass: 'text-left font-medium text-gray-800' },
+  { key: 'tipe', label: 'Tipe', headerClass: 'w-[20%] text-center', cellClass: 'text-center font-medium text-gray-800' },
   { key: 'updatedAt', label: 'Datetimes', headerClass: 'w-[30%] text-center', cellClass: 'text-center font-medium text-gray-800' },
 ]);
 
@@ -149,6 +151,11 @@ async function deleteData(id: number) {
       >
         <template #cell-name="{ value }">
           {{ value }}
+        </template>
+        <template #cell-tipe="{ value }">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize" :class="value === 'zakat' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'">
+            {{ value || 'Zakat' }}
+          </span>
         </template>
         <template #cell-updatedAt="{ value }">
           {{ value }}

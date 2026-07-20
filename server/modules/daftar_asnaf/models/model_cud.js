@@ -21,6 +21,7 @@ class Model_cud {
       const insert = await Asnaf.create(
         {
           name: body.name,
+          tipe: body.tipe || "zakat",
           createdAt: date,
           updatedAt: date,
         },
@@ -43,6 +44,7 @@ class Model_cud {
       await daftar_asnaf.update(
         {
           name: body.name,
+          tipe: body.tipe || "zakat",
           updatedAt: date,
         },
         { transaction: this.t }
