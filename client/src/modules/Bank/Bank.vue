@@ -161,9 +161,10 @@ async function deleteData(id: number) {
             </div>
             <div
               v-else
-              class="bg-gray-200 text-gray-500 text-center px-4 relative aspect-video max-w-sm rounded-lg flex items-center justify-center overflow-hidden"
+              class="bg-gray-200 text-gray-500 text-center flex items-center justify-center overflow-hidden rounded-lg mx-auto"
+              style="width: 100px; height: 33px"
             >
-              <p class="text-sm font-medium">Gambar tidak tersedia</p>
+              <span class="text-[10px] font-medium leading-tight">Tidak ada<br>gambar</span>
             </div>
           </center>
         </template>
