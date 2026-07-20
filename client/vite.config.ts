@@ -14,6 +14,9 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  optimizeDeps: {
+    include: ['cropperjs'],
+  },
   server: {
     host: '0.0.0.0',       // Agar bisa diakses dari luar container
     port: 5173,            // Port default Vite dev server

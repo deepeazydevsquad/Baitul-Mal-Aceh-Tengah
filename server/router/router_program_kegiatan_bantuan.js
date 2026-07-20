@@ -54,7 +54,7 @@ router.post(
   "/program_kegiatan_bantuan/add",
   authenticateTokenAdministrator,
   validation.upload.single("banner"),
-  validation.check_dimensions(true),
+  validation.check_dimensions(false),
   [
     body("asnaf_id")
       .if(body("sumber_dana").equals("zakat")) // hanya wajib kalau sumber_dana = zakat

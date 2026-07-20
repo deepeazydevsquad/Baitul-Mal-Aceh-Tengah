@@ -61,15 +61,20 @@ validation.check_nama_program_kegiatan_bantuan = async (value, { req }) => {
 };
 validation.check_start_end_date = (req, res, next) => {
   const body = req.body;
-  const tahun = parseInt(body.tahun);
   const start_date = body.start_date; // format: YYYY-MM-DD
   const end_date = body.end_date;
 
-  // Validasi field wajib
-  if (!start_date || !end_date) {
-    throw new Error("Tanggal awal dan akhir harus diisi");
+  // Jika tidak ada keduanya, maka lewati karena bersifat opsional
+  if (!start_date && !end_date) {
+    return next();
   }
 
+  // Jika salah satu ada, maka harus ada dua-duanya
+  if (!start_date || !end_date) {
+    throw new Error("Tanggal awal dan akhir harus diisi keduanya");
+  }
+
+  const tahun = parseInt(body.tahun);
   if (!tahun) {
     throw new Error("Tahun harus diisi");
   }

@@ -12,6 +12,10 @@ import DeleteIcon from '@/components/Icons/DeleteIcon.vue';
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 import Notification from '@/components/Modal/Notification.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import CropperLib from 'cropperjs';
+import 'cropperjs/dist/cropper.css';
+// Handle module interop: cropperjs may export as default or as the class itself
+const Cropper = (CropperLib as any).default ?? CropperLib;
 
 // Composable
 import { useNotification } from '@/composables/useNotification';
@@ -105,6 +109,7 @@ const resetForm = () => {
   };
 
   previewUrl.value = null;
+  cancelCrop();
   errors.value = {};
 };
 
@@ -132,11 +137,6 @@ const validateForm = () => {
   // Reset errors
   errors.value = {};
 
-  if (!form.value.banner) {
-    errors.value.banner = 'Banner  wajib diisi.';
-    isValid = false;
-  }
-
   if (!form.value.nama_kegiatan) {
     errors.value.nama_kegiatan = 'Nama kegiatan wajib diisi.';
     isValid = false;
@@ -149,6 +149,11 @@ const validateForm = () => {
 
   if (!form.value.sumber_dana) {
     errors.value.sumber_dana = 'Sumber dana wajib diisi.';
+    isValid = false;
+  }
+
+  if (isCropping.value) {
+    errors.value.banner = 'Harap klik "Pangkas & Simpan" terlebih dahulu untuk menyimpan gambar.';
     isValid = false;
   }
 
@@ -259,6 +264,32 @@ const validateForm = () => {
 
 // Function: Handle file
 const previewUrl = ref<string | null>(null);
+const imageRef = ref<HTMLImageElement | null>(null);
+const isCropping = ref(false);
+// Gunakan plain let (bukan ref/shallowRef) agar Vue tidak pernah mem-proxy Cropper
+let cropperInst: Cropper | null = null;
+let pendingCropInit = false;
+
+// Watch imageRef: inisialisasi Cropper begitu elemen muncul di DOM
+watch(imageRef, (el) => {
+  if (el && pendingCropInit) {
+    if (cropperInst) {
+      cropperInst.destroy();
+      cropperInst = null;
+    }
+    cropperInst = new Cropper(el, {
+      aspectRatio: 602 / 330,
+      viewMode: 3,
+      autoCropArea: 1,
+      cropBoxResizable: false,
+      cropBoxMovable: false,
+      dragMode: 'move',
+      toggleDragModeOnDblclick: false,
+    });
+    pendingCropInit = false;
+  }
+});
+
 const handleFile = (file: File | null) => {
   if (!file) {
     form.value.banner = null;
@@ -266,14 +297,62 @@ const handleFile = (file: File | null) => {
   }
 
   // Validasi ukuran file
-  const fileSizeMB = Math.round(file.size / (1024 * 1024));
+  const fileSizeMB = file.size / (1024 * 1024);
   if (fileSizeMB > 2) {
     errors.value.banner = 'Ukuran file maksimal 2 MB';
     return;
   }
 
+  errors.value.banner = '';
+
+  // Hancurkan cropper lama jika ada
+  if (cropperInst) {
+    cropperInst.destroy();
+    cropperInst = null;
+  }
+
+  pendingCropInit = true;
   previewUrl.value = URL.createObjectURL(file);
-  form.value.banner = file;
+  form.value.banner = null;
+  isCropping.value = true;
+};
+
+const handleCrop = () => {
+  if (!cropperInst) {
+    console.warn('Cropper belum siap');
+    return;
+  }
+  cropperInst.getCroppedCanvas({
+    width: 602,
+    height: 330,
+    imageSmoothingEnabled: true,
+    imageSmoothingQuality: 'high',
+  }).toBlob((blob) => {
+    if (blob) {
+      const file = new File([blob], 'banner.jpg', { type: 'image/jpeg' });
+      form.value.banner = file;
+      const newUrl = URL.createObjectURL(blob);
+      cropperInst?.destroy();
+      cropperInst = null;
+      isCropping.value = false;
+      previewUrl.value = newUrl;
+    }
+  }, 'image/jpeg', 0.9);
+};
+
+const cancelCrop = () => {
+  if (cropperInst) {
+    cropperInst.destroy();
+    cropperInst = null;
+  }
+  isCropping.value = false;
+  pendingCropInit = false;
+  previewUrl.value = null;
+  form.value.banner = null;
+  
+  // Reset input file via id
+  const el = document.getElementById('banner-upload') as HTMLInputElement;
+  if (el) el.value = '';
 };
 
 // Function: Handle submit
@@ -351,16 +430,21 @@ const handleSubmit = async () => {
   });
 
   console.log(Object.fromEntries(formData.entries()));
+  let isSuccess = false;
   try {
     const response = await add_program_bantuan(formData);
     console.log(response);
     emit('status', { error_msg: response.error_msg || response, error: response.error });
+    
+    if (!response.error) {
+      isSuccess = true;
+    }
   } catch (error: any) {
     console.error(error);
     displayNotification(error.response.data.error_msg || error.response.data.message, 'error');
   } finally {
     isSubmitting.value = false;
-    // closeModal();
+    if (isSuccess) closeModal();
   }
 };
 
@@ -412,6 +496,14 @@ const filteredAsnafOptions = computed(() => {
   } else {
     return [{ id: '', name: '-- Pilih Asnaf --' }];
   }
+});
+
+// Nama file yang ditampilkan di InputFile
+const bannerFileName = computed(() => {
+  if (form.value.banner instanceof File) {
+    return form.value.banner.name;
+  }
+  return '';
 });
 
 function openImageInNewTab() {
@@ -468,6 +560,7 @@ function openImageInNewTab() {
                 :error="errors.banner"
                 :maxSize="2000"
                 :show-preview="false"
+                :initialFileName="bannerFileName"
                 dimensionsInfo="wajib 602x330 px"
                 @file-selected="handleFile"
               />
@@ -476,12 +569,30 @@ function openImageInNewTab() {
             <!-- Preview -->
             <div v-if="previewUrl" class="col-span-3 mt-3">
               <p class="text-sm text-gray-500 mb-2 font-bold">Preview:</p>
-              <img
-                :src="previewUrl"
-                alt="Preview"
-                class="h-32 rounded-md border object-contain"
-                @click="openImageInNewTab"
-              />
+              
+              <div v-if="isCropping" class="w-full">
+                <div class="mb-4">
+                  <img :src="previewUrl" ref="imageRef" class="max-w-full max-h-[300px] block" />
+                </div>
+                <div class="flex gap-2">
+                  <BaseButton type="button" variant="primary" size="sm" @click="handleCrop">Pangkas & Simpan</BaseButton>
+                  <BaseButton type="button" variant="secondary" size="sm" @click="cancelCrop">Batal</BaseButton>
+                </div>
+              </div>
+
+              <div v-else class="space-y-2">
+                <img
+                  :src="previewUrl"
+                  alt="Preview"
+                  class="w-full rounded-md border object-cover mb-3"
+                  style="max-height: 165px;"
+                  @click="openImageInNewTab"
+                />
+                <BaseButton type="button" variant="danger" size="sm" class="w-full justify-center" @click="cancelCrop">
+                  <font-awesome-icon icon="fa-solid fa-trash" />
+                  Hapus Gambar
+                </BaseButton>
+              </div>
             </div>
           </div>
 

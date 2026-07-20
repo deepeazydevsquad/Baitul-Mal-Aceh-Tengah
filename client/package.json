@@ -31,6 +31,7 @@
     "alertifyjs": "^1.14.0",
     "apexcharts": "^4.4.0",
     "axios": "^1.7.9",
+    "cropperjs": "^1.6.2",
     "dayjs": "^1.11.13",
     "flatpickr": "^4.6.13",
     "flowbite": "^3.1.2",
@@ -54,6 +55,7 @@
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.0",
+    "@types/cropperjs": "^1.1.5",
     "@types/node": "^22.13.1",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vitejs/plugin-vue-jsx": "^4.1.1",

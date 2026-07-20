@@ -198,7 +198,7 @@ class Model_r {
       const result = await Kegiatan.findAndCountAll({
         limit,
         offset: (page - 1) * limit,
-        order: [["id", "ASC"]],
+        order: [["id", "DESC"]],
         attributes: [
           "id",
           "asnaf_id",
