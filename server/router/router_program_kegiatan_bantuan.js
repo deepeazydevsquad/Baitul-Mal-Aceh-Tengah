@@ -53,8 +53,7 @@ router.post(
 router.post(
   "/program_kegiatan_bantuan/add",
   authenticateTokenAdministrator,
-  validation.upload.single("banner"),
-  validation.check_dimensions(false),
+  validation.upload,
   [
     body("asnaf_id")
       .if(body("sumber_dana").equals("zakat")) // hanya wajib kalau sumber_dana = zakat
@@ -123,6 +122,7 @@ router.post(
     body("desc").optional(),
   ],
   validation.check_start_end_date,
+  validation.cleanupRejectedUpload,
   validationHelper.handleFileErrors,
   controllers.add
 );
@@ -172,8 +172,7 @@ router.post(
 router.post(
   "/program_kegiatan_bantuan/edit",
   authenticateTokenAdministrator,
-  validation.upload.single("banner"),
-  validation.check_dimensions(false),
+  validation.upload,
   [
     body("id")
       .notEmpty()
@@ -246,6 +245,7 @@ router.post(
     body("desc").optional(),
   ],
   validation.check_start_end_date,
+  validation.cleanupRejectedUpload,
   validationHelper.handleFileErrors,
   controllers.edit
 );

@@ -174,7 +174,6 @@ class Model_r {
 
   async get_info() {
     const body = this.req.body;
-    console.log("🔥 masuk ke get_info", body);
     try {
       const sudah_realisasi = "sudah_direalisasi";
 

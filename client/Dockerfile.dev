@@ -1,5 +1,5 @@
-# Gunakan Node.js versi 20.18 sebagai base image
-FROM node:20.18
+# Gunakan Node.js LTS dengan digest immutable.
+FROM node:22@sha256:fe4f6d74e20370acb04ad889077d14d0f64a9c8ea6a42bc60cddf1e844699914
 
 # Set working directory
 WORKDIR /app
@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm ci
 
 # Salin seluruh isi project
 COPY . .

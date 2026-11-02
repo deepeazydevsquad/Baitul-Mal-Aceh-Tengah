@@ -2,7 +2,7 @@ const express = require("express");
 const { body } = require("express-validator");
 const controllers = require("../modules/donasi_member/controllers/index");
 const {
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
 } = require("../middleware/authenticateToken");
 const validation = require("../validation/infaq_member");
 
@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.post(
   "/donasi_member/list",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   [
     body("perpage")
       .notEmpty()
@@ -29,7 +29,7 @@ router.post(
 
 router.post(
   "/donasi_member/daftar_donatur",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   [
     body("program_donasi_id")
       .notEmpty()
@@ -42,7 +42,7 @@ router.post(
 
 router.post(
   "/donasi_member/detail_donasi",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   [
     body("program_donasi_id")
       .notEmpty()
@@ -55,7 +55,7 @@ router.post(
 
 router.post(
   "/donasi_member/get_konfirmasi",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   [
     body("program_donasi_id")
       .notEmpty()
@@ -68,14 +68,14 @@ router.post(
 
 router.post(
   "/donasi_member/update_konfirmasi",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   [body("invoice").notEmpty().withMessage("invoice Tidak Boleh Kosong")],
   controllers.update_konfirmasi
 );
 
 router.post(
   "/donasi_member/konfirmasi_detail",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   [
     body("program_donasi_id")
       .notEmpty()
@@ -88,7 +88,7 @@ router.post(
 
 router.post(
   "/donasi_member/riwayat_donasi_user",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   [
     body("program_donasi_id")
       .notEmpty()
@@ -101,32 +101,32 @@ router.post(
 
 router.post(
   "/donasi_member/detail_riwayat",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   [body("invoice").notEmpty().withMessage("invoice Tinvoiceak Boleh Kosong")],
   controllers.detail_riwayat
 );
 
 router.get(
   "/donasi_member/kode_pembayaran",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   controllers.kode_pembayaran
 );
 
 router.get(
   "/donasi_member/profile",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   controllers.getMemberProfile
 );
 
 router.get(
   "/donasi_member/banks",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   controllers.getBankList
 );
 
 router.post(
   "/donasi_member/add",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   [
     body("nominal")
       .notEmpty()

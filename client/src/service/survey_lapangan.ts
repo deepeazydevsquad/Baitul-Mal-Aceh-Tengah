@@ -1,35 +1,36 @@
-import api from '@/service/api_member';
+import axios from 'axios';
+import { API_URL } from '@/config/config';
 
-export const getInfo = async (param: any) => {
-  try {
-    const response = await api.post('/survey_lapangan/info', param);
-    return response.data;
-  } catch (error) {
-    console.error('Gagal mengambil informasi pengaturan', error);
-    throw error;
-  }
+const surveyApi = axios.create({
+  baseURL: API_URL,
+  withCredentials: true,
+});
+
+export const createSurveySession = async (access_code: string) => {
+  const response = await surveyApi.post('/survey_lapangan/session', {
+    access_code,
+  });
+  return response.data;
 };
 
-export const getInfoMember = async (params: any) => {
-  try {
-    const response = await api.post('/survey_lapangan/info_member', params);
-    return response.data;
-  } catch (error) {
-    console.error('Gagal mengambil informasi pengaturan', error);
-    throw error;
-  }
+export const getInfo = async () => {
+  const response = await surveyApi.post('/survey_lapangan/info', {});
+  return response.data;
 };
 
-export const submitSurvey = async (params: any) => {
-  try {
-    const response = await api.post('/survey_lapangan/submit', params, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Gagal mengambil informasi pengaturan', error);
-    throw error;
-  }
+export const getInfoMember = async (params: { member_id: number }) => {
+  const response = await surveyApi.post('/survey_lapangan/info_member', params);
+  return response.data;
+};
+
+export const submitSurvey = async (params: FormData) => {
+  const response = await surveyApi.post('/survey_lapangan/submit', params);
+  return response.data;
+};
+
+export const downloadSurveySk = async (id: number) => {
+  const response = await surveyApi.get(`/documents/sk/${id}`, {
+    responseType: 'blob',
+  });
+  return response.data as Blob;
 };

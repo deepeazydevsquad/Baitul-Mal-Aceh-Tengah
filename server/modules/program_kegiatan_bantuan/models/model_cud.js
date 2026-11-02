@@ -12,8 +12,17 @@ const {
 const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const path = require("path");
-const fs = require("fs");
 const moment = require("moment");
+const {
+  removeStoredFile,
+  resolveStoredPath,
+} = require("../../../helper/uploadStorageHelper");
+
+const PROGRAM_BANNER_DIRECTORY = path.resolve(
+  __dirname,
+  "../../../uploads/img/program_kegiatan_bantuan"
+);
+const PROGRAM_BANNER_EXTENSIONS = new Set([".jpg", ".jpeg", ".png"]);
 
 class Model_cud {
   constructor(req) {
@@ -25,14 +34,45 @@ class Model_cud {
     this.state = true;
   }
 
+  getUploadedBanner() {
+    const filename = this.req.programKegiatanBanner?.filename;
+    if (!filename) return null;
+    if (
+      !resolveStoredPath(PROGRAM_BANNER_DIRECTORY, filename, {
+        allowedExtensions: PROGRAM_BANNER_EXTENSIONS,
+      })
+    ) {
+      throw new Error("Referensi banner tidak valid.");
+    }
+    return filename;
+  }
+
+  scheduleBannerRemoval(filename) {
+    if (
+      !resolveStoredPath(PROGRAM_BANNER_DIRECTORY, filename, {
+        allowedExtensions: PROGRAM_BANNER_EXTENSIONS,
+      })
+    ) {
+      return;
+    }
+    this.bannersToRemoveAfterCommit = [
+      ...(this.bannersToRemoveAfterCommit || []),
+      filename,
+    ];
+  }
+
+  removeUploadedBanner() {
+    removeStoredFile(
+      PROGRAM_BANNER_DIRECTORY,
+      this.req.programKegiatanBanner?.filename,
+      { allowedExtensions: PROGRAM_BANNER_EXTENSIONS }
+    );
+  }
+
   async add(result_kode, result_slug) {
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
-
-    console.log("_____________Ddddddddddddddddddddd____________");
-    console.log(body);
-    console.log("_____________Ddddddddddddddddddddd____________");
 
     try {
       const insert = await Kegiatan.create(
@@ -58,7 +98,7 @@ class Model_cud {
             ? moment(body.end_date).format("YYYY-MM-DD")
             : null,
           name: body.name,
-          banner: body.bannerPath ? body.bannerPath : null,
+          banner: this.getUploadedBanner(),
           desc: body.desc,
           createdAt: myDate,
           updatedAt: myDate,
@@ -68,11 +108,6 @@ class Model_cud {
         }
       );
       const promises = [];
-
-      console.log("_____________SEBELUM Ddddddddddddddddddddd____________");
-      console.log(body.kecamatan_penyaluran);
-      console.log(body.desa_penyaluran);
-      console.log("_____________Ddddddddddddddddddddd____________");
 
       if (
         typeof body.desa_penyaluran === "string" &&
@@ -87,11 +122,6 @@ class Model_cud {
       ) {
         body.kecamatan_penyaluran = JSON.parse(body.kecamatan_penyaluran);
       }
-
-      console.log("_____________SAEUDAH Ddddddddddddddddddddd____________");
-      console.log(body.kecamatan_penyaluran);
-      console.log(body.desa_penyaluran);
-      console.log("_____________Ddddddddddddddddddddd____________");
 
       // Desa
       if (body.desa_penyaluran && Array.isArray(body.desa_penyaluran)) {
@@ -141,6 +171,8 @@ class Model_cud {
       this.message = `Menambahkan Kegiatan Baru dengan Nama Kegiatan: ${body.nama_kegiatan} dan ID Kegiatan: ${insert.id}`;
     } catch (error) {
       this.state = false;
+      this.message = error.message;
+      this.removeUploadedBanner();
     }
   }
 
@@ -150,51 +182,53 @@ class Model_cud {
     const body = this.req.body;
 
     try {
+      const currentKegiatan = await Kegiatan.findByPk(body.id, {
+        transaction: this.t,
+        lock: this.t.LOCK.UPDATE,
+      });
+      if (!currentKegiatan) {
+        const error = new Error("Program kegiatan tidak ditemukan.");
+        error.statusCode = 404;
+        throw error;
+      }
+      if (Number(currentKegiatan.tahun) !== Number(body.tahun)) {
+        const usedRealisasi = await Realisasi_permohonan.findOne({
+          where: {},
+          attributes: ["id"],
+          include: [
+            {
+              model: Permohonan,
+              required: true,
+              attributes: [],
+              where: { kegiatan_id: body.id },
+            },
+          ],
+          transaction: this.t,
+          lock: this.t.LOCK.UPDATE,
+        });
+        if (usedRealisasi) {
+          const error = new Error(
+            "Tahun kegiatan tidak dapat diubah setelah memiliki realisasi."
+          );
+          error.statusCode = 409;
+          throw error;
+        }
+      }
+
       const model_r = new Model_r(this.req);
       const info_program = await model_r.info_program_kegiatan_bantuan(body.id);
 
       let newBanner = info_program.banner;
 
       // === CASE 1: Upload banner baru ===
-      if (body.bannerPath) {
-        if (info_program.banner) {
-          const oldFile = path.join(
-            __dirname,
-            "../../../uploads/img/program_kegiatan_bantuan/",
-            info_program.banner
-          );
-          if (fs.existsSync(oldFile)) fs.unlinkSync(oldFile);
-        }
-        newBanner = body.bannerPath;
-
-        // === CASE 2: Rename file banner karena nama_kegiatan berubah ===
-      } else if (
-        body.nama_kegiatan &&
-        body.nama_kegiatan !== info_program.nama_kegiatan &&
-        info_program.banner
-      ) {
-        const oldPath = path.join(
-          __dirname,
-          "../../../uploads/img/program_kegiatan_bantuan/",
-          info_program.banner
-        );
-        const ext = path.extname(info_program.banner);
-        const safeName = body.nama_kegiatan.toLowerCase().replace(/[^a-z0-9]/g, "_");
-        const newFilename = `${safeName}${ext}`;
-        const newPath = path.join(
-          __dirname,
-          "../../../uploads/img/program_kegiatan_bantuan/",
-          newFilename
-        );
-
-        if (fs.existsSync(oldPath)) {
-          fs.renameSync(oldPath, newPath);
-          newBanner = newFilename;
-        }
+      const uploadedBanner = this.getUploadedBanner();
+      if (uploadedBanner) {
+        newBanner = uploadedBanner;
+        this.scheduleBannerRemoval(info_program.banner);
       }
 
       // === UPDATE Kegiatan ===
-      await Kegiatan.update(
+      const [updated] = await Kegiatan.update(
         {
           asnaf_id: body.sumber_dana == "zakat" ? body.asnaf_id : null,
           program_id: body.program_id,
@@ -221,6 +255,11 @@ class Model_cud {
           transaction: this.t,
         }
       );
+      if (updated !== 1) {
+        const error = new Error("Kegiatan berubah saat diperbarui.");
+        error.statusCode = 409;
+        throw error;
+      }
 
       // === Hapus dulu relasi lama, lalu insert ulang ===
       await Desa_area_kegiatan.destroy({
@@ -288,6 +327,8 @@ class Model_cud {
     } catch (error) {
       this.state = false;
       this.message = error.message;
+      this.statusCode = error.statusCode || 500;
+      this.removeUploadedBanner();
     }
   }
 
@@ -338,23 +379,7 @@ class Model_cud {
         transaction: this.t,
       });
 
-      // Hapus file kalau ada, async non-blocking
-      if (info.banner) {
-        const filePath = path.join(
-          __dirname,
-          "../../../uploads/img/program_kegiatan_bantuan/",
-          info.banner
-        );
-
-        try {
-          await fs.promises.unlink(filePath);
-        } catch (err) {
-          if (err.code !== "ENOENT") {
-            console.error("Gagal hapus file:", err);
-            throw err; // biar rollback DB juga
-          }
-        }
-      }
+      this.scheduleBannerRemoval(info.banner);
 
       this.message = `Menghapus Program Kegiatan Bantuan: ${info.nama_kegiatan} (ID: ${info.id})`;
     } catch (error) {
@@ -370,12 +395,24 @@ class Model_cud {
         msg: this.message,
       });
       await this.t.commit();
+      for (const filename of this.bannersToRemoveAfterCommit || []) {
+        removeStoredFile(PROGRAM_BANNER_DIRECTORY, filename, {
+          allowedExtensions: PROGRAM_BANNER_EXTENSIONS,
+        });
+      }
       return true;
     } else {
       await this.t.rollback();
+      this.removeUploadedBanner();
       return false;
     }
   }
 }
+
+Model_cud.PROGRAM_BANNER_DIRECTORY = PROGRAM_BANNER_DIRECTORY;
+Model_cud.removeBanner = (filename) =>
+  removeStoredFile(PROGRAM_BANNER_DIRECTORY, filename, {
+    allowedExtensions: PROGRAM_BANNER_EXTENSIONS,
+  });
 
 module.exports = Model_cud;

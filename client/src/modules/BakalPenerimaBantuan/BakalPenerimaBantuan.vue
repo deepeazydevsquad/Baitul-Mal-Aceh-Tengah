@@ -20,6 +20,7 @@ import type { TableColumn } from '@/components/Table/BaseTable.vue';
 import { useConfirmation } from '@/composables/useConfirmation';
 import { useNotification } from '@/composables/useNotification';
 import { usePagination } from '@/composables/usePaginations';
+import { openSecureFile } from '@/service/secure_file';
 
 import { RefreshBakal } from '@/stores/refresh';
 const refreshBakal = RefreshBakal();
@@ -30,10 +31,6 @@ import {
   get_bakal_penerima_bantuan,
   get_filter_type,
 } from '@/service/bakal_penerima_bantuan';
-
-// API
-import { API_URL } from '@/config/config';
-const BASE_URL = API_URL;
 
 // State: Loading
 const isLoading = ref(false);
@@ -133,10 +130,9 @@ function openModalUploadBuktiTransfer(data: any) {
 // Function: View Files
 function viewBeritaAcara(data: any) {
   if (data.berita_acara) {
-    window.open(
-      BASE_URL + `/uploads/dokumen/bakal_penerima_bantuan/berita_acara/${data.berita_acara}`,
-      '_blank',
-    );
+    openSecureFile(`/documents/realisasi/${data.id}/berita_acara`).catch(() => {
+      displayNotification('Gagal membuka berita acara', 'error');
+    });
   } else {
     displayNotification('Berita acara belum diupload', 'warning');
   }
@@ -144,15 +140,13 @@ function viewBeritaAcara(data: any) {
 
 function viewFile(data: any) {
   if (data.bukti_transfer) {
-    window.open(
-      BASE_URL + `/uploads/dokumen/bakal_penerima_bantuan/bukti_realisasi/${data.bukti_transfer}`,
-      '_blank',
-    );
+    openSecureFile(`/documents/realisasi/${data.id}/bukti_transfer`).catch(() => {
+      displayNotification('Gagal membuka bukti transfer', 'error');
+    });
   } else if (data.mou) {
-    window.open(
-      BASE_URL + `/uploads/dokumen/bakal_penerima_bantuan/bukti_realisasi/${data.mou}`,
-      '_blank',
-    );
+    openSecureFile(`/documents/realisasi/${data.id}/mou`).catch(() => {
+      displayNotification('Gagal membuka dokumen MOU', 'error');
+    });
   } else {
     displayNotification('Bukti transfer atau mou belum diupload', 'warning');
   }

@@ -5,19 +5,21 @@ import ActionButtons from './widgets/ActionButtons.vue';
 
 import Stats from './widgets/Stats.vue';
 import LoadOverlay from '@/components/Loading/LoadOverlay.vue';
+import { restoreAccessToken } from '@/service/auth_token_store';
 
 const currentTab = ref('program-bantuan');
 
-onMounted(() => {
-  const token = localStorage.getItem('member_access_token');
-  if (!token) {
+onMounted(async () => {
+  if (!(await restoreAccessToken('member'))) {
     window.location.href = '/'; // direct ke root
   }
 });
 </script>
 <template>
   <LoadOverlay />
-  <div class="min-h-screen bg-gray-50/50 text-gray-800 font-sans selection:bg-green-200 selection:text-green-900">
+  <div
+    class="min-h-screen bg-gray-50/50 text-gray-800 font-sans selection:bg-green-200 selection:text-green-900"
+  >
     <Header />
     <main class="py-6 md:py-10">
       <div class="w-full max-w-[1340px] mx-auto flex flex-col gap-8 md:gap-10 px-4 md:px-6">

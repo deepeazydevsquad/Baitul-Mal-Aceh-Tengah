@@ -663,6 +663,7 @@ async function uploadBuktiSetoranInfaq(idl: number, nominalInfaq: number) {
 }
 
 interface Displaybuktiparam {
+  id: number;
   tipe_pembayaran: string;
   nominal_infaq: number;
   bukti: string;
@@ -670,15 +671,14 @@ interface Displaybuktiparam {
 }
 
 const isModalDisplayBuktiOpen = ref(false);
+const document_id = ref(0);
 const tipe_pembayaran = ref('');
 const nominal_infaq = ref(0);
 const bukti = ref('');
 const nominal_bukti = ref(0);
 async function displayBukti(param: Displaybuktiparam) {
-  console.log('----');
-  console.log(param);
-  console.log('----');
   isModalDisplayBuktiOpen.value = true;
+  document_id.value = param.id;
   tipe_pembayaran.value = param.tipe_pembayaran;
   nominal_infaq.value = param.nominal_infaq;
   bukti.value = param.bukti;
@@ -961,6 +961,7 @@ async function displayBukti(param: Displaybuktiparam) {
                 "
                 @click="
                   displayBukti({
+                    id: riwayat_infaq.id,
                     tipe_pembayaran: riwayat_infaq.tipe_pembayaran,
                     nominal_infaq: riwayat_infaq.nominal,
                     bukti:
@@ -1045,6 +1046,8 @@ async function displayBukti(param: Displaybuktiparam) {
     <!-- Modal Form Display Bukti Transfer / Bukti Setoran -->
     <FormDisplayBukti
       :is-modal-open="isModalDisplayBuktiOpen"
+      document-kind="infaq"
+      :document-id="document_id"
       :tipe_pembayaran="tipe_pembayaran"
       :nominal_infaq="nominal_infaq"
       :bukti="bukti"

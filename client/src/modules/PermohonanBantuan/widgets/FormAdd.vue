@@ -218,7 +218,6 @@ const handleSubmit = async () => {
   console.table(formData);
   try {
     const response = await add_permohonan_bantuan(formData);
-    console.log(response);
     refresh.setBool(true);
     emit('status', { error_msg: response.error_msg || response, error: response.error });
   } catch (error: any) {

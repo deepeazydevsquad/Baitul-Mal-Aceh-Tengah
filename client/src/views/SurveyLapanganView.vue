@@ -15,10 +15,13 @@ import { useRoute, useRouter } from 'vue-router';
 import { useConfirmation } from '@/composables/useConfirmation';
 import { useNotification } from '@/composables/useNotification';
 // Service
-import { getInfo, getInfoMember, submitSurvey } from '@/service/survey_lapangan';
-
-// API
-const BASE_URL = import.meta.env.VITE_APP_API_BASE_URL;
+import {
+  createSurveySession,
+  downloadSurveySk,
+  getInfo,
+  getInfoMember,
+  submitSurvey,
+} from '@/service/survey_lapangan';
 
 // Composable: notification
 const { showNotification, notificationType, notificationMessage, displayNotification } =
@@ -29,8 +32,18 @@ const { showConfirmDialog, confirmTitle, confirmMessage, displayConfirmation, co
 
 // State Data
 const route = useRoute();
-const query = route.query.code;
 const router = useRouter();
+
+function readAccessCodeFromRoute() {
+  const queryCode = Array.isArray(route.query.code)
+    ? route.query.code[0]
+    : route.query.code;
+  if (typeof queryCode === 'string' && queryCode) return queryCode;
+  const hashCode = new URLSearchParams(route.hash.replace(/^#/, '')).get('code');
+  return hashCode || '';
+}
+
+let initialAccessCode = readAccessCodeFromRoute();
 
 // State: Loading
 const isLoading = ref(false);
@@ -50,7 +63,7 @@ function prevStep() {
 
 // Interface
 interface DataInfo {
-  access_code: string;
+  surveyor_kegiatan_id: number;
   status: string;
   surveyor_name: string;
   kegiatan_name: string;
@@ -64,7 +77,7 @@ interface DataInfo {
 }
 
 const dataInfo = ref<DataInfo>({
-  access_code: '',
+  surveyor_kegiatan_id: 0,
   status: '',
   surveyor_name: '',
   kegiatan_name: '',
@@ -134,15 +147,15 @@ const handleFileChange = (fieldName: string, file: File | null) => {
 async function fetchData() {
   isLoading.value = true;
   try {
-    const response = await getInfo({
-      access_code: query,
-    });
+    const response = await getInfo();
     dataInfo.value = response.data;
-    console.log('Response:', response);
   } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error_msg ||
+      'Terjadi kesalahan';
     displayNotification(
-      error.response.data.message + ', Mengarahkan ke halaman utama' ||
-        'Terjadi kesalahan, Mengarahkan ke halaman utama',
+      `${message}, Mengarahkan ke halaman utama`,
       'error',
     );
     setTimeout(() => router.push({ path: '/' }), 2000);
@@ -177,7 +190,6 @@ async function fetchInfoMember() {
   isLoading.value = true;
   try {
     const response = await getInfoMember({
-      access_code: query,
       member_id: formData.value.member_id,
     });
     dataInfoSurvey.value = response.data;
@@ -186,7 +198,6 @@ async function fetchInfoMember() {
     } else {
       prevStep();
     }
-    console.log('Response:', response);
   } catch (error: any) {
     displayNotification(error.response?.data?.message || 'Terjadi kesalahan', 'error');
     console.error('Error fetching data:', error);
@@ -394,7 +405,6 @@ const handleSubmit = async () => {
         // Append all data
         const dataToSubmit = {
           // Step 1
-          access_code: dataInfo.value.access_code,
           member_id: formData.value.member_id,
 
           // Step 2
@@ -495,8 +505,9 @@ const handleDownload = async () => {
 
   try {
     isDownloading.value = true;
-    const response = await fetch(`${BASE_URL}/uploads/img/sk_penetapan/${dataInfo.value.sk}`);
-    const dataFile = await response.blob();
+    const dataFile = await downloadSurveySk(
+      dataInfo.value.surveyor_kegiatan_id,
+    );
     const urlFile = URL.createObjectURL(dataFile);
     const linkFile = document.createElement('a');
     linkFile.href = urlFile;
@@ -511,8 +522,23 @@ const handleDownload = async () => {
   }
 };
 
-onMounted(() => {
-  fetchData();
+onMounted(async () => {
+  try {
+    if (initialAccessCode) {
+      await createSurveySession(initialAccessCode);
+      initialAccessCode = '';
+      await router.replace({ path: route.path, query: {}, hash: '' });
+    }
+    await fetchData();
+  } catch (error: any) {
+    displayNotification(
+      error.response?.data?.error_msg ||
+        error.response?.data?.message ||
+        'Sesi survei tidak valid.',
+      'error',
+    );
+    setTimeout(() => router.push({ path: '/' }), 2000);
+  }
 });
 
 // Watcher

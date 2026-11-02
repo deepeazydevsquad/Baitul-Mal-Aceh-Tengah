@@ -76,7 +76,14 @@ const fileFilter = (req, file, cb) => {
 validation.upload = multer({
   storage: tempStorage,
   fileFilter,
-  limits: { fileSize: 1 * 1024 * 2048 }, // 2 MB
+  limits: {
+    fileSize: 1 * 1024 * 2048, // 2 MB
+    files: 4,
+    fields: 16,
+    parts: 24,
+    fieldSize: 8 * 1024,
+    fieldNameSize: 64,
+  },
 });
 
 // Middleware validasi dimensi gambar
@@ -134,10 +141,6 @@ validation.check_dimensions = (isRequired = true) => {
           const file = files[fieldname][0];
           tempFiles.push(file.path);
 
-          if (fieldname === "icon") {
-            continue;
-          }
-
           let metadata;
           try {
             metadata = await sharp(file.path).metadata();
@@ -147,6 +150,9 @@ validation.check_dimensions = (isRequired = true) => {
               sharpError
             );
             throw new Error(`${rule.name} tidak valid atau filenya rusak.`);
+          }
+          if (!["jpeg", "png"].includes(metadata.format)) {
+            throw new Error(`${rule.name} harus berupa gambar PNG atau JPEG.`);
           }
 
           // Cek dimensi minimum
@@ -178,12 +184,7 @@ validation.check_dimensions = (isRequired = true) => {
           const finalFilename = fixedFilenames[fieldname];
           const finalFullPath = path.join(finalPath, finalFilename);
 
-          // Untuk icon, langsung pindahkan file tanpa konversi
-          if (fieldname === "icon") {
-            fs.renameSync(file.path, finalFullPath);
-          } else {
-            await sharp(file.path).png().toFile(finalFullPath);
-          }
+          await sharp(file.path).png().toFile(finalFullPath);
 
           // Simpan filename ke req.body
           switch (fieldname) {

@@ -1,5 +1,6 @@
 const { Request_member, Member, sequelize } = require("../../../models");
 const { writeLog } = require("../../../helper/writeLogHelper");
+const { normalizeNik } = require("../../../helper/nikHelper");
 
 const moment = require("moment");
 
@@ -31,13 +32,56 @@ class Model_cud {
       const request = await Request_member.findOne({
         where: { id },
         transaction: this.t,
+        lock: this.t.LOCK.UPDATE,
       });
 
       if (!request) {
         throw new Error("Request member tidak ditemukan");
       }
+      if (request.status !== "process") {
+        const error = new Error(
+          "Request keanggotaan sudah diproses dan tidak dapat diulang."
+        );
+        error.statusCode = 409;
+        error.code = "REQUEST_ALREADY_PROCESSED";
+        throw error;
+      }
 
       if (action === "approve") {
+        const nik =
+          request.tipe === "perorangan"
+            ? normalizeNik(request.nomor_ktp)
+            : null;
+        const existingMember = await Member.findOne({
+          where: { username: request.username },
+          attributes: ["id"],
+          transaction: this.t,
+          lock: this.t.LOCK.UPDATE,
+        });
+        if (existingMember) {
+          const error = new Error(
+            "Username request sudah digunakan oleh member lain."
+          );
+          error.statusCode = 409;
+          error.code = "USERNAME_CONFLICT";
+          throw error;
+        }
+        if (nik) {
+          const existingNik = await Member.findOne({
+            where: { nomor_ktp: nik },
+            attributes: ["id"],
+            transaction: this.t,
+            lock: this.t.LOCK.UPDATE,
+          });
+          if (existingNik) {
+            const error = new Error(
+              "NIK request sudah digunakan oleh member lain."
+            );
+            error.statusCode = 409;
+            error.code = "NIK_CONFLICT";
+            throw error;
+          }
+        }
         // Update request jadi approved
         await Request_member.update(
           {
@@ -54,7 +98,7 @@ class Model_cud {
             kode: await this.generate_kode(),
             tipe: request.tipe,
             fullname: request.fullname,
-            nomor_ktp: request.nomor_ktp,
+            nomor_ktp: nik,
             nomor_kk: request.nomor_kk,
             whatsapp_number: request.whatsapp_number,
             birth_date: request.birth_date,
@@ -87,6 +131,8 @@ class Model_cud {
     } catch (error) {
       this.state = false;
       this.message = error.message;
+      this.statusCode = error.statusCode || 500;
+      this.errorCode = error.code || "VERIFICATION_FAILED";
     }
   }
 

@@ -53,7 +53,7 @@ controllers.pertanyaan = async (req, res) => {
 controllers.kirim_jawaban = async (req, res) => {
   try {
     const model = new Model_cud(req);
-    const data = await model.kirim_jawaban();
+    await model.kirim_jawaban();
 
     if (await model.response()) {
       res.status(200).json({
@@ -61,9 +61,9 @@ controllers.kirim_jawaban = async (req, res) => {
         error_msg: "Jawaban berhasil disimpan.",
       });
     } else {
-      res.status(400).json({
+      res.status(model.statusCode || 400).json({
         error: true,
-        error_msg: "Jawaban gagal disimpan.",
+        error_msg: model.message || "Jawaban gagal disimpan.",
       });
     }
   } catch (error) {

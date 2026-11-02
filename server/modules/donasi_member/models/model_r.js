@@ -322,6 +322,7 @@ class Model_r {
       const data = await Riwayat_donasi.findOne({
         where: {
           invoice: body.invoice,
+          member_id: this.member_id,
         },
         attributes: [
           "invoice",
@@ -342,7 +343,6 @@ class Model_r {
   async getKonfirmasi() {
     await this.initialize();
     const body = this.req.body;
-    console.log("body:", body);
     try {
       const member_id = this.member_id; // ambil ID member yang login
 
@@ -353,8 +353,6 @@ class Model_r {
           konfirmasi_pembayaran: "belum_dikirim", // cari yg belum terkirim
         },
       });
-
-      console.log("data:", data);
 
       // kalo ada data belum terkirim -> true, kalo gak ada -> false
       return {

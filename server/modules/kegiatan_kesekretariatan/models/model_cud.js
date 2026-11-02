@@ -18,10 +18,6 @@ class Model_cud {
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
-    console.log("_____________Data Kegiatan Kesekretariatan____________");
-    console.log(body);
-    console.log("_____________Data Kegiatan Kesekretariatan____________");
-
     try {
       const insert = await Kegiatan_keseketariatan.create(
         {

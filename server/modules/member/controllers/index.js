@@ -1,36 +1,44 @@
-const jwt = require("jsonwebtoken");
 const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
 const {
   handleValidationErrors,
   handleServerError,
 } = require("../../../helper/handleError");
+const {
+  compactPrincipal,
+  issueTokenPair,
+  verifyAndRotateRefreshToken,
+  revokeSessionByRefreshToken,
+  revokeAllSessions,
+} = require("../../../helper/tokenHelper");
+const {
+  setRefreshCookie,
+  clearRefreshCookie,
+  readRefreshCookie,
+} = require("../../../helper/authCookieHelper");
 const controllers = {};
-let refreshTokens = [];
 
 controllers.login_member_process = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model = new Model_r(req);
-    const data = await model.getInfoMember(); // insert new visa
-    const userPayload = { username: data.username, fullname: data.fullname };
-    const access_token = jwt.sign(
-      userPayload,
-      process.env.MEMBERSHIP_SECRET_KEY,
-      { expiresIn: "10m" }
-    );
-    const refresh_token = jwt.sign(
-      userPayload,
-      process.env.MEMBERSHIP_REFRESH_SECRET_KEY,
-      { expiresIn: "7d" }
-    );
+    const data = await model.getInfoMember();
+    if (!data) {
+      return res.status(401).json({
+        error: true,
+        error_msg: "Username atau password tidak valid.",
+      });
+    }
 
-    refreshTokens.push(refresh_token);
+    const tokens = await issueTokenPair(
+      compactPrincipal(data, "member"),
+      "member"
+    );
+    setRefreshCookie(res, "member", tokens.refresh_token);
 
     res.status(200).json({
-      access_token,
-      refresh_token,
+      access_token: tokens.access_token,
       error: false,
       message: "Proses login berhasil dilakukan.",
     });
@@ -40,38 +48,42 @@ controllers.login_member_process = async (req, res) => {
 };
 
 controllers.refreshToken = async (req, res) => {
-  const { refresh_token } = req.body;
-  if (!refresh_token) {
+  const refreshToken = readRefreshCookie(req, "member");
+  if (!refreshToken) {
     return res.status(401).json({ error: true, error_msg: "Token diperlukan" });
   }
-  if (!refreshTokens.includes(refresh_token)) {
-    return res
-      .status(403)
-      .json({ error: true, error_msg: "Token tidak dikenali" });
+  try {
+    const tokens = await verifyAndRotateRefreshToken(refreshToken, "member");
+    setRefreshCookie(res, "member", tokens.refresh_token);
+    return res.status(200).json({
+      access_token: tokens.access_token,
+      error: false,
+      error_msg: "Token baru berhasil dibuat",
+    });
+  } catch {
+    return res.status(403).json({
+      error: true,
+      error_msg: "Token kadaluarsa, tidak valid, atau sudah digunakan.",
+    });
   }
-  jwt.verify(
-    refresh_token,
-    process.env.MEMBERSHIP_REFRESH_SECRET_KEY,
-    (err, user) => {
-      if (err) {
-        return res.status(403).json({
-          error: true,
-          error_msg: "Token kadaluarsa atau tidak valid",
-        });
-      }
-      const { exp, iat, ...cleanUser } = user;
-      const accessToken = jwt.sign(
-        cleanUser,
-        process.env.MEMBERSHIP_SECRET_KEY,
-        { expiresIn: "5m" }
-      );
-      res.status(200).json({
-        access_token: accessToken,
-        error: false,
-        error_msg: "Token baru berhasil dibuat",
-      });
-    }
-  );
+};
+
+controllers.logout_member_process = async (req, res) => {
+  const refreshToken = readRefreshCookie(req, "member");
+  clearRefreshCookie(res, "member");
+  if (!refreshToken) return res.status(200).json({ error: false });
+
+  try {
+    await revokeSessionByRefreshToken(refreshToken, "member");
+    return res
+      .status(200)
+      .json({ error: false, error_msg: "Logout berhasil dilakukan" });
+  } catch {
+    return res.status(403).json({
+      error: true,
+      error_msg: "Refresh token tidak valid atau sudah digunakan.",
+    });
+  }
 };
 
 
@@ -99,6 +111,9 @@ controllers.edit_profile_member = async (req, res) => {
     await model_cud.edit_profile_member();
 
     if (await model_cud.response()) {
+      if (req.body.password) {
+        await revokeAllSessions("member", req.user.id);
+      }
       res.status(200).json({
         error: false,
         error_msg: "Member Profile berhasil diperbaharui.",

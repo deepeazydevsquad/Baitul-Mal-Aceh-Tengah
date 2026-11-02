@@ -88,7 +88,6 @@ async function fetchData() {
     kecamatanOption.value =
       [{ id: "", name: "Pilih kecamatan" }, ...responseKecamatan.data] || [];
 
-    console.log(response);
   } catch (error) {
     displayNotification("Gagal mengambil data desa", "error");
   } finally {
@@ -132,7 +131,6 @@ const handleSubmit = async () => {
   try {
     console.log(formData);
     const response = await edit_desa(formData);
-    console.log(response);
     emit("status", { error_msg: response.error_msg, error: response.error });
     closeModal();
   } catch (error: any) {

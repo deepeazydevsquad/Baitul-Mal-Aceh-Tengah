@@ -32,6 +32,7 @@ module.exports = (sequelize, DataTypes) => {
     bukti_transfer: DataTypes.STRING,
     mou: DataTypes.STRING,
     bulan: DataTypes.INTEGER,
+    periode_key: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'Realisasi_permohonan',

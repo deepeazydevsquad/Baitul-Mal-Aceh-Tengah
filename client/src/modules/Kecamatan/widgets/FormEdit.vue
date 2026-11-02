@@ -82,7 +82,6 @@ const fetchData = async () => {
     const response = await get_info_edit_kecamatan(props.selectedKecamatan.id);
     form.value.name = response.data.name;
     form.value.kode = response.data.kode;
-    console.log(response);
   } catch (error) {
     displayNotification('Gagal mengambil data kecamatan', 'error');
   } finally {
@@ -109,7 +108,6 @@ const handleSubmit = async () => {
   isSubmitting.value = true;
   try {
     const response = await edit_kecamatan(formData);
-    console.log(response);
     emit('status', { error_msg: response.error_msg, error: response.error });
   } catch (error: any) {
     console.error(error);

@@ -286,7 +286,6 @@ const handleSubmit = async () => {
   });
   try {
     const response = await edit_permohonan_bantuan(formData);
-    console.log(response);
     emit('status', { error_msg: response.error_msg || response, error: response.error });
   } catch (error: any) {
     console.error(error);
@@ -370,6 +369,8 @@ watch(
               label="Pilih Kegiatan"
               placeholder="Pilih kegiatan"
               :required="true"
+              :disabled="true"
+              note="Kegiatan tidak dapat diubah setelah realisasi dibuat."
               :error="errors.kegiatan_id"
             />
           </div>
@@ -445,6 +446,8 @@ watch(
                 label="Pilih Member"
                 placeholder="Pilih member"
                 :required="true"
+                :disabled="true"
+                note="Member tidak dapat diubah setelah realisasi dibuat."
                 :error="errors.member_id"
               />
             </div>

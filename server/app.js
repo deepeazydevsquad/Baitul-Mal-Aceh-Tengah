@@ -1,61 +1,30 @@
-const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const process = require("process");
 const express = require("express");
 const path = require("path");
-const session = require("express-session");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
 dotenv.config();
 
-const app = express();
-const port = process.env.PORT || 3001;
+const { validateSecurityConfiguration } = require("./config/security");
+const { protectConfiguredRoutes } = require("./middleware/routeAuthorization");
+const {
+  PUBLIC_IMAGE_EXTENSIONS,
+  restrictPublicImageType,
+} = require("./helper/publicAssetHelper");
+const {
+  clampPaginationMiddleware,
+} = require("./helper/paginationHelper");
+const {
+  createTrustedOriginGuard,
+} = require("./middleware/requestOrigin");
+const {
+  suppressVerboseLogsInProduction,
+} = require("./helper/logSafetyHelper");
 
-// CORS dinamis, izinkan semua origin yang datang
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // untuk Postman, curl, dll.
-      return callback(null, origin); // izinkan semua origin
-    },
-    credentials: true,
-  })
-);
-
-app.use(cookieParser());
-const compression = require("compression");
-app.use(compression());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-const sessionDuration = 3600000; // 1 jam
-
-const db = require("./models");
-const SequelizeStore = require("connect-session-sequelize")(session.Store);
-const sessionStore = new SequelizeStore({
-  db: db.sequelize,
-});
-
-app.use(
-  session({
-    secret: "OutletTacob4",
-    name: "amra_sessid",
-    resave: false,
-    saveUninitialized: false,
-    store: sessionStore,
-    cookie: {
-      expires: new Date(Date.now() + sessionDuration),
-      maxAge: sessionDuration,
-    },
-  })
-);
-
-app.set("view engine", "ejs");
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-// Load router dinamis
 const arr_router = [
+  "documents",
   "auth",
   "administrator",
   "syarat",
@@ -103,7 +72,6 @@ const arr_router = [
   "permohonan_bantuan",
   "validasi_permohonan_bantuan",
   "kriteria",
-  "permohonan_bantuan",
   "laporan_pengumpulan",
   "laporan_perencanaan",
   "laporan_kesekretariatan",
@@ -118,42 +86,197 @@ const arr_router = [
   "bakal_penerima_bantuan",
   "logo",
   "member_area",
-  "wakalah"
+  "wakalah",
 ];
 
-const arr = {};
-arr_router.forEach((e) => {
-  if (typeof e === "object" && Object.keys(e.list).length > 0) {
-    for (let x in e.list) {
-      arr[
-        "router_" + e.list[x]
-      ] = require(`./router/${e.folder}/${e.list[x]}/index`);
-    }
-  } else {
-    arr["router_" + e] = require(`./router/router_${e}`);
-  }
-});
+function parseCorsOrigins(env = process.env) {
+  const configured = String(env.CORS_ORIGINS || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
-// Load model dan sync
+  if (configured.length > 0) return configured;
+  if (env.NODE_ENV === "production") return [];
 
-(async () => {
-  await db.sequelize.sync();
-})();
-
-// Gunakan semua router yang sudah dimuat
-for (let x in arr) {
-  app.use(arr[x]);
+  return ["http://localhost:5173", "http://127.0.0.1:5173"];
 }
 
-// Middleware untuk error handler
-app.use((err, req, res, next) => {
-  console.error("Internal Server Error:", err.stack);
-  res.status(500).json({ message: "Something went wrong!" });
-});
+function createApp({ verifySecurity = true } = {}) {
+  suppressVerboseLogsInProduction();
+  if (verifySecurity) validateSecurityConfiguration();
 
-// Start server
-app.listen(port, () => {
-  console.log("Server Running On Port " + port);
-});
+  const app = express();
+  app.disable("x-powered-by");
+  const trustProxySetting = String(process.env.TRUST_PROXY || "false");
+  app.set(
+    "trust proxy",
+    /^\d+$/.test(trustProxySetting)
+      ? Number(trustProxySetting)
+      : trustProxySetting === "true"
+  );
 
-// module.exports = app;
+  const allowedOrigins = new Set(parseCorsOrigins());
+  const noStorePrefixes = [
+    "/auth/",
+    "/documents/",
+    "/survey_lapangan/",
+    "/pengaturan_whatsapp/",
+    "/pengaturan_umum/",
+  ];
+  const authOriginGuard = createTrustedOriginGuard({
+    allowedOrigins,
+    paths: [
+      "/auth/login_member",
+      "/auth/login_administrator",
+      "/auth/member/refresh",
+      "/auth/administrator/refresh",
+      "/auth/member/logout",
+      "/auth/administrator/logout",
+      "/survey_lapangan/session",
+      "/survey_lapangan/submit",
+    ],
+  });
+  app.use(
+    cors({
+      origin(origin, callback) {
+        if (!origin) return callback(null, true);
+        return callback(null, allowedOrigins.has(origin));
+      },
+      credentials: true,
+      methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+      maxAge: 600,
+    })
+  );
+
+  const compression = require("compression");
+  app.use(compression());
+  app.use(cookieParser());
+  app.use(express.json({ limit: "1mb" }));
+  app.use(express.urlencoded({ extended: true, limit: "1mb" }));
+  app.use(clampPaginationMiddleware);
+  app.use(authOriginGuard);
+
+  app.use((req, res, next) => {
+    res.set("X-Content-Type-Options", "nosniff");
+    res.set("Referrer-Policy", "no-referrer");
+    res.set("X-Frame-Options", "DENY");
+    res.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    res.set("Content-Security-Policy", "base-uri 'none'; frame-ancestors 'none'; object-src 'none'");
+    if (process.env.NODE_ENV === "production") {
+      res.set(
+        "Strict-Transport-Security",
+        "max-age=31536000; includeSubDomains"
+      );
+    }
+    next();
+  });
+  app.use((req, res, next) => {
+    if (noStorePrefixes.some((prefix) => req.path.startsWith(prefix))) {
+      res.set("Cache-Control", "no-store");
+      res.set("Pragma", "no-cache");
+    }
+    next();
+  });
+
+  const publicImageFolders = [
+    "logos",
+    "icons",
+    "hero",
+    "bank",
+    "program_donasi",
+    "program_kegiatan_bantuan",
+  ];
+  for (const folder of publicImageFolders) {
+    app.use(
+      `/uploads/img/${folder}`,
+      restrictPublicImageType,
+      express.static(path.join(__dirname, "uploads", "img", folder), {
+        dotfiles: "deny",
+        index: false,
+        fallthrough: true,
+        maxAge: "1h",
+      })
+    );
+  }
+  app.use("/uploads", (req, res) => {
+    res.status(404).json({
+      error: true,
+      error_msg: "Aset tidak ditemukan.",
+      code: "FILE_NOT_FOUND",
+    });
+  });
+
+  protectConfiguredRoutes(app);
+
+  for (const routerName of arr_router) {
+    app.use(require(`./router/router_${routerName}`));
+  }
+
+  app.use((req, res) => {
+    res.status(404).json({
+      error: true,
+      error_msg: "Endpoint tidak ditemukan.",
+      code: "NOT_FOUND",
+    });
+  });
+
+  app.use((err, req, res, next) => {
+    if (res.headersSent) return next(err);
+    console.error("Internal Server Error:", err.code || err.name || "unknown");
+    return res.status(500).json({
+      error: true,
+      error_msg: "Terjadi kesalahan pada server.",
+    });
+  });
+
+  return app;
+}
+
+async function startServer() {
+  validateSecurityConfiguration();
+  const db = require("./models");
+  const app = createApp({ verifySecurity: false });
+  const port = process.env.PORT || 3001;
+
+  await db.sequelize.authenticate();
+  if (process.env.NODE_ENV === "production") {
+    const requiredTables = [
+      "Users",
+      "Members",
+      "Auth_sessions",
+      "login_rate_limits",
+    ];
+    for (const table of requiredTables) {
+      const [rows] = await db.sequelize.query(
+        `SHOW TABLES LIKE '${table}'`
+      );
+      if (!rows.length) {
+        throw new Error(
+          "Schema database belum dimigrasikan. Jalankan migration sebelum production."
+        );
+      }
+    }
+  } else {
+    await db.sequelize.sync();
+  }
+  return app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
+
+const app = createApp();
+
+if (require.main === module) {
+  startServer().catch(() => {
+    console.error("Server gagal dimulai. Periksa konfigurasi dan database.");
+    process.exitCode = 1;
+  });
+}
+
+module.exports = app;
+module.exports.createApp = createApp;
+module.exports.startServer = startServer;
+module.exports.parseCorsOrigins = parseCorsOrigins;
+module.exports.PUBLIC_IMAGE_EXTENSIONS = PUBLIC_IMAGE_EXTENSIONS;
+module.exports.restrictPublicImageType = restrictPublicImageType;

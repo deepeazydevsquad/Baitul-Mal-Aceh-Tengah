@@ -41,7 +41,7 @@ helper.sendWhatsApp = async (phone, message) => {
       message,
     };
 
-    const response = await axios.get(url, { params });
+    const response = await axios.post(url, params, { timeout: 10000 });
 
     // Handle response
     if (response.data?.status === "ok") {

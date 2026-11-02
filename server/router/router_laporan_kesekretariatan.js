@@ -24,6 +24,7 @@ router.get(
 
 router.get(
   "/tanda_tangan/list",
+  authenticateTokenAdministrator,
   controllers.tanda_tangan
 )
 module.exports = router

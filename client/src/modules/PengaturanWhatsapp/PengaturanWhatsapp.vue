@@ -92,13 +92,12 @@ const restart = async () => {
   qrUrl.value = null; // reset QR dulu setiap kali restart
   try {
     const response = await start();
-    console.log(response);
 
     if (response.todo === 'scan') {
       // kalau butuh scan → notif merah + tampilkan QR
       displayNotification('Perlu scan QR dulu', 'error');
-      if (response.qr_url) {
-        qrUrl.value = response.qr_url;
+      if (response.qr_image) {
+        qrUrl.value = response.qr_image;
       }
     } else if (response.todo === 'connected') {
       // kalau udah konek → notif hijau
@@ -180,7 +179,14 @@ const restart = async () => {
           <div class="h-full flex flex-col items-center justify-center">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">QR Code</h3>
 
-            <iframe v-if="qrUrl" :src="qrUrl" width="400" height="400" class="shadow"></iframe>
+            <img
+              v-if="qrUrl"
+              :src="qrUrl"
+              width="400"
+              height="400"
+              class="shadow"
+              alt="QR koneksi WhatsApp"
+            />
 
             <div v-else class="text-gray-400 text-sm text-center">
               Perangkat Masih Terkoneksi / Belum Tersedia

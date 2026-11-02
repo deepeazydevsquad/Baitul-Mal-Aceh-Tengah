@@ -61,12 +61,12 @@ class Model_r {
   }
 
   async survey_lapangan() {
-    const { body } = this.req;
+    const capabilityId = Number(this.req.surveyCapability?.id);
 
     try {
       // Query 1: Get surveyor kegiatan info
       const dataSurvey = await Surveyor_kegiatan.findOne({
-        where: { access_code: body.access_code },
+        where: { id: capabilityId, status: "active" },
         attributes: ["id", "access_code", "status", "sk", "kegiatan_id"],
         include: [
           {
@@ -113,18 +113,10 @@ class Model_r {
         order: [["fullname", "ASC"]],
       });
 
-      console.log("--------------------------");
-      console.log("dataMember:", dataMember);
-      console.log("dataSurvey:", dataSurvey.Surveyor);
-      console.log("dataSurvey:", dataSurvey.Surveyor.name);
-      // console.log(dataSurvey.Kegiatan.Asnaf);
-      // console.log(dataSurvey.Kegiatan.Asnaf.name);
-      console.log("--------------------------");
-
       // Format response
       return {
         data: {
-          access_code: dataSurvey.access_code,
+          surveyor_kegiatan_id: dataSurvey.id,
           status: dataSurvey.status,
           surveyor_name: dataSurvey.Surveyor.name,
           kegiatan_name: dataSurvey.Kegiatan.nama_kegiatan,
@@ -139,9 +131,7 @@ class Model_r {
         total: dataMember.count,
       };
     } catch (error) {
-      console.log("--------------------------");
-      console.log(error);
-      console.log("--------------------------");
+      console.error("Gagal mengambil data survei.");
       // console.error("Error survey_lapangan:", error.message);
       return {};
     }
@@ -280,10 +270,13 @@ class Model_r {
     }
   }
 
-  async info_survey_kegiatan(access_code) {
+  async info_survey_kegiatan(surveyorKegiatanId) {
     try {
       const survey = await Surveyor_kegiatan.findOne({
-        where: { access_code: access_code },
+        where: {
+          id: Number(surveyorKegiatanId),
+          status: "active",
+        },
         attributes: ["id", "kegiatan_id", "surveyor_id", "status", "sk"],
         raw: true,
         nest: true,

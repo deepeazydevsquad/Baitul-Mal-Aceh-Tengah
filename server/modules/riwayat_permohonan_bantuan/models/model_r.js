@@ -49,7 +49,7 @@ class Model_r {
           {
             model: Realisasi_permohonan,
             required: true,
-            attributes: ["status"],
+            attributes: ["status", "status_realisasi"],
           },
         ],
         limit,
@@ -61,15 +61,26 @@ class Model_r {
       console.log(Realisasi_permohonan);
       console.log("====================");
 
-      const data = rows.map((item) => ({
-        id: item.id,
-        tanggal: moment(item.createdAt).format("YYYY-MM-DD"),
-        kegiatan: item.Kegiatan?.nama_kegiatan || "-",
-        program: item.Kegiatan?.Program?.name || "-",
-        status_realisasi:
-          item.Realisasi_permohonans?.map((r) => r.status).join(", ") ||
-          "Belum direalisasi",
-      }));
+      const data = rows.map((item) => {
+        const realisasi = item.Realisasi_permohonans || [];
+        return {
+          id: item.id,
+          tanggal: moment(item.createdAt).format("YYYY-MM-DD"),
+          kegiatan: item.Kegiatan?.nama_kegiatan || "-",
+          program: item.Kegiatan?.Program?.name || "-",
+          status_permohonan: item.status,
+          status_realisasi:
+            realisasi.map((r) => r.status).join(", ") || "Belum direalisasi",
+          can_cancel:
+            item.status === "sedang_berlangsung" &&
+            realisasi.length > 0 &&
+            realisasi.every(
+              (r) =>
+                r.status === "process" &&
+                r.status_realisasi === "belum_direalisasi"
+            ),
+        };
+      });
 
       console.log(data);
       return {

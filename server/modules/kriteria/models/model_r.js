@@ -13,7 +13,6 @@ class Model_r {
       body.pageNumber && body.pageNumber !== "0"
         ? parseInt(body.pageNumber, 10)
         : 1;
-    console.log(body.search);
     const where = body.search
       ? {
           [Op.or]: [{ name: { [Op.like]: `%${body.search}%` } }],

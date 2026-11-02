@@ -1,6 +1,6 @@
 
 const { Member } = require("../../../models");
-const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
 class Model_r {
   constructor(req) {
@@ -24,22 +24,22 @@ class Model_r {
       var q = await Member.findOne({
         where: { username: this.req.body.username },
       });
+      if (!q) return null;
+      const validPassword = await bcrypt.compare(
+        this.req.body.password,
+        q.password
+      );
+      if (!validPassword) return null;
       return { id: q.id, username: q.username, fullname: q.fullname };
     } catch (error) {
-      return {};
+      return null;
     }
   }
 
   async get_profile_member() {
-    const authHeader = this.req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-    const decoded = jwt.decode(token);
-
-    console.log("decoded:", decoded);
-
     try {
       const member = await Member.findOne({
-        where: { username: decoded.username },
+        where: { id: this.req.user.id },
         attributes: [
           "id",
           "kode",
@@ -57,8 +57,6 @@ class Model_r {
       if (!member) {
         return { error: "Member tidak ditemukan" };
       }
-
-      console.log("member:", member);
 
       return {
         id: member.id,

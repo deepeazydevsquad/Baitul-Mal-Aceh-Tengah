@@ -461,7 +461,6 @@ class Model_r {
       const memberIds = permohonan
         .map((r) => r.Permohonan.member_id)
         .filter(Boolean); // untuk exclude member yang sudah ada permohonan di tahun yang sama
-      console.log(memberIds);
       const members = await Member.findAndCountAll({
         attributes: ["id", "fullname", "tipe"],
         order: [["fullname", "ASC"]],

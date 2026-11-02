@@ -1,40 +1,43 @@
-const jwt = require("jsonwebtoken");
 const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
 const {
   handleValidationErrors,
   handleServerError,
 } = require("../../../helper/handleError");
+const {
+  compactPrincipal,
+  issueTokenPair,
+  verifyAndRotateRefreshToken,
+  revokeSessionByRefreshToken,
+  revokeAllSessions,
+} = require("../../../helper/tokenHelper");
+const {
+  setRefreshCookie,
+  clearRefreshCookie,
+  readRefreshCookie,
+} = require("../../../helper/authCookieHelper");
 const controllers = {};
-let refreshTokens = [];
 
 controllers.login_administrator_process = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
   try {
     const model = new Model_r(req);
-    const data = await model.getInfoUser(); // insert new visa
-    const userPayload = {
-      id: data.id,
-      username: data.username,
-      name: data.name,
-      jabatan: data.jabatan,
-    };
-    const access_token = jwt.sign(
-      userPayload,
-      process.env.ADMINISTRATOR_SECRET_KEY,
-      { expiresIn: "1h" }
-    );
-    const refresh_token = jwt.sign(
-      userPayload,
-      process.env.ADMINISTRATOR_REFRESH_SECRET_KEY,
-      { expiresIn: "7d" }
-    );
+    const data = await model.getInfoUser();
+    if (!data) {
+      return res.status(401).json({
+        error: true,
+        error_msg: "Username atau password tidak valid.",
+      });
+    }
 
-    refreshTokens.push(refresh_token);
+    const tokens = await issueTokenPair(
+      compactPrincipal(data, "administrator"),
+      "administrator"
+    );
+    setRefreshCookie(res, "administrator", tokens.refresh_token);
 
     res.status(200).json({
-      access_token,
-      refresh_token,
+      access_token: tokens.access_token,
       error: false,
       message: "Proses login berhasil dilakukan.",
     });
@@ -44,19 +47,21 @@ controllers.login_administrator_process = async (req, res) => {
 };
 
 controllers.logout_administrator_process = async (req, res) => {
-  const { refresh_token } = req.body;
-  if (!refresh_token) {
-    return res.status(401).json({ error: true, error_msg: "Token diperlukan" });
-  }
-  if (!refreshTokens.includes(refresh_token)) {
+  const refreshToken = readRefreshCookie(req, "administrator");
+  clearRefreshCookie(res, "administrator");
+  if (!refreshToken) return res.status(200).json({ error: false });
+
+  try {
+    await revokeSessionByRefreshToken(refreshToken, "administrator");
     return res
-      .status(403)
-      .json({ error: true, error_msg: "Token tidak dikenali" });
+      .status(200)
+      .json({ error: false, error_msg: "Logout berhasil dilakukan" });
+  } catch {
+    return res.status(403).json({
+      error: true,
+      error_msg: "Refresh token tidak valid atau sudah digunakan.",
+    });
   }
-  refreshTokens = refreshTokens.filter((token) => token !== refresh_token);
-  res
-    .status(200)
-    .json({ error: false, error_msg: "Logout berhasil dilakukan" });
 };
 
 controllers.administrator = async (req, res) => {
@@ -75,38 +80,27 @@ controllers.administrator = async (req, res) => {
 };
 
 controllers.refreshToken = async (req, res) => {
-  const { refresh_token } = req.body;
-  if (!refresh_token) {
+  const refreshToken = readRefreshCookie(req, "administrator");
+  if (!refreshToken) {
     return res.status(401).json({ error: true, error_msg: "Token diperlukan" });
   }
-  if (!refreshTokens.includes(refresh_token)) {
-    return res
-      .status(403)
-      .json({ error: true, error_msg: "Token tidak dikenali" });
+  try {
+    const tokens = await verifyAndRotateRefreshToken(
+      refreshToken,
+      "administrator"
+    );
+    setRefreshCookie(res, "administrator", tokens.refresh_token);
+    return res.status(200).json({
+      access_token: tokens.access_token,
+      error: false,
+      error_msg: "Token baru berhasil dibuat",
+    });
+  } catch {
+    return res.status(403).json({
+      error: true,
+      error_msg: "Token kadaluarsa, tidak valid, atau sudah digunakan.",
+    });
   }
-  jwt.verify(
-    refresh_token,
-    process.env.ADMINISTRATOR_REFRESH_SECRET_KEY,
-    (err, user) => {
-      if (err) {
-        return res.status(403).json({
-          error: true,
-          error_msg: "Token kadaluarsa atau tidak valid",
-        });
-      }
-      const { exp, iat, ...cleanUser } = user;
-      const accessToken = jwt.sign(
-        cleanUser,
-        process.env.ADMINISTRATOR_SECRET_KEY,
-        { expiresIn: "5m" }
-      );
-      res.status(200).json({
-        access_token: accessToken,
-        error: false,
-        error_msg: "Token baru berhasil dibuat",
-      });
-    }
-  );
 };
 
 controllers.edit_profile = async (req, res) => {
@@ -116,6 +110,9 @@ controllers.edit_profile = async (req, res) => {
     await model_cud.edit_profile();
 
     if (await model_cud.response()) {
+      if (req.body.password) {
+        await revokeAllSessions("administrator", req.user.id);
+      }
       res.status(200).json({
         error: false,
         error_msg: "Profile berhasil diperbaharui.",

@@ -38,14 +38,6 @@ import PackageSelection from '@/components/Register/widgets/PackageSelection.vue
 import UserDataForm from '@/components/Register/widgets/UserDataForm.vue'
 import Button from '@/components/Register/particles/Button.vue'
 
-import { useHead } from '@vueuse/head'
-
-useHead({
-  title: 'AMRA :: Aplikasi Manajemen Travel Haji dan Umrah',
-  link: [ { rel: 'icon', type: 'image/png', href: 'public/favicon.png' } ],
-  meta: [ { name: 'AMRA', content: 'Aplikasi manajemen travel Haji dan Umrah' } ]
-});
-
 const router = useRouter()
 const notification = ref({ show: false, message: '', type: '' })
 const companyData = ref({ company_name: '', whatsapp_company_number: '' })

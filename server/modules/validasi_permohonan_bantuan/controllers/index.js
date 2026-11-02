@@ -1,5 +1,6 @@
 const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
+const validation = require("../../../validation/validasi_permohonan_bantuan");
 const {
   handleValidationErrors,
   handleServerError,
@@ -61,8 +62,9 @@ controllers.get_info_edit_file = async (req, res) => {
 controllers.edit_file = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
+  let model_cud;
   try {
-    const model_cud = new Model_cud(req);
+    model_cud = new Model_cud(req);
     await model_cud.edit_file();
 
     if (await model_cud.response()) {
@@ -71,9 +73,12 @@ controllers.edit_file = async (req, res) => {
         error_msg: "File permohonan bantuan berhasil diperbaharui.",
       });
     } else {
-      res.status(400).json({
+      res.status(model_cud.statusCode || 400).json({
         error: true,
-        error_msg: "File permohonan bantuan gagal diperbaharui.",
+        error_msg:
+          model_cud.message ||
+          "File permohonan bantuan gagal diperbaharui.",
+        code: model_cud.errorCode,
       });
     }
   } catch (error) {
@@ -197,8 +202,9 @@ controllers.get_info_approve_permohonan = async (req, res) => {
 controllers.approve_permohonan = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
+  let model_cud;
   try {
-    const model_cud = new Model_cud(req);
+    model_cud = new Model_cud(req);
     await model_cud.approve_permohonan();
 
     if (await model_cud.response()) {
@@ -207,9 +213,11 @@ controllers.approve_permohonan = async (req, res) => {
         error_msg: "Permohonan bantuan berhasil disetujui.",
       });
     } else {
-      res.status(400).json({
+      res.status(model_cud.statusCode || 400).json({
         error: true,
-        error_msg: "Permohonan bantuan gagal disetujui.",
+        error_msg:
+          model_cud.message || "Permohonan bantuan gagal disetujui.",
+        code: model_cud.errorCode,
       });
     }
   } catch (error) {
@@ -220,8 +228,9 @@ controllers.approve_permohonan = async (req, res) => {
 controllers.reject_permohonan = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
+  let model_cud;
   try {
-    const model_cud = new Model_cud(req);
+    model_cud = new Model_cud(req);
     await model_cud.reject_permohonan();
 
     if (await model_cud.response()) {
@@ -230,9 +239,11 @@ controllers.reject_permohonan = async (req, res) => {
         error_msg: "Permohonan bantuan berhasil ditolak.",
       });
     } else {
-      res.status(400).json({
+      res.status(model_cud.statusCode || 400).json({
         error: true,
-        error_msg: "Permohonan bantuan gagal ditolak.",
+        error_msg:
+          model_cud.message || "Permohonan bantuan gagal ditolak.",
+        code: model_cud.errorCode,
       });
     }
   } catch (error) {

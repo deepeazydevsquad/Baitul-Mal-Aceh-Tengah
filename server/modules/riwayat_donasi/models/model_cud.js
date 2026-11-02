@@ -6,10 +6,17 @@ const {
 } = require("../../../models");
 const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
-const jwt = require("jsonwebtoken");
 const path = require("path");
-const fs = require("fs");
 const moment = require("moment");
+const {
+  isSafeStoredFilename,
+  removeStoredFile,
+} = require("../../../helper/uploadStorageHelper");
+
+const DONATION_PROOF_DIRECTORIES = {
+  transfer: path.resolve(__dirname, "../../../uploads/img/donasi/bukti_transfer"),
+  cash: path.resolve(__dirname, "../../../uploads/img/donasi/bukti_setoran"),
+};
 
 class Model_cud {
   constructor(req) {
@@ -85,6 +92,19 @@ class Model_cud {
       });
       if (!riwayat) throw new Error("Data tidak ditemukan");
 
+      this.filesToDelete = [];
+      if (riwayat.bukti_transfer) {
+        this.filesToDelete.push({
+          directory: DONATION_PROOF_DIRECTORIES.transfer,
+          filename: riwayat.bukti_transfer,
+        });
+      }
+      if (riwayat.bukti_setoran) {
+        this.filesToDelete.push({
+          directory: DONATION_PROOF_DIRECTORIES.cash,
+          filename: riwayat.bukti_setoran,
+        });
+      }
       await riwayat.destroy({ transaction: this.t });
 
       this.state = true;
@@ -134,9 +154,7 @@ class Model_cud {
     // await this.initialize();
     const body = this.req.body;
 
-    const authHeader = this.req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-    const decoded = jwt.decode(token);
+    const actor = this.req.user;
 
     try {
       const model_r = new Model_r(this.req);
@@ -145,8 +163,8 @@ class Model_cud {
       await Riwayat_donasi.update(
         {
           konfirmasi_pembayaran: "sudah_dikirim",
-          nama_petugas: decoded.name,
-          jabatan_petugas: decoded.jabatan,
+          nama_petugas: actor.name,
+          jabatan_petugas: actor.jabatan,
           status: "success",
           updatedAt: new Date(),
         },
@@ -168,9 +186,7 @@ class Model_cud {
   async reject_online() {
     const body = this.req.body;
 
-    const authHeader = this.req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-    const decoded = jwt.decode(token);
+    const actor = this.req.user;
 
     try {
       const model_r = new Model_r(this.req);
@@ -180,8 +196,8 @@ class Model_cud {
         {
           status: "failed",
           alasan_penolakan: body.alasan,
-          nama_petugas: decoded.name,
-          jabatan_petugas: decoded.jabatan,
+          nama_petugas: actor.name,
+          jabatan_petugas: actor.jabatan,
           updatedAt: new Date(),
         },
         {
@@ -203,12 +219,18 @@ class Model_cud {
     const body = this.req.body;
 
     try {
+      const proofPath = this.req.transactionProof?.filename;
+      if (
+        !isSafeStoredFilename(proofPath, new Set([".jpg"]))
+      ) {
+        throw new Error("Bukti transfer tidak valid.");
+      }
       const model_r = new Model_r(this.req);
       const info_riwayat_donasi = await model_r.info_riwayat_donasi(body.id);
 
       await Riwayat_donasi.update(
         {
-          bukti_transfer: body.buktiPath,
+          bukti_transfer: proofPath,
           nominal_transfer: body.nominal_transfer,
           status: "success",
           konfirmasi_pembayaran: "sudah_dikirim",
@@ -220,6 +242,7 @@ class Model_cud {
         }
       );
 
+      this.state = true;
       this.message = `Mengunggah Bukti Transfer untuk Riwayat donasi dengan Nama member Riwayat donasi: ${info_riwayat_donasi.member_name} dan ID Riwayat donasi: ${info_riwayat_donasi.id}`;
     } catch (error) {
       console.log("DDDDDD");
@@ -233,12 +256,18 @@ class Model_cud {
     const body = this.req.body;
 
     try {
+      const proofPath = this.req.transactionProof?.filename;
+      if (
+        !isSafeStoredFilename(proofPath, new Set([".jpg"]))
+      ) {
+        throw new Error("Bukti setoran tidak valid.");
+      }
       const model_r = new Model_r(this.req);
       const info_riwayat_donasi = await model_r.info_riwayat_donasi(body.id);
 
       await Riwayat_donasi.update(
         {
-          bukti_setoran: body.buktiPath,
+          bukti_setoran: proofPath,
           nominal_setoran: body.nominal_setoran,
           status: "success",
           posisi_uang: "bank",
@@ -251,6 +280,7 @@ class Model_cud {
         }
       );
 
+      this.state = true;
       this.message = `Mengunggah Bukti Transfer untuk Riwayat donasi dengan Nama member Riwayat donasi: ${info_riwayat_donasi.member_name} dan ID Riwayat donasi: ${info_riwayat_donasi.id}`;
     } catch (error) {
       console.log("=======error2");
@@ -266,6 +296,11 @@ class Model_cud {
       if (this.t) {
         await writeLog(this.req, this.t, { msg: this.message });
         await this.t.commit();
+        for (const file of this.filesToDelete || []) {
+          removeStoredFile(file.directory, file.filename, {
+            allowedExtensions: new Set([".jpg", ".jpeg", ".png"]),
+          });
+        }
       }
       return { success: true, message: this.message, data };
     } else {

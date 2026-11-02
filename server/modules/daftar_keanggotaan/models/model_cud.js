@@ -3,6 +3,7 @@ const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const bcrypt = require("bcryptjs");
 const moment = require("moment");
+const { normalizeNik } = require("../../../helper/nikHelper");
 
 class Model_cud {
   constructor(req) {
@@ -31,7 +32,10 @@ class Model_cud {
           desa_id: body.desa_id || null,
           tipe: body.tipeAkun || null,
           fullname: body.fullname || null,
-          nomor_ktp: body.nomor_ktp || null,
+          nomor_ktp:
+            body.tipeAkun === "perorangan"
+              ? normalizeNik(body.nomor_ktp)
+              : null,
           nomor_kk: body.nomor_kk || null,
           whatsapp_number: body.wa_number || null,
           birth_date: body.birth_date || null,
@@ -77,7 +81,10 @@ class Model_cud {
           desa_id: body.desa_id,
           tipe: body.tipeAkun,
           fullname: body.fullname,
-          nomor_ktp: body.nomor_ktp || null,
+          nomor_ktp:
+            body.tipeAkun === "perorangan"
+              ? normalizeNik(body.nomor_ktp)
+              : null,
           nomor_kk: body.nomor_kk || null,
           whatsapp_number: body.wa_number || null,
           birth_date: body.birth_date || null,

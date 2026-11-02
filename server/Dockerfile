@@ -1,28 +1,34 @@
-FROM node:20.18
-#FROM node:20.18-alpine
-
+FROM node:22-bookworm-slim@sha256:4b150b48b4116e2a22f2c39cc27025fbf4f153e2078fd3b14d159fdb5c7279da AS base
 
 WORKDIR /apps
 
-# Salin file package.json dan package-lock.json
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends netcat-openbsd \
+ && rm -rf /var/lib/apt/lists/*
+
+FROM base AS migration
+
 COPY package*.json ./
+RUN npm ci
 
-# Install dependencies
-RUN npm install
+COPY --chown=node:node . .
 
-# Install nodemon secara global
-RUN npm install -g nodemon
+USER node
 
-# Install dockerize
-RUN apt-get update && apt-get install -y wget
-RUN wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz
-RUN tar -C /usr/local/bin -xzf dockerize-linux-amd64-v0.6.1.tar.gz
+CMD ["npx", "sequelize-cli", "db:migrate"]
 
-# Salin kode server
-COPY . .
+FROM base AS production
 
-EXPOSE 3001
+COPY package*.json ./
+RUN npm ci --omit=dev
 
-# Jalankan dengan dockerize untuk menunggu mysql, lalu nodemon untuk auto-restart pada perubahan file
-# CMD ["dockerize", "-wait", "tcp://mysql:3306", "-timeout", "60s", "npm", "start"]
-CMD ["sh", "-c", "dockerize -wait tcp://mysql:3306 -timeout 60s && npm start"]
+COPY --chown=node:node . .
+
+RUN mkdir -p /apps/uploads /apps/logs \
+ && chown -R node:node /apps/uploads /apps/logs
+
+USER node
+
+EXPOSE 3003
+
+CMD ["sh", "-c", "until nc -z mysql 3306; do sleep 1; done; node app.js"]

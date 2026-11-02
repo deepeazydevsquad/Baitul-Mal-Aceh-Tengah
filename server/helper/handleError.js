@@ -93,7 +93,10 @@ helper.handleValidationErrorsFiles = async (req, res, files) => {
 helper.handleServerError = (res, error) => {
   if (!res.headersSent) {
     const statusCode = error?.statusCode || 500;
-    const message = error?.message || MESSAGES.INTERNAL_ERROR;
+    const message =
+      statusCode >= 400 && statusCode < 500
+        ? error?.message || MESSAGES.VALIDATION_ERROR
+        : MESSAGES.INTERNAL_ERROR;
     
     res.status(statusCode).json({ 
       status: "error",

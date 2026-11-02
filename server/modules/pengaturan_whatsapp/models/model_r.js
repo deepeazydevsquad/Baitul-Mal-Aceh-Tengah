@@ -1,6 +1,13 @@
 const { Op, Setting } = require("../../../models");
 const axios = require("axios");
 
+function maskSecret(value) {
+  const text = String(value || "");
+  if (!text) return "";
+  if (text.length <= 4) return "*".repeat(text.length);
+  return `${"*".repeat(Math.min(12, text.length - 4))}${text.slice(-4)}`;
+}
+
 class Model_r {
   constructor(req) {
     this.req = req;
@@ -42,12 +49,29 @@ class Model_r {
       console.log("Start Device Response:", result);
 
       if (result?.data?.todo === "scan") {
-        const qr_url = `https://wapisender.id/api/v5/device/qr?api_key=${settings.api_key}&device_key=${settings.device_key}`;
+        const qrResponse = await axios.get(
+          "https://wapisender.id/api/v5/device/qr",
+          {
+            params: {
+              api_key: settings.api_key,
+              device_key: settings.device_key,
+            },
+            responseType: "arraybuffer",
+            timeout: 10000,
+            maxContentLength: 1024 * 1024,
+          }
+        );
+        const contentType = String(qrResponse.headers?.["content-type"] || "");
+        if (!contentType.startsWith("image/")) {
+          throw new Error("Provider mengembalikan QR yang tidak valid");
+        }
         return {
           status: result.status,
           message: result.message,
           todo: "scan",
-          qr_url,
+          qr_image: `data:${contentType};base64,${Buffer.from(
+            qrResponse.data
+          ).toString("base64")}`,
         };
       }
 
@@ -76,7 +100,12 @@ class Model_r {
     return {
       data: data.map((e) => ({
         name: e.name,
-        value: e.value,
+        value:
+          e.name === "api_key" || e.name === "device_key" ? "" : e.value,
+        configured:
+          e.name === "api_key" || e.name === "device_key"
+            ? Boolean(e.value)
+            : true,
       })),
     };
   }
@@ -102,8 +131,6 @@ class Model_r {
         return acc;
       }, {});
 
-      const qr_url = `https://wapisender.id/api/v5/device/qr?api_key=${settings["api_key"]}&device_key=${settings["device_key"]}`;
-
       // panggil API Wapisender
       const wapisenderResponse = await axios.post(
         "https://wapisender.id/api/v5/device/info",
@@ -119,7 +146,7 @@ class Model_r {
       );
 
       let vr = {
-        device_key: settings["device_key"] || null,
+        device_key: maskSecret(settings["device_key"]),
         whatsapp_number: settings["whatsapp_number"] || null,
       };
 
@@ -130,7 +157,6 @@ class Model_r {
             ["status"]: wapisenderResponse.data.status || null,
             ["created_at"]: wapisenderResponse.data.created_at || null,
             ["expired_at"]: wapisenderResponse.data.expired_at || null,
-            ["qr_url"]: qr_url,
           },
         };
       } else {
@@ -140,7 +166,6 @@ class Model_r {
             ["status"]: wapisenderResponse.data.status,
             ["created_at"]: wapisenderResponse.data.created_at,
             ["expired_at"]: wapisenderResponse.data.expired_at,
-            ["qr_url"]: qr_url,
           },
         };
       }

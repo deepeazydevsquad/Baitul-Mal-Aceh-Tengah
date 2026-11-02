@@ -11,7 +11,7 @@ const router = express.Router();
 router.post(
   "/program_donasi/add",
   authenticateTokenAdministrator,
-  validation.upload.single("banner"),
+  validation.upload,
   [
     body("name")
       .notEmpty()
@@ -35,13 +35,14 @@ router.post(
       .notEmpty()
       .withMessage("Waktu Donasi Tidak Boleh Kosong"),
   ],
+  validation.cleanupRejectedUpload,
   controllers.add
 );
 
 router.post(
   "/program_donasi/edit",
   authenticateTokenAdministrator,
-  validation.upload.single("banner"),
+  validation.upload,
   [
     body("id")
       .notEmpty()
@@ -59,6 +60,7 @@ router.post(
       .notEmpty()
       .withMessage("Waktu Donasi Tidak Boleh Kosong"),
   ],
+  validation.cleanupRejectedUpload,
   controllers.edit
 );
 

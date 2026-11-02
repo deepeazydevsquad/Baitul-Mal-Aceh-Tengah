@@ -102,6 +102,7 @@ router.post(
       .isString()
       .withMessage("Atas Nama Harus String"),
   ],
+  validation.persistValidatedUploads,
   validationHelper.handleFileErrors,
   controllers.add
 );
@@ -124,7 +125,6 @@ router.post(
   "/permohonan_bantuan/edit",
   authenticateTokenAdministrator,
   validation.upload,
-  validation.parseUploadMiddleware,
   [
     body("id")
       .notEmpty()
@@ -161,6 +161,7 @@ router.post(
       .isString()
       .withMessage("Atas Nama Harus String"),
   ],
+  validation.persistValidatedUploads,
   validationHelper.handleFileErrors,
   controllers.edit
 );

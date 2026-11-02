@@ -1,342 +1,277 @@
 const {
   sequelize,
-  Bank,
   Realisasi_permohonan,
   Permohonan,
-  Syarat_kegiatan,
+  Kegiatan,
+  Member,
   Validasi_syarat_permohonan,
 } = require("../../../models");
-const Model_r = require("../models/model_r");
-const { writeLog } = require("../../../helper/writeLogHelper");
 const path = require("path");
-const fs = require("fs");
-const moment = require("moment");
+const {
+  getKegiatanPeriodWhere,
+  validateKegiatanPeriod,
+} = require("../../../helper/kegiatanPeriodHelper");
+const {
+  buildMonthlyPeriodKey,
+} = require("../../../helper/monthlyPeriodHelper");
+
+const DOCUMENT_EXTENSIONS = new Set([".pdf", ".png", ".jpg", ".jpeg"]);
 
 class Model_cud {
   constructor(req) {
     this.req = req;
+    this.transactionOutcome = "not_started";
   }
 
   async initialize() {
     this.t = await sequelize.transaction();
     this.state = true;
+    this.statusCode = null;
+    this.message = "";
+    this.transactionError = null;
+    this.transactionOutcome = "pending";
   }
 
-  async sisaBulanTahunIni() {
-    const bulanSekarang = moment().month() + 1; // month() is zero-based
-    const bulans = Array.from(
-      { length: 12 - bulanSekarang + 1 },
-      (v, k) => k + bulanSekarang
+  getAuthenticatedMemberId() {
+    const memberId = Number(this.req.user?.id);
+    if (
+      this.req.user?.principalType !== "member" ||
+      !Number.isInteger(memberId) ||
+      memberId <= 0
+    ) {
+      const error = new Error("Identitas member tidak valid.");
+      error.statusCode = 403;
+      throw error;
+    }
+    return memberId;
+  }
+
+  getServerUploadedDocuments() {
+    const uploads = Array.isArray(this.req.permohonanUploads)
+      ? this.req.permohonanUploads
+      : [];
+
+    return uploads.map((fileObj) => {
+      const filename = String(fileObj?.path || "");
+      if (
+        !filename ||
+        path.basename(filename) !== filename ||
+        !DOCUMENT_EXTENSIONS.has(path.extname(filename).toLowerCase())
+      ) {
+        const error = new Error("Referensi dokumen tidak valid.");
+        error.statusCode = 400;
+        throw error;
+      }
+
+      return {
+        basename: String(fileObj.file_name || ""),
+        path: filename,
+      };
+    });
+  }
+
+  async findCurrentPeriodPermohonan(memberId, year) {
+    return Permohonan.findOne({
+      where: { member_id: memberId },
+      attributes: ["id"],
+      include: [
+        {
+          model: Kegiatan,
+          required: true,
+          attributes: [],
+          where: {
+            ...getKegiatanPeriodWhere(),
+            tahun: year,
+          },
+        },
+      ],
+      transaction: this.t,
+      lock: this.t.LOCK.UPDATE,
+    });
+  }
+
+  async createValidasiSyarat(realisasiId, documents, myDate) {
+    if (documents.length === 0) return;
+
+    await Validasi_syarat_permohonan.bulkCreate(
+      documents.map((fileObj) => ({
+        realisasi_permohonan_id: realisasiId,
+        file_name: fileObj.basename,
+        path: fileObj.path,
+        status: "process",
+        createdAt: myDate,
+        updatedAt: myDate,
+      })),
+      { transaction: this.t }
     );
-    return bulans;
   }
 
   async add() {
-    await this.initialize();
-    const myDate = new Date();
-    const body = this.req.body;
-
-    const arr_filepath = body.arr_path || [];
-    const bulanSekarang = moment().month() + 1; // 1-12
-    
-    console.log("----- DEBUG ADD PERMOHONAN -----");
-    console.log("Bulan sekarang:", bulanSekarang);
-    console.log("Body:", body);
-    console.log("----- END DEBUG ADD PERMOHONAN -----");
-
     try {
-      const model_r = new Model_r(this.req);
-      const info_kegiatan = await model_r.info_kegiatan(body.kegiatan_id);
-      const info_member = await model_r.info_member_cud(body.member_id);
+      await this.initialize();
+      const myDate = new Date();
+      const body = this.req.body || {};
+      const memberId = this.getAuthenticatedMemberId();
 
-      // ================= BULANAN =================
-      if (info_kegiatan.periode_bantuan === "bulanan") {
-        console.log(
-          "================ Processing BULANAN (1 realisasi saja) ================="
+      if (
+        body.member_id !== undefined &&
+        String(body.member_id) !== String(memberId)
+      ) {
+        const error = new Error(
+          "Data member tidak sesuai dengan sesi."
         );
-
-        // 1. Insert 1 permohonan saja
-        const permohonan = await Permohonan.create(
-          {
-            member_id: body.member_id,
-            kegiatan_id: body.kegiatan_id,
-            bank_id: body.bank_id,
-            nomor_akun_bank: body.nomor_rekening,
-            nama_akun_bank: body.atas_nama,
-            status: "sedang_berlangsung",
-            createdAt: myDate,
-            updatedAt: myDate,
-          },
-          { transaction: this.t }
-        );
-
-        // 2. Insert 1 realisasi dengan bulan sekarang dan status process_lapangan
-        const realisasi = await Realisasi_permohonan.create(
-          {
-            permohonan_id: permohonan.id,
-            status: "process",
-            status_realisasi: "belum_direalisasi",
-            bulan: bulanSekarang,
-            createdAt: myDate,
-            updatedAt: myDate,
-          },
-          { transaction: this.t }
-        );
-
-        // 3. Insert file validasi untuk realisasi ini
-        await Promise.all(
-          arr_filepath.map((fileObj) =>
-            Validasi_syarat_permohonan.create(
-              {
-                realisasi_permohonan_id: realisasi.id,
-                file_name: fileObj.basename,
-                path: fileObj.path,
-                status: "process",
-                createdAt: myDate,
-                updatedAt: myDate,
-              },
-              { transaction: this.t }
-            )
-          )
-        );
-
-        this.message = `Berhasil menambahkan Permohonan Bantuan bulanan bulan ${bulanSekarang} atas nama ${info_member.fullname} untuk Kegiatan ${info_kegiatan.nama_kegiatan}`;
+        error.statusCode = 403;
+        throw error;
       }
 
-      // ================= TAHUNAN =================
-      else {
-        console.log(
-          "================== Processing TAHUNAN (1 realisasi saja) =================="
-        );
-
-        // 1. Insert 1 permohonan
-        const permohonan = await Permohonan.create(
-          {
-            member_id: body.member_id,
-            kegiatan_id: body.kegiatan_id,
-            bank_id: body.bank_id,
-            nomor_akun_bank: body.nomor_rekening,
-            nama_akun_bank: body.atas_nama,
-            status: "sedang_berlangsung",
-            createdAt: myDate,
-            updatedAt: myDate,
-          },
-          { transaction: this.t }
-        );
-
-        // 2. Insert 1 realisasi dengan status process_lapangan (bulan = null untuk tahunan)
-        const realisasi = await Realisasi_permohonan.create(
-          {
-            permohonan_id: permohonan.id,
-            status: "process",
-            status_realisasi: "belum_direalisasi",
-            bulan: null, // null untuk tahunan
-            createdAt: myDate,
-            updatedAt: myDate,
-          },
-          { transaction: this.t }
-        );
-
-        // 3. Insert file validasi
-        await Promise.all(
-          arr_filepath.map((fileObj) =>
-            Validasi_syarat_permohonan.create(
-              {
-                realisasi_permohonan_id: realisasi.id,
-                file_name: fileObj.basename,
-                path: fileObj.path,
-                status: "process",
-                createdAt: myDate,
-                updatedAt: myDate,
-              },
-              { transaction: this.t }
-            )
-          )
-        );
-
-        this.message = `Berhasil menambahkan Permohonan Bantuan tahunan atas nama ${info_member.fullname} untuk Kegiatan ${info_kegiatan.nama_kegiatan}`;
+      // Lock the member row so concurrent add requests cannot both pass the
+      // current-period duplicate check.
+      const member = await Member.findByPk(memberId, {
+        transaction: this.t,
+        lock: this.t.LOCK.UPDATE,
+        attributes: ["id", "fullname"],
+      });
+      if (!member) {
+        const error = new Error("Member tidak terdaftar di pangkalan data.");
+        error.statusCode = 400;
+        throw error;
       }
+
+      const info_kegiatan = await Kegiatan.findByPk(body.kegiatan_id, {
+        transaction: this.t,
+        lock: this.t.LOCK.UPDATE,
+        attributes: [
+          "id",
+          "nama_kegiatan",
+          "periode_bantuan",
+          "status_kegiatan",
+          "tahun",
+          "start_date",
+          "end_date",
+        ],
+      });
+      const kegiatanPeriod = validateKegiatanPeriod(info_kegiatan);
+      if (!kegiatanPeriod.valid) {
+        const error = new Error(kegiatanPeriod.message);
+        error.statusCode = kegiatanPeriod.statusCode;
+        throw error;
+      }
+
+      const existingPermohonan = await this.findCurrentPeriodPermohonan(
+        memberId,
+        kegiatanPeriod.year
+      );
+      if (existingPermohonan) {
+        const error = new Error("Member sudah mempunyai permohonan");
+        error.statusCode = 409;
+        throw error;
+      }
+
+      const documents = this.getServerUploadedDocuments();
+      const bulanSekarang = kegiatanPeriod.now
+        ? kegiatanPeriod.now.month() + 1
+        : new Date().getMonth() + 1;
+
+      const permohonan = await Permohonan.create(
+        {
+          member_id: memberId,
+          kegiatan_id: body.kegiatan_id,
+          bank_id: body.bank_id,
+          nomor_akun_bank: body.nomor_rekening,
+          nama_akun_bank: body.atas_nama,
+          status: "sedang_berlangsung",
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        { transaction: this.t }
+      );
+
+      const realisasi = await Realisasi_permohonan.create(
+        {
+          permohonan_id: permohonan.id,
+          status: "process",
+          status_realisasi: "belum_direalisasi",
+          bulan:
+            info_kegiatan.periode_bantuan === "bulanan"
+              ? bulanSekarang
+              : null,
+          periode_key:
+            info_kegiatan.periode_bantuan === "bulanan"
+              ? buildMonthlyPeriodKey(
+                  memberId,
+                  info_kegiatan.id,
+                  info_kegiatan.tahun,
+                  bulanSekarang
+                )
+              : null,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        { transaction: this.t }
+      );
+
+      await this.createValidasiSyarat(realisasi.id, documents, myDate);
+
+      const periodLabel =
+        info_kegiatan.periode_bantuan === "bulanan"
+          ? `bulanan bulan ${bulanSekarang}`
+          : "tahunan";
+      this.message = `Berhasil menambahkan Permohonan Bantuan ${periodLabel} atas nama ${member.fullname} untuk Kegiatan ${info_kegiatan.nama_kegiatan}`;
     } catch (error) {
-      console.error("Error in add():", error);
       this.state = false;
       this.message = error.message;
+      this.statusCode = error.statusCode || 500;
     }
   }
 
-  // async add() {
-  //   await this.initialize();
-  //   const myDate = new Date();
-  //   const body = this.req.body;
-
-  //   const sisaBulan = await this.sisaBulanTahunIni();
-  //   const arr_filepath = body.arr_path || [];
-
-  //   console.log("----- DEBUG ADD PERMOHONAN -----");
-  //   console.log("Sisa bulan:", sisaBulan);
-  //   console.log("Body:", body);
-  //   console.log("----- END DEBUG ADD PERMOHONAN -----");
-
-  //   try {
-  //     const model_r = new Model_r(this.req);
-  //     const info_kegiatan = await model_r.info_kegiatan(body.kegiatan_id);
-  //     const info_member = await model_r.info_member_cud(body.member_id);
-
-  //     // ================= BULANAN =================
-  //     if (info_kegiatan.periode_bantuan === "bulanan") {
-  //       console.log("================ Processing bulanan =================");
-
-  //       // 🔧 FIX: Hanya buat 1 permohonan untuk bantuan bulanan
-  //       const insert_permohonan = await Permohonan.create(
-  //         {
-  //           member_id: body.member_id,
-  //           kegiatan_id: body.kegiatan_id,
-  //           bank_id: body.bank_id,
-  //           nomor_akun_bank: body.nomor_rekening,
-  //           nama_akun_bank: body.atas_nama,
-  //           status: "sedang_berlangsung",
-  //           createdAt: myDate,
-  //           updatedAt: myDate,
-  //         },
-  //         { transaction: this.t }
-  //       );
-
-  //       console.log(`✅ Created 1 Permohonan with ID: ${insert_permohonan.id}`);
-
-  //       // 2. Insert semua realisasi (satu per bulan)
-  //       const realisasiData = sisaBulan.map((bulan) => ({
-  //         permohonan_id: insert_permohonan.id, // 🔧 Semua realisasi menggunakan permohonan_id yang sama
-  //         status: "process",
-  //         status_realisasi: "belum_direalisasi",
-  //         bulan,
-  //         createdAt: myDate,
-  //         updatedAt: myDate,
-  //       }));
-
-  //       const insert_realisasi = await Realisasi_permohonan.bulkCreate(
-  //         realisasiData,
-  //         { transaction: this.t }
-  //       );
-
-  //       console.log(
-  //         `✅ Created ${
-  //           insert_realisasi.length
-  //         } Realisasi untuk bulan: ${sisaBulan.join(", ")}`
-  //       );
-
-  //       // 3. Insert file validasi paralel per realisasi
-  //       await Promise.all(
-  //         insert_realisasi.map((realisasi) =>
-  //           Promise.all(
-  //             arr_filepath.map((fileObj) =>
-  //               Validasi_syarat_permohonan.create(
-  //                 {
-  //                   realisasi_permohonan_id: realisasi.id,
-  //                   file_name: fileObj.basename,
-  //                   path: fileObj.path,
-  //                   status: "process",
-  //                   createdAt: myDate,
-  //                   updatedAt: myDate,
-  //                 },
-  //                 { transaction: this.t }
-  //               )
-  //             )
-  //           )
-  //         )
-  //       );
-
-  //       console.log(
-  //         `✅ Created ${
-  //           insert_realisasi.length * arr_filepath.length
-  //         } file validasi`
-  //       );
-
-  //       this.message = `Berhasil menambahkan Permohonan Bantuan bulanan atas nama ${
-  //         info_member.fullname
-  //       } untuk Kegiatan ${info_kegiatan.nama_kegiatan} dengan ${
-  //         sisaBulan.length
-  //       } realisasi bulan (${sisaBulan.join(", ")})`;
-  //     }
-
-  //     // ================= TAHUNAN =================
-  //     else {
-  //       console.log("================== Processing tahunan ==================");
-
-  //       // 1. Insert permohonan tunggal
-  //       const permohonanData = {
-  //         member_id: body.member_id,
-  //         kegiatan_id: body.kegiatan_id,
-  //         bank_id: body.bank_id,
-  //         nomor_akun_bank: body.nomor_rekening,
-  //         nama_akun_bank: body.atas_nama,
-  //         status: "sedang_berlangsung",
-  //         createdAt: myDate,
-  //         updatedAt: myDate,
-  //       };
-
-  //       const insert_permohonan_single = await Permohonan.create(
-  //         permohonanData,
-  //         { transaction: this.t }
-  //       );
-
-  //       console.log(
-  //         `✅ Created 1 Permohonan tahunan with ID: ${insert_permohonan_single.id}`
-  //       );
-
-  //       // 2. Insert realisasi tunggal
-  //       const insert_realisasi_single = await Realisasi_permohonan.create(
-  //         {
-  //           permohonan_id: insert_permohonan_single.id,
-  //           status: "process",
-  //           status_realisasi: "belum_direalisasi",
-  //           createdAt: myDate,
-  //           updatedAt: myDate,
-  //         },
-  //         { transaction: this.t }
-  //       );
-
-  //       console.log(
-  //         `✅ Created 1 Realisasi for permohonan ID: ${insert_permohonan_single.id}`
-  //       );
-
-  //       // 3. Insert file validasi paralel
-  //       await Promise.all(
-  //         arr_filepath.map((fileObj) =>
-  //           Validasi_syarat_permohonan.create(
-  //             {
-  //               realisasi_permohonan_id: insert_realisasi_single.id,
-  //               file_name: fileObj.basename,
-  //               path: fileObj.path,
-  //               status: "process",
-  //               createdAt: myDate,
-  //               updatedAt: myDate,
-  //             },
-  //             { transaction: this.t }
-  //           )
-  //         )
-  //       );
-
-  //       console.log(`✅ Created ${arr_filepath.length} file validasi`);
-
-  //       this.message = `Menambahkan Permohonan Bantuan tahunan atas nama ${info_member.fullname} untuk Kegiatan ${info_kegiatan.nama_kegiatan} dan ID Permohonan: ${insert_permohonan_single.id}`;
-  //     }
-  //   } catch (error) {
-  //     console.error("❌ Error in add():", error);
-  //     this.state = false;
-  //     this.message = error.message;
-  //   }
-  // }
-
-  // response
   async response() {
-    if (this.state) {
-      await this.t.commit();
-      console.log("✅ Transaction committed successfully");
-      return true;
-    } else {
-      await this.t.rollback();
-      console.log("❌ Transaction rolled back");
+    if (!this.t) {
+      this.transactionOutcome = "not_started";
       return false;
     }
+
+    if (this.t.finished) {
+      this.transactionOutcome = "unknown";
+      this.statusCode = 503;
+      this.message =
+        "Status penyimpanan belum dapat dipastikan. Periksa riwayat permohonan sebelum mengulang.";
+      return false;
+    }
+
+    if (this.state) {
+      try {
+        await this.t.commit();
+        this.transactionOutcome = "committed";
+        return true;
+      } catch (error) {
+        this.state = false;
+        this.transactionError = error;
+        this.transactionOutcome = "commit_unknown";
+        this.statusCode = 503;
+        this.message =
+          "Status penyimpanan belum dapat dipastikan. Periksa riwayat permohonan sebelum mengulang.";
+        return false;
+      }
+    }
+
+    try {
+      await this.t.rollback();
+      this.transactionOutcome = "rolled_back";
+    } catch (error) {
+      this.transactionError = error;
+      this.transactionOutcome = "rollback_unknown";
+      this.statusCode = 503;
+      this.message =
+        "Status transaksi belum dapat dipastikan. Hubungi administrator.";
+    }
+    return false;
+  }
+
+  isUploadCleanupSafe() {
+    return (
+      !this.state &&
+      ["not_started", "rolled_back"].includes(this.transactionOutcome)
+    );
   }
 }
 

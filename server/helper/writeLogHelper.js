@@ -1,31 +1,25 @@
 
 const moment = require("moment");
 const { System_log, User } = require("../models");
-const jwt = require("jsonwebtoken");
 const helper = {};
 
 helper.writeLog = async (req, t, param) => {
-    // get ip user
-    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
-    // get datetimes
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
-    // get info user from token
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    const decoded = jwt.decode(token);
+    const ip = req.ip || req.socket?.remoteAddress || null;
 
     var user_id = 0;
     var name = '';
-    // get info user from database
-    await User.findOne({
-      attributes: ["id", "name"],
-      where: { id: decoded.id },
-    }).then(async (e) => {
-      if (e) {
-          user_id = e.id;
-          name = e.name;
+
+    if (req.user?.principalType === "administrator" && req.user.id) {
+      const account = await User.findOne({
+        attributes: ["id", "name"],
+        where: { id: req.user.id },
+      });
+      if (account) {
+        user_id = account.id;
+        name = account.name;
       }
-    });
+    }
 
     try {
         // input system log to database
@@ -40,9 +34,7 @@ helper.writeLog = async (req, t, param) => {
         });
 
     } catch (error) {
-        console.log("------ERERER");
-        console.log(error);
-        console.log("------ERERER");
+        console.error("Gagal menulis system log.");
     }
 };
 

@@ -44,7 +44,6 @@ const isLoadingSyarat = ref(false);
 // Form data
 const form = ref({
   nama_pemohon: '',
-  member_id: '',
   nomor_ktp: '',
   nomor_whatsapp: '',
   bank_id: null as number | null,
@@ -64,7 +63,6 @@ const fetchData = async () => {
     console.log('Response get_info_member:', response);
 
     form.value.nama_pemohon = response.nama_pemohon || '';
-    form.value.member_id = response.member_id || response.id || '';
     form.value.nomor_ktp = response.nomor_ktp || '';
     form.value.nomor_whatsapp = response.whatsapp_number || response.nomor_whatsapp || '';
   } catch (error) {
@@ -84,7 +82,13 @@ const listBank = async () => {
 
 // Generate field name dari nama syarat
 const generateFieldName = (name: string): string => {
-  return name.toLowerCase().replace(/\s+/g, '_').replace(/[()]/g, '').replace(/_+/g, '_').trim();
+  return name
+    .toLowerCase()
+    .replace(/\s+/g, '_')
+    .replace(/[()]/g, '')
+    .replace(/[^a-z0-9_]/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_+|_+$/g, '');
 };
 
 // Fetch data syarat dinamis
@@ -209,14 +213,9 @@ const handleSubmit = async () => {
   // Append form fields
   formData.append('kegiatan_id', props.id_kegiatan.toString());
 
-  // Append member_id jika ada
-  if (form.value.member_id) {
-    formData.append('member_id', form.value.member_id.toString());
-  }
-
   // Append other form fields
   Object.entries(form.value).forEach(([key, value]) => {
-    if (value !== null && value !== '' && key !== 'nama_pemohon' && key !== 'member_id') {
+    if (value !== null && value !== '' && key !== 'nama_pemohon') {
       formData.append(key, value as string | Blob);
     }
   });
@@ -247,11 +246,14 @@ const handleSubmit = async () => {
       response.error_msg || 'Data berhasil disimpan!',
       response.error ? 'error' : 'success',
     );
-  } catch (error: any) {
+  } catch (error) {
+    const responseError = error as {
+      response?: { data?: { error_msg?: string; message?: string } };
+    };
     console.error('Submit error:', error);
     displayNotification(
-      error.response?.data?.error_msg ||
-        error.response?.data?.message ||
+      responseError.response?.data?.error_msg ||
+        responseError.response?.data?.message ||
         'Terjadi kesalahan saat menyimpan data.',
       'error',
     );
@@ -272,7 +274,6 @@ const closeModal = () => {
 const resetForm = () => {
   form.value = {
     nama_pemohon: '',
-    member_id: '',
     nomor_ktp: '',
     nomor_whatsapp: '',
     bank_id: null,

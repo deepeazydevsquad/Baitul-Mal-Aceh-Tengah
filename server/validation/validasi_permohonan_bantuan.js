@@ -13,6 +13,14 @@ const path = require("path");
 const fs = require("fs");
 const moment = require("moment");
 const { convertToRP } = require("../helper/currencyHelper");
+const { validationResult } = require("express-validator");
+const {
+  detectFileType,
+  randomStoredFilename,
+  removeStoredFile,
+  resolveStoredPath,
+  writeStoredFile,
+} = require("../helper/uploadStorageHelper");
 
 const validation = {};
 
@@ -149,42 +157,123 @@ const uploadPath = path.join(
   __dirname,
   "../uploads/dokumen/permohonan_bantuan"
 );
+const DOCUMENT_EXTENSIONS = new Set([".pdf"]);
+const DOCUMENT_FIELD_PATTERN = /^dokumen_[a-z0-9_]{1,110}$/;
 
 if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath, { recursive: true });
 }
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadPath);
+const parser = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 1 * 1024 * 1024,
+    files: 1,
+    fields: 20,
   },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const baseName = file.fieldname.replace(/^dokumen_/, "");
-    const timestamp = Date.now();
-    const filename = `${baseName}_${timestamp}${ext}`;
-
-    // inject ke req.body biar gampang diakses di controller
-    if (!req.body.file) req.body.file = [];
-    req.body.file.push({ basename: baseName, path: filename });
-    cb(null, filename);
+  fileFilter(req, file, cb) {
+    if (!DOCUMENT_FIELD_PATTERN.test(String(file.fieldname || ""))) {
+      return cb(new Error("Field dokumen tidak valid."));
+    }
+    return cb(null, true);
   },
-});
+}).any();
 
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = ["application/pdf"];
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error("Format file harus PDF"), false);
+validation.upload = function validationDocumentUpload(req, res, next) {
+  parser(req, res, (error) => {
+    if (error) {
+      return res.status(400).json({
+        status: "error",
+        error: true,
+        message: "Unggahan dokumen tidak valid.",
+        code: "UPLOAD_REJECTED",
+      });
+    }
+
+    const files = Array.isArray(req.files) ? req.files : [];
+    if (files.length > 1) {
+      return res.status(400).json({
+        status: "error",
+        error: true,
+        message: "Hanya satu dokumen yang dapat diunggah.",
+        code: "UPLOAD_REJECTED",
+      });
+    }
+    if (files.length === 1) {
+      const file = files[0];
+      const detectedType = detectFileType(file.buffer);
+      if (
+        !detectedType ||
+        !detectedType.allowedExtensions.has(
+          path.extname(String(file.originalname || "")).toLowerCase()
+        )
+      ) {
+        return res.status(400).json({
+          status: "error",
+          error: true,
+          message: "Isi file harus berupa PDF yang valid.",
+          code: "UPLOAD_REJECTED",
+        });
+      }
+      req.validationReplacementPending = {
+        fieldname: file.fieldname,
+        file_name: file.fieldname.replace(/^dokumen_/, ""),
+        buffer: file.buffer,
+      };
+    }
+    if (req.body) delete req.body.file;
+    return next();
+  });
+};
+
+validation.persistValidatedUpload = async (req, res, next) => {
+  if (!req.validationReplacementPending) return next();
+  if (!validationResult(req).isEmpty()) return next();
+
+  try {
+    await fs.promises.mkdir(uploadPath, { recursive: true });
+    const realDirectory = await fs.promises.realpath(uploadPath);
+    const filename = randomStoredFilename("dokumen", ".pdf");
+    await writeStoredFile(
+      realDirectory,
+      filename,
+      req.validationReplacementPending.buffer,
+      0o600
+    );
+    req.validationReplacementUpload = {
+      filename,
+      directory: realDirectory,
+      file_name: req.validationReplacementPending.file_name,
+    };
+    delete req.validationReplacementPending;
+    return next();
+  } catch {
+    return res.status(500).json({
+      status: "error",
+      error: true,
+      message: "Dokumen gagal diproses.",
+      code: "UPLOAD_FAILED",
+    });
   }
 };
 
-// === FINAL UPLOAD ===
-validation.upload = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 1 * 1024 * 1024 }, // 1 MB
-});
+validation.removeUploadedDocument = (req) => {
+  const directory =
+    req?.validationReplacementUpload?.directory || uploadPath;
+  const filename = req?.validationReplacementUpload?.filename;
+  if (
+    resolveStoredPath(directory, filename, {
+      allowedExtensions: DOCUMENT_EXTENSIONS,
+    })
+  ) {
+    return removeStoredFile(directory, filename, {
+      allowedExtensions: DOCUMENT_EXTENSIONS,
+    });
+  }
+  return false;
+};
+
+validation.uploadPath = uploadPath;
+validation.DOCUMENT_EXTENSIONS = DOCUMENT_EXTENSIONS;
 
 module.exports = validation;

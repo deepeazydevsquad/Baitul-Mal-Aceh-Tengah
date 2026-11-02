@@ -22,8 +22,6 @@ class Model_r {
       body.pageNumber && body.pageNumber !== "0"
         ? parseInt(body.pageNumber)
         : 1;
-    console.log("List Riwayat Donasi - Page:", body);
-
     let where = {};
     if (body.status && body.status !== "") {
       where.status = body.status;

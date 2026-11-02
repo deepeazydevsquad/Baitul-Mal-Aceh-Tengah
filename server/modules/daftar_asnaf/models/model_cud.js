@@ -15,7 +15,6 @@ class Model_cud {
   async create() {
     await this.initialize();
     const body = this.req.body;
-    console.log("body", body);
     const date = moment().format("YYYY-MM-DD HH:mm:ss");
     try {
       const insert = await Asnaf.create(

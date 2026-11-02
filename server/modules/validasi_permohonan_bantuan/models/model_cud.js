@@ -1,62 +1,138 @@
 const {
+  Op,
   sequelize,
   Realisasi_permohonan,
   Validasi_syarat_permohonan,
   Permohonan,
+  Kegiatan,
 } = require("../../../models");
 const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { sendWhatsApp } = require("../../../helper/waSenderHelper");
 const { convertToRP } = require("../../../helper/currencyHelper");
 const path = require("path");
-const fs = require("fs");
 const moment = require("moment");
+const {
+  resolveStoredPath,
+  removeStoredFile,
+} = require("../../../helper/uploadStorageHelper");
+const {
+  queueStoredFileCleanup,
+} = require("../../../helper/documentCleanupHelper");
+const {
+  buildMonthlyPeriodKey,
+} = require("../../../helper/monthlyPeriodHelper");
+
+const DOCUMENT_DIRECTORY = path.resolve(
+  __dirname,
+  "../../../uploads/dokumen/permohonan_bantuan"
+);
+const DOCUMENT_EXTENSIONS = new Set([".pdf"]);
 
 class Model_cud {
   constructor(req) {
     this.req = req;
+    this.t = null;
+    this.state = false;
+    this.message = "";
+    this.statusCode = 400;
+    this.errorCode = "VALIDATION_FAILED";
+    this.transactionOutcome = "not_started";
+    this.cleanupDone = false;
   }
 
   async initialize() {
     this.t = await sequelize.transaction();
+    this.transactionOutcome = "pending";
     this.state = true;
+  }
+
+  fail(error, statusCode = 400, errorCode = this.errorCode) {
+    this.state = false;
+    this.message = error?.message || String(error);
+    this.statusCode = error?.statusCode || statusCode;
+    this.errorCode = error?.code || errorCode;
+  }
+
+  async lockRealisasi(id) {
+    const pointer = await Realisasi_permohonan.findOne({
+      where: { id },
+      attributes: ["id", "permohonan_id"],
+      transaction: this.t,
+      raw: true,
+    });
+    if (!pointer) {
+      const error = new Error("Data realisasi tidak ditemukan.");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const permohonan = await Permohonan.findByPk(pointer.permohonan_id, {
+      transaction: this.t,
+      lock: this.t.LOCK.UPDATE,
+    });
+    if (!permohonan || permohonan.status !== "sedang_berlangsung") {
+      const error = new Error(
+        "Permohonan sudah tidak aktif dan tidak dapat diproses."
+      );
+      error.statusCode = 409;
+      throw error;
+    }
+
+    const current = await Realisasi_permohonan.findByPk(id, {
+      transaction: this.t,
+      lock: this.t.LOCK.UPDATE,
+    });
+    if (!current) {
+      const error = new Error("Data realisasi tidak ditemukan.");
+      error.statusCode = 404;
+      throw error;
+    }
+    return { permohonan, realisasi: current };
   }
 
   // ========================================
   // 1. EDIT FILE (Upload ulang file yang ditolak)
   // ========================================
   async edit_file() {
-    await this.initialize();
-    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
-    const file = this.req.body.file; // Dari multer
+    const uploadedFile = this.req.validationReplacementUpload;
 
     try {
-      // Cari data validasi syarat
+      if (
+        !resolveStoredPath(DOCUMENT_DIRECTORY, uploadedFile?.filename, {
+          allowedExtensions: DOCUMENT_EXTENSIONS,
+        })
+      ) {
+        throw new Error("Dokumen pengganti tidak valid.");
+      }
+
+      await this.initialize();
+      await this.lockRealisasi(body.id);
       const dataValidasi = await Validasi_syarat_permohonan.findOne({
         where: {
           realisasi_permohonan_id: body.id,
           id: body.validasi_id,
         },
+        transaction: this.t,
+        lock: this.t.LOCK.UPDATE,
       });
+      if (!dataValidasi) throw new Error("Data validasi tidak ditemukan");
 
-      // Hapus file lama dari storage
+      const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
       if (dataValidasi.path) {
-        const oldFilePath = path.join(
-          __dirname,
-          "../../../uploads/dokumen/permohonan_bantuan/",
-          path.basename(dataValidasi.path)
+        await queueStoredFileCleanup(
+          DOCUMENT_DIRECTORY,
+          dataValidasi.path,
+          "validation-document-replaced",
+          this.t
         );
-        if (fs.existsSync(oldFilePath)) {
-          fs.unlinkSync(oldFilePath);
-        }
       }
 
-      // Update dengan file baru
       await dataValidasi.update(
         {
-          file_name: file[0].basename,
-          path: file[0].path,
+          file_name: uploadedFile.file_name,
+          path: uploadedFile.filename,
           status: "process", // Reset ke process (perlu validasi ulang)
           alasan_penolakan: null, // Reset alasan penolakan
           updatedAt: myDate,
@@ -72,28 +148,66 @@ class Model_cud {
       );
       const info_member = await model_r.info_member(info_permohonan.member_id);
 
-      this.message = `Memperbarui file syarat permohonan untuk ${info_member.fullname} dengan file baru: ${file[0].basename}`;
+      this.message = `Memperbarui file syarat permohonan untuk ${info_member.fullname} dengan file baru: ${uploadedFile.file_name}`;
     } catch (error) {
-      this.state = false;
-      console.error("Error editing file:", error);
-      this.message = error.message;
+      console.error("Gagal memperbarui berkas permohonan.");
+      this.fail(error, 500);
     }
+  }
+
+  removeUploadedDocument() {
+    const upload = this.req.validationReplacementUpload;
+    if (
+      resolveStoredPath(DOCUMENT_DIRECTORY, upload?.filename, {
+        allowedExtensions: DOCUMENT_EXTENSIONS,
+      })
+    ) {
+      return removeStoredFile(DOCUMENT_DIRECTORY, upload.filename, {
+        allowedExtensions: DOCUMENT_EXTENSIONS,
+      });
+    }
+    return false;
   }
 
   // ========================================
   // 2. APPROVE BERKAS (per syarat)
   // ========================================
   async approve_berkas() {
-    await this.initialize();
-    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
 
     try {
-      // Update status berkas jadi approve
-      const dataValidasi = await Validasi_syarat_permohonan.findByPk(
-        body.validasi_id
-      );
+      await this.initialize();
+      const { realisasi } = await this.lockRealisasi(body.id);
+      if (!["process", "process_lapangan"].includes(realisasi.status)) {
+        const error = new Error(
+          "Permohonan sudah diputuskan dan berkas tidak dapat diubah."
+        );
+        error.statusCode = 409;
+        throw error;
+      }
 
+      const dataValidasi = await Validasi_syarat_permohonan.findOne({
+        where: {
+          id: body.validasi_id,
+          realisasi_permohonan_id: body.id,
+        },
+        transaction: this.t,
+        lock: this.t.LOCK.UPDATE,
+      });
+      if (!dataValidasi) {
+        const error = new Error("Data validasi tidak ditemukan");
+        error.statusCode = 404;
+        throw error;
+      }
+      if (dataValidasi.status !== "process") {
+        const error = new Error(
+          "Berkas sudah diputuskan dan tidak dapat disetujui ulang."
+        );
+        error.statusCode = 409;
+        throw error;
+      }
+
+      const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
       await dataValidasi.update(
         {
           status: "approve",
@@ -121,9 +235,8 @@ class Model_cud {
         info_kegiatan.nama_kegiatan
       }`;
     } catch (error) {
-      this.state = false;
-      console.error("Error approve berkas:", error);
-      this.message = error.message;
+      console.error("Gagal menyetujui berkas permohonan.");
+      this.fail(error, 500);
     }
   }
 
@@ -131,16 +244,41 @@ class Model_cud {
   // 3. REJECT BERKAS (per syarat)
   // ========================================
   async reject_berkas() {
-    await this.initialize();
-    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
 
     try {
-      // Update status berkas jadi reject
-      const dataValidasi = await Validasi_syarat_permohonan.findByPk(
-        body.validasi_id
-      );
+      await this.initialize();
+      const { realisasi } = await this.lockRealisasi(body.id);
+      if (!["process", "process_lapangan"].includes(realisasi.status)) {
+        const error = new Error(
+          "Permohonan sudah diputuskan dan berkas tidak dapat diubah."
+        );
+        error.statusCode = 409;
+        throw error;
+      }
 
+      const dataValidasi = await Validasi_syarat_permohonan.findOne({
+        where: {
+          id: body.validasi_id,
+          realisasi_permohonan_id: body.id,
+        },
+        transaction: this.t,
+        lock: this.t.LOCK.UPDATE,
+      });
+      if (!dataValidasi) {
+        const error = new Error("Data validasi tidak ditemukan");
+        error.statusCode = 404;
+        throw error;
+      }
+      if (dataValidasi.status !== "process") {
+        const error = new Error(
+          "Berkas sudah diputuskan dan tidak dapat ditolak ulang."
+        );
+        error.statusCode = 409;
+        throw error;
+      }
+
+      const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
       await dataValidasi.update(
         {
           status: "reject",
@@ -168,9 +306,8 @@ class Model_cud {
         info_kegiatan.nama_kegiatan
       } - Alasan: ${body.alasan_penolakan}`;
     } catch (error) {
-      this.state = false;
-      console.error("Error reject berkas:", error);
-      this.message = error.message;
+      console.error("Gagal menolak berkas permohonan.");
+      this.fail(error, 500);
     }
   }
 
@@ -178,64 +315,112 @@ class Model_cud {
   // 4. TOLAK PERMOHONAN (Tolak seluruh permohonan)
   // ========================================
   async reject_permohonan() {
-    await this.initialize();
-    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
 
     try {
-      // Get info permohonan
-      const model_r = new Model_r(this.req);
-      const info_realisasi = await model_r.info_realisasi(body.id);
-      const info_permohonan = await model_r.info_permohonan(
-        info_realisasi.permohonan_id
-      );
-      const info_kegiatan = await model_r.info_kegiatan(
-        info_permohonan.kegiatan_id
-      );
-      const info_member = await model_r.info_member(info_permohonan.member_id);
+      await this.initialize();
+      const pointer = await Realisasi_permohonan.findOne({
+        where: { id: body.id },
+        attributes: ["permohonan_id"],
+        transaction: this.t,
+        raw: true,
+      });
+      if (!pointer) {
+        const error = new Error("Data realisasi tidak ditemukan");
+        error.statusCode = 404;
+        throw error;
+      }
+      const parentSnapshot = await Permohonan.findByPk(pointer.permohonan_id, {
+        transaction: this.t,
+        attributes: ["id", "kegiatan_id"],
+      });
+      const kegiatan = await Kegiatan.findByPk(parentSnapshot?.kegiatan_id, {
+        transaction: this.t,
+        lock: this.t.LOCK.UPDATE,
+      });
+      const permohonan = await Permohonan.findByPk(pointer.permohonan_id, {
+        transaction: this.t,
+        lock: this.t.LOCK.UPDATE,
+      });
+      const current = await Realisasi_permohonan.findByPk(body.id, {
+        transaction: this.t,
+        lock: this.t.LOCK.UPDATE,
+      });
+      if (!kegiatan || !permohonan || !current) {
+        const error = new Error("Data permohonan tidak lengkap.");
+        error.statusCode = 409;
+        throw error;
+      }
+      if (permohonan.status !== "sedang_berlangsung") {
+        const error = new Error("Permohonan sudah tidak aktif.");
+        error.statusCode = 409;
+        throw error;
+      }
+      if (!["process", "process_lapangan"].includes(current.status)) {
+        const error = new Error("Permohonan sudah diputuskan");
+        error.statusCode = 409;
+        throw error;
+      }
 
-      // Update status realisasi jadi reject_permohonan
-      await Realisasi_permohonan.update(
+      const model_r = new Model_r(this.req);
+      const info_member = await model_r.info_member(permohonan.member_id);
+      const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+
+      const [updated] = await Realisasi_permohonan.update(
         {
-          status: "reject_berkas", // Status ditolak total
+          status: "reject_berkas",
           updatedAt: myDate,
         },
         {
-          where: { id: body.id },
+          where: {
+            id: body.id,
+            status: { [Op.in]: ["process", "process_lapangan"] },
+          },
           transaction: this.t,
         }
       );
+      if (updated !== 1) {
+        const error = new Error("Permohonan sudah diputuskan");
+        error.statusCode = 409;
+        throw error;
+      }
 
-      // Update status permohonan jadi terhenti
-      await Permohonan.update(
+      const [parentUpdated] = await Permohonan.update(
         {
           status: "terhenti",
           alasan_penolakan: body.alasan_penolakan,
           updatedAt: myDate,
         },
         {
-          where: { id: info_realisasi.permohonan_id },
+          where: {
+            id: permohonan.id,
+            status: "sedang_berlangsung",
+          },
           transaction: this.t,
         }
       );
+      if (parentUpdated !== 1) {
+        const error = new Error("Permohonan berubah saat ditolak.");
+        error.statusCode = 409;
+        throw error;
+      }
 
-      // Jika send_wa = true, kirim WA
       if (body.send_wa) {
-        const message = `Halo *${info_member.fullname}*,\n\nPermohonan bantuan Anda untuk kegiatan *"${info_kegiatan.nama_kegiatan}"* telah *DITOLAK*.\n\n*Alasan:*\n${body.alasan_penolakan}\n\nTerima kasih.`;
-
-        console.log(`Sending WA to ${info_member.whatsapp_number}: ${message}`);
-        await sendWhatsApp(info_member.whatsapp_number, message);
+        const message = `Halo *${info_member.fullname}*,\n\nPermohonan bantuan Anda untuk kegiatan *"${kegiatan.nama_kegiatan}"* telah *DITOLAK*.\n\n*Alasan:*\n${body.alasan_penolakan}\n\nTerima kasih.`;
+        this.notification = {
+          whatsappNumber: info_member.whatsapp_number,
+          message,
+        };
       }
 
       this.message = `Menolak permohonan bantuan ${
         info_member.fullname
-      } - Kegiatan: ${info_kegiatan.nama_kegiatan}. Alasan: ${
+      } - Kegiatan: ${kegiatan.nama_kegiatan}. Alasan: ${
         body.alasan_penolakan
       }${body.send_wa ? " (dengan notifikasi WA)" : ""}`;
     } catch (error) {
-      this.state = false;
-      console.error("Error reject permohonan:", error);
-      this.message = error.message;
+      console.error("Gagal menolak permohonan.");
+      this.fail(error, 500);
     }
   }
 
@@ -243,74 +428,150 @@ class Model_cud {
   // 5. APPROVE PERMOHONAN (dengan auto generate bulan berikutnya)
   // ========================================
   async approve_permohonan() {
-    await this.initialize();
-    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
 
-    console.log("body", body);
-
     try {
-      // Get info permohonan
-      const model_r = new Model_r(this.req);
-      const info_realisasi = await model_r.info_realisasi(body.id);
-      const info_permohonan = await model_r.info_permohonan(
-        info_realisasi.permohonan_id
-      );
-      const info_kegiatan = await model_r.info_kegiatan(
-        info_permohonan.kegiatan_id
-      );
-      const info_member = await model_r.info_member(info_permohonan.member_id);
+      const nominalDisetujui = Number(body.biaya_disetujui);
+      if (!Number.isInteger(nominalDisetujui) || nominalDisetujui <= 0) {
+        const error = new Error("Biaya disetujui harus lebih dari 0.");
+        error.statusCode = 400;
+        throw error;
+      }
 
-      // Update status realisasi saat ini jadi approve
-      await Realisasi_permohonan.update(
+      await this.initialize();
+      const pointer = await Realisasi_permohonan.findOne({
+        where: { id: body.id },
+        attributes: ["permohonan_id"],
+        transaction: this.t,
+        raw: true,
+      });
+      if (!pointer) {
+        const error = new Error("Data realisasi tidak ditemukan");
+        error.statusCode = 404;
+        throw error;
+      }
+      const parentSnapshot = await Permohonan.findByPk(pointer.permohonan_id, {
+        transaction: this.t,
+        attributes: ["id", "kegiatan_id"],
+      });
+      // Lock the activity first so simultaneous approvals of different
+      // months in the same series cannot both generate the same periods.
+      const kegiatan = await Kegiatan.findByPk(parentSnapshot?.kegiatan_id, {
+        transaction: this.t,
+        lock: this.t.LOCK.UPDATE,
+      });
+      const permohonan = await Permohonan.findByPk(pointer.permohonan_id, {
+        transaction: this.t,
+        lock: this.t.LOCK.UPDATE,
+      });
+      const current = await Realisasi_permohonan.findByPk(body.id, {
+        transaction: this.t,
+        lock: this.t.LOCK.UPDATE,
+      });
+      if (!kegiatan || !permohonan || !current) {
+        const error = new Error("Data permohonan tidak lengkap.");
+        error.statusCode = 409;
+        throw error;
+      }
+      if (permohonan.status !== "sedang_berlangsung") {
+        const error = new Error("Permohonan sudah tidak aktif.");
+        error.statusCode = 409;
+        throw error;
+      }
+      if (current.status !== "process") {
+        const error = new Error(
+          "Permohonan tidak berada pada tahap persetujuan"
+        );
+        error.statusCode = 409;
+        throw error;
+      }
+
+      const validationFiles = await Validasi_syarat_permohonan.findAll({
+        where: { realisasi_permohonan_id: body.id },
+        attributes: ["file_name", "path", "status"],
+        transaction: this.t,
+        lock: this.t.LOCK.UPDATE,
+      });
+      if (validationFiles.length === 0) {
+        const error = new Error(
+          "Belum ada berkas yang diunggah untuk permohonan ini."
+        );
+        error.statusCode = 409;
+        throw error;
+      }
+      if (validationFiles.some((file) => file.status !== "approve")) {
+        const error = new Error(
+          "Semua berkas harus disetujui terlebih dahulu"
+        );
+        error.statusCode = 409;
+        throw error;
+      }
+
+      const model_r = new Model_r(this.req);
+      const info_member = await model_r.info_member(permohonan.member_id);
+      const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+
+      const [updated] = await Realisasi_permohonan.update(
         {
           status: "approve",
-          biaya_disetujui: body.biaya_disetujui,
+          biaya_disetujui: nominalDisetujui,
           updatedAt: myDate,
         },
         {
-          where: { id: body.id },
+          where: { id: body.id, status: "process" },
           transaction: this.t,
         }
       );
+      if (updated !== 1) {
+        const error = new Error("Permohonan sudah diputuskan");
+        error.statusCode = 409;
+        throw error;
+      }
 
-      // ========================================
-      // AUTO GENERATE BULAN BERIKUTNYA (KHUSUS BULANAN)
-      // ========================================
-      if (info_kegiatan.periode_bantuan === "bulanan" && info_realisasi.bulan) {
-        const bulanSekarang = info_realisasi.bulan;
+      let generatedCount = 0;
+      if (kegiatan.periode_bantuan === "bulanan" && current.bulan) {
+        const bulanSekarang = Number(current.bulan);
         const bulanBerikutnya = bulanSekarang + 1;
-
-        console.log("=== AUTO GENERATE BULANAN ===");
-        console.log("Bulan sekarang yang diapprove:", bulanSekarang);
-        console.log("Generate dari bulan:", bulanBerikutnya, "sampai 12");
-
-        // Generate hanya jika bulan berikutnya <= 12
         if (bulanBerikutnya <= 12) {
-          // Ambil file validasi dari realisasi yang baru diapprove (sebagai template)
-          const templateFiles = await Validasi_syarat_permohonan.findAll({
-            where: { realisasi_permohonan_id: body.id },
-            attributes: ["file_name", "path"],
-            raw: true,
-          });
-
-          // Generate realisasi untuk bulan berikutnya hingga bulan 12
           const bulansToGenerate = Array.from(
             { length: 12 - bulanBerikutnya + 1 },
             (_, i) => i + bulanBerikutnya
           );
+          const existing = await Realisasi_permohonan.findAll({
+            where: {
+              bulan: { [Op.in]: bulansToGenerate },
+            },
+            include: [
+              {
+                model: Permohonan,
+                required: true,
+                attributes: [],
+                where: {
+                  member_id: permohonan.member_id,
+                  kegiatan_id: permohonan.kegiatan_id,
+                },
+              },
+            ],
+            attributes: ["bulan"],
+            transaction: this.t,
+            lock: this.t.LOCK.UPDATE,
+            raw: true,
+          });
+          const existingMonths = new Set(
+            existing.map((item) => Number(item.bulan))
+          );
+          const missingMonths = bulansToGenerate.filter(
+            (bulan) => !existingMonths.has(bulan)
+          );
 
-          console.log("Bulan yang akan digenerate:", bulansToGenerate);
-
-          for (const bulan of bulansToGenerate) {
-            // 1. Buat permohonan baru untuk bulan ini
+          for (const bulan of missingMonths) {
             const newPermohonan = await Permohonan.create(
               {
-                member_id: info_permohonan.member_id,
-                kegiatan_id: info_permohonan.kegiatan_id,
-                bank_id: info_permohonan.bank_id,
-                nomor_akun_bank: info_permohonan.nomor_akun_bank,
-                nama_akun_bank: info_permohonan.nama_akun_bank,
+                member_id: permohonan.member_id,
+                kegiatan_id: permohonan.kegiatan_id,
+                bank_id: permohonan.bank_id,
+                nomor_akun_bank: permohonan.nomor_akun_bank,
+                nama_akun_bank: permohonan.nama_akun_bank,
                 status: "sedang_berlangsung",
                 createdAt: myDate,
                 updatedAt: myDate,
@@ -318,28 +579,32 @@ class Model_cud {
               { transaction: this.t }
             );
 
-            // 2. Buat realisasi dengan status "process" (bukan process_lapangan)
             const newRealisasi = await Realisasi_permohonan.create(
               {
                 permohonan_id: newPermohonan.id,
                 status: "process", // status process (sudah melewati tahap lapangan)
                 status_realisasi: "belum_direalisasi",
                 bulan: bulan,
+                periode_key: buildMonthlyPeriodKey(
+                  permohonan.member_id,
+                  permohonan.kegiatan_id,
+                  kegiatan.tahun,
+                  bulan
+                ),
                 createdAt: myDate,
                 updatedAt: myDate,
               },
               { transaction: this.t }
             );
 
-            // 3. Copy file validasi dari template
             await Promise.all(
-              templateFiles.map((file) =>
+              validationFiles.map((file) =>
                 Validasi_syarat_permohonan.create(
                   {
                     realisasi_permohonan_id: newRealisasi.id,
                     file_name: file.file_name,
                     path: file.path,
-                    status: "approve", // Langsung approve karena sudah divalidasi di bulan pertama
+                    status: "approve",
                     createdAt: myDate,
                     updatedAt: myDate,
                   },
@@ -347,73 +612,133 @@ class Model_cud {
                 )
               )
             );
-
-            console.log(
-              `Generated bulan ${bulan} dengan realisasi_id: ${newRealisasi.id}`
-            );
+            generatedCount += 1;
           }
-
-          console.log(
-            `=== AUTO GENERATE SELESAI: ${bulansToGenerate.length} bulan ===`
-          );
-        } else {
-          console.log(
-            "Tidak ada bulan berikutnya untuk digenerate (sudah bulan 12)"
-          );
         }
       }
 
-      // ========================================
-      // KIRIM WHATSAPP (OPSIONAL)
-      // ========================================
       if (body.send_wa) {
         const message = `Halo *${
           info_member.fullname
         }*,\n\nPermohonan bantuan Anda untuk kegiatan *"${
-          info_kegiatan.nama_kegiatan
+          kegiatan.nama_kegiatan
         }"* telah *DISETUJUI* dengan jumlah bantuan *${await convertToRP(
-          body.biaya_disetujui
+          nominalDisetujui
         )}*.\n\nProses transfer akan diinformasikan selanjutnya.\n\n${
           body.catatan ? `Catatan: ${body.catatan}\n\n` : ""
         }Terima kasih.`;
-
-        console.log(`Sending WA to ${info_member.whatsapp_number}: ${message}`);
-        await sendWhatsApp(info_member.whatsapp_number, message);
+        this.notification = {
+          whatsappNumber: info_member.whatsapp_number,
+          message,
+        };
       }
 
       this.message = `Menyetujui permohonan bantuan ${
         info_member.fullname
-      } - Kegiatan: ${info_kegiatan.nama_kegiatan} dengan biaya Rp ${
-        body.biaya_disetujui
+      } - Kegiatan: ${kegiatan.nama_kegiatan} dengan biaya Rp ${
+        nominalDisetujui
       }${body.send_wa ? " (dengan notifikasi WA)" : ""}${
-        info_kegiatan.periode_bantuan === "bulanan" && info_realisasi.bulan < 12
-          ? ` dan menggenerate ${
-              12 - info_realisasi.bulan
-            } permohonan bulan berikutnya`
+        generatedCount > 0
+          ? ` dan menggenerate ${generatedCount} permohonan bulan berikutnya`
           : ""
       }`;
     } catch (error) {
-      this.state = false;
-      console.error("Error approve permohonan:", error);
-      this.message = error.message;
+      if (error.name === "SequelizeUniqueConstraintError") {
+        error.statusCode = 409;
+        error.message =
+          "Periode bantuan bulanan sudah ada untuk member dan kegiatan ini.";
+      }
+      console.error("Gagal menyetujui permohonan.");
+      this.fail(error, 500);
     }
   }
 
   // ========================================
   // RESPONSE HANDLER
   // ========================================
+  async notifyAfterCommit() {
+    if (!this.notification) return;
+    try {
+      await sendWhatsApp(
+        this.notification.whatsappNumber,
+        this.notification.message
+      );
+    } catch (error) {
+      this.notificationError = error;
+      console.error("Keputusan tersimpan, tetapi notifikasi WhatsApp gagal:");
+    }
+  }
+
   async response() {
+    if (!this.t) {
+      this.transactionOutcome = "not_started";
+      this.cleanupUploadedDocument();
+      return false;
+    }
+
     if (this.state) {
-      await writeLog(this.req, this.t, {
-        msg: this.message,
-      });
-      await this.t.commit();
-      return true;
-    } else {
+      try {
+        await writeLog(this.req, this.t, {
+          msg: this.message,
+        });
+      } catch (error) {
+        this.fail(error, 500);
+        return this.rollbackAfterFailure();
+      }
+
+      try {
+        await this.t.commit();
+        this.transactionOutcome = "committed";
+        await this.notifyAfterCommit();
+        return true;
+      } catch (error) {
+        this.fail(error, 503, "VALIDATION_COMMIT_UNCERTAIN");
+        this.transactionOutcome = "commit_unknown";
+        this.message =
+          "Status penyimpanan belum pasti. Periksa dokumen sebelum mengunggah ulang.";
+        return false;
+      }
+    }
+
+    return this.rollbackAfterFailure();
+  }
+
+  async rollbackAfterFailure() {
+    if (this.t.finished) {
+      this.transactionOutcome = "rollback_unknown";
+      this.statusCode = 503;
+      this.errorCode = "VALIDATION_ROLLBACK_UNCERTAIN";
+      this.message =
+        "Status penyimpanan belum pasti. Periksa dokumen sebelum mengunggah ulang.";
+      return false;
+    }
+
+    try {
       await this.t.rollback();
+      this.transactionOutcome = "rolled_back";
+      this.cleanupUploadedDocument();
+      return false;
+    } catch {
+      this.transactionOutcome = "rollback_unknown";
+      this.statusCode = 503;
+      this.errorCode = "VALIDATION_ROLLBACK_UNCERTAIN";
+      this.message =
+        "Status penyimpanan belum pasti. Periksa dokumen sebelum mengunggah ulang.";
       return false;
     }
   }
+
+  cleanupUploadedDocument() {
+    if (this.cleanupDone) return;
+    this.cleanupDone = true;
+    this.removeUploadedDocument();
+  }
 }
+
+Model_cud.DOCUMENT_DIRECTORY = DOCUMENT_DIRECTORY;
+Model_cud.removeDocument = (filename) =>
+  removeStoredFile(DOCUMENT_DIRECTORY, filename, {
+    allowedExtensions: DOCUMENT_EXTENSIONS,
+  });
 
 module.exports = Model_cud;

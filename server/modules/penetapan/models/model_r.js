@@ -116,6 +116,7 @@ class Model_r {
     if (data.length > 0) {
       hasil = data.map((item) => ({
         id: item.Surveyor.id,
+        surveyor_kegiatan_id: item.id,
         name: item.Surveyor.name,
         kegiatan: kegiatan.nama_kegiatan,
         sk: item.sk,
@@ -175,7 +176,6 @@ class Model_r {
 
   async program_kegiatan_bantuan() {
     const body = this.req.body;
-    console.log(body);
     const limit = parseInt(body.perpage, 10) || 10;
     const page =
       body.pageNumber && body.pageNumber !== "0"
@@ -264,9 +264,6 @@ class Model_r {
         ],
       });
 
-      console.log("CCCCC");
-      console.log(result);
-      console.log("CCCCC");
 
       return {
         data: result.rows.map((item) => ({
@@ -361,9 +358,14 @@ class Model_r {
         formData.append("api_key", settings.api_key);
         formData.append("device_key", settings.device_key);
         formData.append("destination", item.Surveyor.whatsapp_number);
+        const surveyBaseUrl = String(
+          process.env.SURVEY_BASE_URL || "https://localhost:5173"
+        ).replace(/\/+$/, "");
         formData.append(
           "message",
-          `ini adalah link survey anda https://localhost:5173/survey?code=${acces_code}/`
+          `ini adalah link survey anda ${surveyBaseUrl}/survey#code=${encodeURIComponent(
+            acces_code
+          )}`
         );
 
         const response = await axios.post(
@@ -374,15 +376,7 @@ class Model_r {
           }
         );
 
-        // Debug request ke WapiSender
-        console.log("================================");
-        console.log(formData);
-        console.log("================================");
-
-        console.log("================================");
-        console.log("api_key", settings.api_key);
-        console.log("device_key", settings.device_key);
-        console.log("================================");
+        console.log("WhatsApp survey invitation sent successfully.");
 
         // Debug response dari WapiSender
         console.log("✅ Sukses kirim WA ke:", item.Surveyor.whatsapp_number);

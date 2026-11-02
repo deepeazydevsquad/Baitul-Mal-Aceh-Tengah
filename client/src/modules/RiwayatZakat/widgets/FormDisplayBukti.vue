@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onBeforeUnmount, ref, watch } from 'vue';
 import BaseButton from '@/components/Button/BaseButton.vue';
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 
-import { API_URL } from '@/config/config';
+import { createSecureFileUrl } from '@/service/secure_file';
 
 interface Props {
   isModalOpen: boolean;
+  documentKind: string;
+  documentId: number;
   tipe_pembayaran: string;
   nominal_zakat: number;
   bukti: string;
@@ -16,6 +18,8 @@ interface Props {
 const props = defineProps<Props>();
 
 const isLoading = ref(false);
+const imageUrl = ref('');
+const loadError = ref('');
 
 const emit = defineEmits<{
   (e: 'close'): void;
@@ -26,7 +30,44 @@ const closeModal = () => {
   emit('close');
 };
 
-const BASE_URL = API_URL;
+let activeObjectUrl = '';
+let loadSequence = 0;
+const clearObjectUrl = () => {
+  loadSequence += 1;
+  if (activeObjectUrl) URL.revokeObjectURL(activeObjectUrl);
+  activeObjectUrl = '';
+  imageUrl.value = '';
+};
+
+watch(
+  () => [props.isModalOpen, props.documentId, props.bukti],
+  async ([isOpen]) => {
+    clearObjectUrl();
+    loadError.value = '';
+    if (!isOpen || !props.documentId || !props.bukti) return;
+    isLoading.value = true;
+    const sequence = loadSequence;
+    try {
+      const field = props.tipe_pembayaran === 'transfer' ? 'bukti_transfer' : 'bukti_setoran';
+      const objectUrl = await createSecureFileUrl(
+        `/documents/payment/${props.documentKind}/${props.documentId}/${field}`,
+      );
+      if (sequence !== loadSequence || !props.isModalOpen) {
+        URL.revokeObjectURL(objectUrl);
+        return;
+      }
+      activeObjectUrl = objectUrl;
+      imageUrl.value = activeObjectUrl;
+    } catch {
+      loadError.value = 'Bukti pembayaran tidak dapat dimuat.';
+    } finally {
+      isLoading.value = false;
+    }
+  },
+  { immediate: true },
+);
+
+onBeforeUnmount(clearObjectUrl);
 </script>
 
 <template>
@@ -91,15 +132,12 @@ const BASE_URL = API_URL;
             </p>
             <div class="max-h-96 overflow-y-auto border border-gray-200 rounded-md p-2">
               <img
-                :src="
-                  BASE_URL +
-                  '/uploads/img/zakat/' +
-                  (props.tipe_pembayaran == 'transfer' ? 'bukti_transfer/' : 'bukti_setoran/') +
-                  props.bukti
-                "
+                v-if="imageUrl"
+                :src="imageUrl"
                 :alt="`Foto bukti ${props.tipe_pembayaran == 'transfer' ? 'Transfer' : 'Setoran'}`"
                 class="object-contain w-full"
               />
+              <p v-else-if="loadError" class="text-sm text-red-600">{{ loadError }}</p>
             </div>
           </div>
         </div>

@@ -30,9 +30,10 @@ exports.verifikasi = async (req, res) => {
                 status: "success",
             });
         } else {
-            res.status(400).json({
+            res.status(model.statusCode || 400).json({
                 message: model.message || "Gagal melakukan Verifikasi",
                 status: "failed",
+                code: model.errorCode || "VERIFICATION_FAILED",
             });
         }
     } catch (error) {

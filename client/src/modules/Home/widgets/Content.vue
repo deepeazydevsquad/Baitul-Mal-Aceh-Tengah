@@ -3,6 +3,11 @@ import { ref, onMounted } from 'vue';
 import Notification from '@/components/Modal/Notification.vue';
 import axios from 'axios';
 import { API_URL } from '@/config/config';
+import {
+  clearAccessToken,
+  clearLegacyTokenStorage,
+  setAccessToken,
+} from '@/service/auth_token_store';
 
 interface FormData {
   username: string;
@@ -60,14 +65,19 @@ const LoginProcess = async () => {
 
   try {
     const baseUrl = API_URL;
-    const response = await axios.post(baseUrl + '/auth/login_member', {
-      username: form.value.username,
-      password: form.value.password,
-    });
+    const response = await axios.post(
+      baseUrl + '/auth/login_member',
+      {
+        username: form.value.username,
+        password: form.value.password,
+      },
+      {
+        withCredentials: true,
+      },
+    );
     // filter
     if (response.status === 200) {
-      localStorage.setItem('member_access_token', response.data.access_token);
-      localStorage.setItem('member_refresh_token', response.data.refresh_token);
+      setAccessToken('member', response.data.access_token);
       displayNotification(response.data.message, 'success');
       setTimeout(() => {
         window.location.href = '/member-area';
@@ -76,7 +86,10 @@ const LoginProcess = async () => {
       displayNotification(response.data.message, 'error');
     }
   } catch (error: any) {
-    displayNotification(error.response?.data?.message || error.message || 'Terjadi kesalahan', 'error');
+    displayNotification(
+      error.response?.data?.message || error.message || 'Terjadi kesalahan',
+      'error',
+    );
   }
 };
 
@@ -88,8 +101,8 @@ const lupaPassword = async () => {
 };
 
 onMounted(() => {
-  localStorage.removeItem('member_access_token');
-  localStorage.removeItem('member_refresh_token');
+  clearLegacyTokenStorage();
+  clearAccessToken('member');
 });
 </script>
 <template>
@@ -100,12 +113,18 @@ onMounted(() => {
         <!-- Header: Badge + Logo + Title -->
         <div class="self-stretch flex flex-col justify-start items-start gap-3">
           <!-- Live badge -->
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-50 border border-yellow-200">
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-50 border border-yellow-200"
+          >
             <span class="relative flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+              <span
+                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"
+              ></span>
               <span class="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
             </span>
-            <span class="text-xs font-medium text-yellow-700 tracking-wide">Portal Bantuan Resmi</span>
+            <span class="text-xs font-medium text-yellow-700 tracking-wide"
+              >Portal Bantuan Resmi</span
+            >
           </div>
           <div class="justify-start text-neutral-800 text-xl font-medium tracking-tight">
             Selamat Datang di
@@ -132,55 +151,115 @@ onMounted(() => {
         <div class="w-96 flex flex-col gap-3">
           <div class="h-px bg-neutral-200/60"></div>
           <div class="flex items-center gap-3">
-            <div class="w-7 h-7 flex items-center justify-center rounded-lg bg-[#0E561E]/8 text-[#0E561E] shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" class="w-4 h-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            <div
+              class="w-7 h-7 flex items-center justify-center rounded-lg bg-[#0E561E]/8 text-[#0E561E] shrink-0"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.75"
+                stroke="currentColor"
+                class="w-4 h-4"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
               </svg>
             </div>
-            <span class="text-neutral-700 text-sm">Program bantuan sosial & ekonomi untuk masyarakat asnaf</span>
+            <span class="text-neutral-700 text-sm"
+              >Program bantuan sosial & ekonomi untuk masyarakat asnaf</span
+            >
           </div>
           <div class="flex items-center gap-3">
-            <div class="w-7 h-7 flex items-center justify-center rounded-lg bg-[#0E561E]/8 text-[#0E561E] shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" class="w-4 h-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            <div
+              class="w-7 h-7 flex items-center justify-center rounded-lg bg-[#0E561E]/8 text-[#0E561E] shrink-0"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.75"
+                stroke="currentColor"
+                class="w-4 h-4"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
               </svg>
             </div>
-            <span class="text-neutral-700 text-sm">Penyaluran zakat, infak, dan sedekah yang transparan</span>
+            <span class="text-neutral-700 text-sm"
+              >Penyaluran zakat, infak, dan sedekah yang transparan</span
+            >
           </div>
           <div class="flex items-center gap-3">
-            <div class="w-7 h-7 flex items-center justify-center rounded-lg bg-yellow-400/15 text-yellow-600 shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" class="w-4 h-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            <div
+              class="w-7 h-7 flex items-center justify-center rounded-lg bg-yellow-400/15 text-yellow-600 shrink-0"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.75"
+                stroke="currentColor"
+                class="w-4 h-4"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
               </svg>
             </div>
-            <span class="text-neutral-700 text-sm">Akses layanan mudah secara online kapan saja</span>
+            <span class="text-neutral-700 text-sm"
+              >Akses layanan mudah secara online kapan saja</span
+            >
           </div>
         </div>
-
       </div>
     </div>
     <!-- Right Column -->
-    <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 relative overflow-hidden">
+    <div
+      class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 relative overflow-hidden"
+    >
       <div class="w-full max-w-md z-10 flex flex-col gap-6">
-        
         <!-- Header Section -->
         <div class="text-center space-y-3 mt-8 lg:mt-0">
           <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Login Member</h2>
           <p class="text-sm text-gray-500 px-4 leading-relaxed">
-            Masuk ke portal member untuk mengakses, mengajukan, dan memantau layanan bantuan dari Baitul Mal.
+            Masuk ke portal member untuk mengakses, mengajukan, dan memantau layanan bantuan dari
+            Baitul Mal.
           </p>
         </div>
 
         <!-- Information Callout -->
-        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3 shadow-sm">
+        <div
+          class="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3 shadow-sm"
+        >
           <div class="mt-0.5 bg-blue-100 p-1 rounded-full text-blue-600 flex-shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-4 h-4"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+              />
             </svg>
           </div>
           <p class="text-xs text-blue-800 leading-relaxed">
             <span class="font-semibold block mb-0.5 text-blue-900">Informasi Pengguna</span>
-            Pastikan Anda menjaga kerahasiaan password. Jika Anda belum memiliki akun, silakan mendaftar terlebih dahulu.
+            Pastikan Anda menjaga kerahasiaan password. Jika Anda belum memiliki akun, silakan
+            mendaftar terlebih dahulu.
           </p>
         </div>
 
@@ -191,7 +270,9 @@ onMounted(() => {
         >
           <div class="space-y-5">
             <div>
-              <label class="block text-gray-700 text-sm font-medium mb-2" for="usernameMember">Username</label>
+              <label class="block text-gray-700 text-sm font-medium mb-2" for="usernameMember"
+                >Username</label
+              >
               <input
                 v-model="form.username"
                 class="border border-gray-200 rounded-lg w-full py-2.5 px-4 text-gray-700 leading-tight focus:outline-none focus:border-[#0E561E] focus:ring-1 focus:ring-[#0E561E] transition-colors"
@@ -202,8 +283,12 @@ onMounted(() => {
             </div>
             <div>
               <div class="flex justify-between mb-2">
-                <label class="block text-gray-700 text-sm font-medium" for="password">Password</label>
-                <a class="text-[#0E561E] text-sm font-semibold leading-tight hover:underline cursor-pointer" @click="lupaPassword"
+                <label class="block text-gray-700 text-sm font-medium" for="password"
+                  >Password</label
+                >
+                <a
+                  class="text-[#0E561E] text-sm font-semibold leading-tight hover:underline cursor-pointer"
+                  @click="lupaPassword"
                   >Lupa Password?</a
                 >
               </div>

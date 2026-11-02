@@ -131,9 +131,10 @@ const titleClass = computed(() => {
 
               <p
                 v-else-if="notificationMessageHtml"
-                class="mt-1 text-sm sm:text-base text-gray-600"
-                v-html="notificationMessageHtml"
-              ></p>
+                class="mt-1 whitespace-pre-line break-words text-sm sm:text-base text-gray-600"
+              >
+                {{ notificationMessageHtml }}
+              </p>
             </div>
           </div>
 

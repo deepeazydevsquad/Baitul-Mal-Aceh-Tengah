@@ -100,7 +100,6 @@ const handleSubmit = async () => {
 
     const response = await add_kriteria(payload);
 
-    console.log(response);
     emit('status', { error_msg: response.error_msg, error: response.error });
     closeModal();
   } catch (error: any) {

@@ -78,8 +78,9 @@ controllers.list_belum_upload_berita_acara = async (req, res) => {
 controllers.realisasi_bantuan = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
+  let model_cud;
   try {
-    const model_cud = new Model_cud(req);
+    model_cud = new Model_cud(req);
     await model_cud.realisasi_bantuan();
 
     if (await model_cud.response()) {
@@ -88,9 +89,11 @@ controllers.realisasi_bantuan = async (req, res) => {
         error_msg: "Realisasi bantuan berhasil disimpan.",
       });
     } else {
-      res.status(400).json({
+      res.status(model_cud.statusCode || 400).json({
         error: true,
-        error_msg: "Realisasi bantuan gagal disimpan.",
+        error_msg:
+          model_cud.message || "Realisasi bantuan gagal disimpan.",
+        code: model_cud.errorCode,
       });
     }
   } catch (error) {
@@ -118,8 +121,9 @@ controllers.get_info_upload_berita_acara = async (req, res) => {
 controllers.upload_berita_acara = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
+  let model_cud;
   try {
-    const model_cud = new Model_cud(req);
+    model_cud = new Model_cud(req);
     await model_cud.upload_berita_acara();
 
     if (await model_cud.response()) {
@@ -128,9 +132,10 @@ controllers.upload_berita_acara = async (req, res) => {
         error_msg: "Berita acara berhasil diupload.",
       });
     } else {
-      res.status(400).json({
+      res.status(model_cud.statusCode || 400).json({
         error: true,
-        error_msg: "Berita acara gagal diupload.",
+        error_msg: model_cud.message || "Berita acara gagal diupload.",
+        code: model_cud.errorCode,
       });
     }
   } catch (error) {
@@ -141,8 +146,9 @@ controllers.upload_berita_acara = async (req, res) => {
 controllers.upload_berita_acara_massal = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
+  let model_cud;
   try {
-    const model_cud = new Model_cud(req);
+    model_cud = new Model_cud(req);
     await model_cud.upload_berita_acara_massal();
 
     if (await model_cud.response()) {
@@ -151,9 +157,11 @@ controllers.upload_berita_acara_massal = async (req, res) => {
         error_msg: "Berita acara massal berhasil diupload.",
       });
     } else {
-      res.status(400).json({
+      res.status(model_cud.statusCode || 400).json({
         error: true,
-        error_msg: "Berita acara massal gagal diupload.",
+        error_msg:
+          model_cud.message || "Berita acara massal gagal diupload.",
+        code: model_cud.errorCode,
       });
     }
   } catch (error) {
@@ -164,8 +172,9 @@ controllers.upload_berita_acara_massal = async (req, res) => {
 controllers.batal_realisasi = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
+  let model_cud;
   try {
-    const model_cud = new Model_cud(req);
+    model_cud = new Model_cud(req);
     await model_cud.batal_realisasi();
 
     if (await model_cud.response()) {
@@ -174,9 +183,11 @@ controllers.batal_realisasi = async (req, res) => {
         error_msg: "Realisasi bantuan berhasil dibatalkan.",
       });
     } else {
-      res.status(400).json({
+      res.status(model_cud.statusCode || 400).json({
         error: true,
-        error_msg: "Realisasi bantuan gagal dibatalkan.",
+        error_msg:
+          model_cud.message || "Realisasi bantuan gagal dibatalkan.",
+        code: model_cud.errorCode,
       });
     }
   } catch (error) {

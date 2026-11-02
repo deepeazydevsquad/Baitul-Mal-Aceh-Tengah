@@ -3,25 +3,34 @@ services:
     build: ./server
     container_name: Container_server_baitulmal
     volumes:
-      - ./server:/app
+      - ./server:/apps
     ports:
-      - "3001:3001"
+      - "3003:3003"
     environment:
-      SECRET_KEY: "9813kbk31023khvviuytyuwqkiwvj9mnb757uytr34nm123o"
-      REFRESH_SECRET_KEY: "y87238giehgaiuwgd82o123455gskiassmnxzxclaoihdsobk"
+      ADMINISTRATOR_SECRET_KEY: ${ADMINISTRATOR_SECRET_KEY:?required}
+      ADMINISTRATOR_REFRESH_SECRET_KEY: ${ADMINISTRATOR_REFRESH_SECRET_KEY:?required}
+      MEMBERSHIP_SECRET_KEY: ${MEMBERSHIP_SECRET_KEY:?required}
+      MEMBERSHIP_REFRESH_SECRET_KEY: ${MEMBERSHIP_REFRESH_SECRET_KEY:?required}
+      OTP_HASH_SECRET: ${OTP_HASH_SECRET:?required}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+      SURVEY_BASE_URL: ${SURVEY_BASE_URL:-http://localhost:5173}
+      TRUST_PROXY: ${TRUST_PROXY:-false}
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-false}
+      AUTH_COOKIE_PATH: "/auth"
       NODE_ENV: "development"
-      PORT: 3001
-      MIDTRANS_SERVER_KEY: SB-Mid-server-zw-LJ6-UHTMlabcfbM06qqvz
+      PORT: 3003
+      MIDTRANS_SERVER_KEY: ${MIDTRANS_SERVER_KEY:-}
       MIDTRANS_SANDBOX_URL: "https://app.sandbox.midtrans.com/snap/v1/transactions"
       MIDTRANS_PRODUCTION_URL: ""
       DB_DIALECT: "mysql"
       DB_HOST: "mysql"
       DB_PORT: 3306
       DB_NAME: "baitulmalacehtengah_db"
-      DB_USER: "baitulmalacehtengah_user"
-      DB_PASS: "baitulmalacehtengah_password"
+      DB_USER: ${DB_USER:?required}
+      DB_PASS: ${DB_PASS:?required}
     depends_on:
       - mysql
+    command: ["sh", "-c", "until nc -z mysql 3306; do sleep 1; done; npm run start:dev"]
     networks:
       - app-network-baitulmal
 
@@ -45,14 +54,14 @@ services:
       - app-network-baitulmal
 
   mysql:
-    image: mysql:5.7
+    image: mysql:8.4@sha256:a0225d1ea6631c8bc2385dc4c2faba17bbf1834ecf369e1659a9a382bd8d5dd7
     container_name: mysql_container_baitulmal
     restart: always
     environment:
-      MYSQL_DATABASE: baitulmalacehtengah_db
-      MYSQL_USER: baitulmalacehtengah_user
-      MYSQL_PASSWORD: baitulmalacehtengah_password
-      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: ${DB_NAME:?required}
+      MYSQL_USER: ${DB_USER:?required}
+      MYSQL_PASSWORD: ${DB_PASS:?required}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?required}
     volumes:
       - mysql-data-baitulmal:/var/lib/mysql
       - ./mysql_config/my.cnf:/etc/mysql/my.cnf # Mount file my.cnf ke dalam container
@@ -60,14 +69,14 @@ services:
       - app-network-baitulmal
 
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin:5.2.2@sha256:6b5ab5f9ebfe3dbb38388b5695c2ff5ba3e26cdc2c4ce0bd97092eefc6a20bfd
     container_name: phpmyadmin_container_baitulmal
     restart: always
     ports:
-      - "8085:80"
+      - "127.0.0.1:8085:80"
     environment:
       PMA_HOST: mysql
-      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?required}
     depends_on:
       - mysql
     networks:

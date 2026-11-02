@@ -655,6 +655,7 @@ async function uploadBuktiSetoranDonasi(idl: number, nominalDonasi: number) {
 }
 
 interface Displaybuktiparam {
+  id: number;
   tipe_pembayaran: string;
   nominal_donasi: number;
   bukti: string;
@@ -662,12 +663,14 @@ interface Displaybuktiparam {
 }
 
 const isModalDisplayBuktiOpen = ref(false);
+const document_id = ref(0);
 const tipe_pembayaran = ref('');
 const nominal_donasi = ref(0);
 const bukti = ref('');
 const nominal_bukti = ref(0);
 async function displayBukti(param: Displaybuktiparam) {
   isModalDisplayBuktiOpen.value = true;
+  document_id.value = param.id;
   tipe_pembayaran.value = param.tipe_pembayaran;
   nominal_donasi.value = param.nominal_donasi;
   bukti.value = param.bukti;
@@ -921,6 +924,7 @@ async function displayBukti(param: Displaybuktiparam) {
                 "
                 @click="
                   displayBukti({
+                    id: data.id,
                     tipe_pembayaran: data.tipe_pembayaran,
                     nominal_donasi: data.nominal,
                     bukti:
@@ -992,6 +996,8 @@ async function displayBukti(param: Displaybuktiparam) {
     <!-- Modal Form Display Bukti Transfer / Bukti Setoran -->
     <FormDisplayBukti
       :is-modal-open="isModalDisplayBuktiOpen"
+      document-kind="donasi"
+      :document-id="document_id"
       :tipe_pembayaran="tipe_pembayaran"
       :nominal_donasi="nominal_donasi"
       :bukti="bukti"

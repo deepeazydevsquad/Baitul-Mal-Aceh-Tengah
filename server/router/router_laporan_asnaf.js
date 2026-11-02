@@ -57,11 +57,13 @@ router.get(
 
 router.get(
   "/download_excel_laporan_rekap_penyaluran_per_kecamatan",
+  authenticateTokenAdministrator,
   controllers.download_excel_laporan_rekap_penyaluran_per_kecamatan
 )
 
 router.get(
   "/tanda_tangan/list",
+  authenticateTokenAdministrator,
   controllers.tanda_tangan
 )
 module.exports = router

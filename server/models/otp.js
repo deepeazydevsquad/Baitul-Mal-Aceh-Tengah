@@ -14,10 +14,33 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Otp.init({
-    whatsapp_number: DataTypes.STRING,
-    otp: DataTypes.INTEGER,
+    whatsapp_number: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    purpose: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "registration",
+    },
+    otp: {
+      type: DataTypes.STRING(64),
+      allowNull: false,
+    },
+    otp_salt: {
+      type: DataTypes.STRING(64),
+      allowNull: false,
+    },
     otp_time: DataTypes.DATE,
-    status: DataTypes.ENUM(['digunakan','belum_digunakan'])
+    status: {
+      type: DataTypes.ENUM(["digunakan", "belum_digunakan"]),
+      defaultValue: "belum_digunakan",
+    },
+    attempts: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
   }, {
     sequelize,
     modelName: 'Otp',

@@ -1,7 +1,6 @@
 const { sequelize, User } = require("../../../models");
 const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
-const jwt = require("jsonwebtoken");
 const moment = require("moment");
 const bcryptjs = require("bcryptjs");
 
@@ -17,9 +16,6 @@ class Model_cud {
 
   async edit_profile() {
     await this.initialize();
-    const authHeader = this.req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-    const decoded = jwt.decode(token);
 
     const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
@@ -43,13 +39,15 @@ class Model_cud {
           updatedAt: myDate,
         },
         {
-          where: { id: decoded.id },
+          where: { id: this.req.user.id },
           transaction: this.t,
         }
       );
 
-      this.message = `Memperbarui Data Profile User dengan ID: ${decoded.id} menjadi Nama: ${body.name} dan Username: ${body.username}`;
+      this.message = `Memperbarui Data Profile User dengan ID: ${this.req.user.id} menjadi Nama: ${body.name} dan Username: ${body.username}`;
     } catch (error) {
+      this.state = false;
+      this.message = error.message;
       return false;
     }
   }

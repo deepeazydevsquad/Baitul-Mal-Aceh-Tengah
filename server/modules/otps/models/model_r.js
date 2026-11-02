@@ -1,18 +1,8 @@
-const { Op, Setting, Otp } = require("../../../models");
+const { Op, Setting } = require("../../../models");
 
 class Model_r {
     constructor(req) {
         this.req = req;
-    }
-
-    async countOtp(startOfDay) {
-        const { whatsappNumber } = this.req.body;
-        return await Otp.count({
-            where: {
-                whatsapp_number: whatsappNumber,
-                createdAt: { [Op.gte]: startOfDay },
-            },
-        });
     }
 
     async wapisender_api_device_key() {

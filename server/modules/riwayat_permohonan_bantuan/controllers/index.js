@@ -31,18 +31,18 @@ controllers.delete = async (req, res) => {
 
     if (await model.response()) {
       res.status(200).json({
-        message:
-          model.message || "Berhasil, Melakukan Verifikasi Request Keanggotaan",
+        message: model.message || "Permohonan berhasil dibatalkan.",
         status: "success",
       });
     } else {
-      res.status(400).json({
-        message: model.message || "Gagal melakukan Verifikasi",
+      res.status(model.statusCode || 400).json({
+        message: model.message || "Permohonan gagal dibatalkan.",
         status: "failed",
+        code: model.errorCode,
       });
     }
   } catch (error) {
-    console.error("Terjadi error saat Melakukan Verifikasi:", error);
+    console.error("Terjadi error saat membatalkan permohonan:", error);
     handleServerError(res, error);
   }
 };

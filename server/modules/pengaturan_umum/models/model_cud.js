@@ -19,10 +19,6 @@ class Model_cud {
     await this.initialize();
     const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
     const { body, files } = this.req;
-    console.log("__________DDDDDDDDDDD_________");
-    console.log("body", body);
-    console.log("__________DDDDDDDDDDD_________");
-
     try {
       const model_r = new Model_r(this.req);
       const currentSettings = await model_r.get_info_pengaturan_umum();

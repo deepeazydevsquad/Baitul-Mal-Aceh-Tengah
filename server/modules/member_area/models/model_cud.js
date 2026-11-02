@@ -1,7 +1,6 @@
 
 const { sequelize, Member } = require("../../../models");
 const Model_r = require("../models/model_r");
-const jwt = require("jsonwebtoken");
 const moment = require("moment");
 const bcryptjs = require("bcryptjs");
 
@@ -18,9 +17,6 @@ class Model_cud {
 
   async edit_profile_member() {
     await this.initialize();
-    const authHeader = this.req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    const decoded = jwt.decode(token);
 
     const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
@@ -28,7 +24,7 @@ class Model_cud {
     
     try {
       const model_r = new Model_r(this.req);
-      const info_member = await model_r.InfoMember(decoded.username);
+      const info_member = await model_r.InfoMember(this.req.user.username);
 
       let hashedPassword;
       if (body.password && body.password.trim() !== "") {
@@ -37,7 +33,6 @@ class Model_cud {
         hashedPassword = info_member.password;
       }
 
-      console.log(hashedPassword);
       await Member.update(
         {
           fullname: body.fullname,

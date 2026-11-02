@@ -18,9 +18,11 @@ exports.register = async (req, res) => {
                 status: "success",
             });
         } else {
-            res.status(400).json({
+            const status = model.errorCode === "OTP_ATTEMPTS_EXCEEDED" ? 429 : 400;
+            res.status(status).json({
                 message: model.message || "Gagal melakukan Registrasi",
                 status: "failed",
+                code: model.errorCode || "REGISTRATION_FAILED",
             });
         }
     } catch (error) {

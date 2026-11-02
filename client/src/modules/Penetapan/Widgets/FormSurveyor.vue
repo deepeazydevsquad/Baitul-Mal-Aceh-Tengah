@@ -10,6 +10,7 @@ import DeleteIcon from '@/components/Icons/DeleteIcon.vue';
 
 import { useNotification } from '@/composables/useNotification';
 import { add_surveyor, detail_surveyor, daftar_surveyor } from '@/service/penetapan';
+import { createSecureFileUrl } from '@/service/secure_file';
 
 const { showNotification, notificationType, notificationMessage, displayNotification } =
   useNotification();
@@ -39,6 +40,9 @@ const resetForm = () => {
   errors.value = {};
   form.value.sk = '';
   nama_kegiatan.value = '';
+  if (previewUrl.value?.startsWith('blob:')) {
+    URL.revokeObjectURL(previewUrl.value);
+  }
   previewUrl.value = null;
 };
 
@@ -86,9 +90,6 @@ const fetchData = async () => {
   }
 };
 
-import { API_URL } from '@/config/config';
-const BASE_URL = API_URL;
-
 // ...
 
 // Detail surveyor by kegiatan
@@ -99,9 +100,17 @@ const fetchDetailSurveyor = async () => {
       surveyorList.value = response.data.map((s: any) => ({ id: String(s.id) }));
 
       nama_kegiatan.value = response.data[0]?.kegiatan || '';
-      previewUrl.value = response.data[0]?.sk
-        ? `${BASE_URL}/uploads/img/sk_penetapan/${response.data[0].sk}`
-        : null;
+      if (response.data[0]?.surveyor_kegiatan_id) {
+        const objectUrl = await createSecureFileUrl(
+          `/documents/sk/${response.data[0].surveyor_kegiatan_id}`,
+        );
+        if (previewUrl.value?.startsWith('blob:')) {
+          URL.revokeObjectURL(previewUrl.value);
+        }
+        previewUrl.value = objectUrl;
+      } else {
+        previewUrl.value = null;
+      }
       form.value.sk = response.data[0]?.sk;
     } else {
       // fallback kalau ga ada surveyor
@@ -110,8 +119,6 @@ const fetchDetailSurveyor = async () => {
       form.value.sk = '';
     }
 
-    console.log('ini response data', response.data);
-    console.log('ini image list', previewUrl.value);
   } catch (error: any) {
     const msg = error.response?.data?.message || 'Terjadi kesalahan';
     displayNotification(msg, 'error');
@@ -173,6 +180,9 @@ const closeModal = () => {
 
 // File handler
 const handleFile = (file: File | null) => {
+  if (previewUrl.value?.startsWith('blob:')) {
+    URL.revokeObjectURL(previewUrl.value);
+  }
   if (!file) {
     previewUrl.value = null;
     form.value.sk = '';
@@ -197,7 +207,12 @@ const handleEscape = (e: KeyboardEvent) => {
   if (e.key === 'Escape' && props.isModalOpen) closeModal();
 };
 onMounted(() => document.addEventListener('keydown', handleEscape));
-onBeforeUnmount(() => document.removeEventListener('keydown', handleEscape));
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', handleEscape);
+  if (previewUrl.value?.startsWith('blob:')) {
+    URL.revokeObjectURL(previewUrl.value);
+  }
+});
 </script>
 
 <template>

@@ -4,6 +4,7 @@ import Sidebar from './widgets/Sidebar/SidebarArea.vue';
 import Content from './widgets/Content/ContentViews.vue';
 import LoadOverlay from '@/components/Loading/LoadOverlay.vue';
 import api from '@/service/api_administrator'; // Impor file API
+import { restoreAccessToken } from '@/service/auth_token_store';
 import { ref, onMounted } from 'vue';
 
 // useGlobalTab
@@ -95,9 +96,8 @@ const fetchData = async () => {
   }
 };
 
-onMounted(() => {
-  const token = localStorage.getItem('administrator_access_token');
-  if (!token) {
+onMounted(async () => {
+  if (!(await restoreAccessToken('administrator'))) {
     window.location.href = '/login-admin'; // direct ke root
   } else {
     fetchData();

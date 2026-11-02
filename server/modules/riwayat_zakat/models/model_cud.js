@@ -1,10 +1,17 @@
-const jwt = require("jsonwebtoken");
-const fs = require("fs").promises;
 const path = require("path");
 const { sequelize, Riwayat_pengumpulan, Member } = require("../../../models");
 const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const moment = require("moment");
+const {
+  isSafeStoredFilename,
+  removeStoredFile,
+} = require("../../../helper/uploadStorageHelper");
+
+const ZAKAT_PROOF_DIRECTORIES = {
+  transfer: path.resolve(__dirname, "../../../uploads/img/zakat/bukti_transfer"),
+  cash: path.resolve(__dirname, "../../../uploads/img/zakat/bukti_setoran"),
+};
 
 class Model_cud {
   constructor(req) {
@@ -22,9 +29,7 @@ class Model_cud {
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
 
-    const authHeader = this.req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-    const decoded = jwt.decode(token);
+    const actor = this.req.user;
 
     try {
       const insert = await Riwayat_pengumpulan.create(
@@ -38,8 +43,8 @@ class Model_cud {
           konfirmasi_pembayaran: "belum_dikirim",
           posisi_uang:
             body.tipe_pembayaran == "cash" ? "kantor_baitulmal" : "bank",
-          nama_petugas: decoded.name,
-          jabatan_petugas: decoded.jabatan,
+          nama_petugas: actor.name,
+          jabatan_petugas: actor.jabatan,
           wakalah_id: body.wakalah_id || null,
           createdAt: myDate,
           updatedAt: myDate,
@@ -59,9 +64,7 @@ class Model_cud {
     await this.initialize();
     const body = this.req.body;
 
-    const authHeader = this.req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-    const decoded = jwt.decode(token);
+    const actor = this.req.user;
 
     try {
       const model_r = new Model_r(this.req);
@@ -70,8 +73,8 @@ class Model_cud {
       await Riwayat_pengumpulan.update(
         {
           konfirmasi_pembayaran: "sudah_dikirim",
-          nama_petugas: decoded.name,
-          jabatan_petugas: decoded.jabatan,
+          nama_petugas: actor.name,
+          jabatan_petugas: actor.jabatan,
           status: "success",
           updatedAt: new Date(),
         },
@@ -91,9 +94,7 @@ class Model_cud {
     await this.initialize();
     const body = this.req.body;
 
-    const authHeader = this.req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-    const decoded = jwt.decode(token);
+    const actor = this.req.user;
 
     try {
       const model_r = new Model_r(this.req);
@@ -103,8 +104,8 @@ class Model_cud {
         {
           status: "failed",
           alasan_penolakan: body.alasan,
-          nama_petugas: decoded.name,
-          jabatan_petugas: decoded.jabatan,
+          nama_petugas: actor.name,
+          jabatan_petugas: actor.jabatan,
           updatedAt: new Date(),
         },
         {
@@ -126,23 +127,23 @@ class Model_cud {
     try {
       const model_r = new Model_r(this.req);
       const info_riwayat_zakat = await model_r.info_riwayat_zakat(body.id);
-      console.log(body);
-
       await Riwayat_pengumpulan.destroy({
         where: { id: body.id },
         transaction: this.t,
       });
 
       if (info_riwayat_zakat.bukti_transfer) {
-        this.filesToDelete.push(
-          path.resolve(process.cwd(), info_riwayat_zakat.bukti_transfer)
-        );
+        this.filesToDelete.push({
+          directory: ZAKAT_PROOF_DIRECTORIES.transfer,
+          filename: info_riwayat_zakat.bukti_transfer,
+        });
       }
 
       if (info_riwayat_zakat.bukti_setoran) {
-        this.filesToDelete.push(
-          path.resolve(process.cwd(), info_riwayat_zakat.bukti_setoran)
-        );
+        this.filesToDelete.push({
+          directory: ZAKAT_PROOF_DIRECTORIES.cash,
+          filename: info_riwayat_zakat.bukti_setoran,
+        });
       }
 
       this.message = `Menghapus Riwayat pengumpulan dengan Nama member Riwayat_pengumpulan: ${info_riwayat_zakat.member_name}, nominal zakat sebesar: ${info_riwayat_zakat.nominal} dan ID Riwayat pengumpulan: ${info_riwayat_zakat.id}`;
@@ -156,12 +157,18 @@ class Model_cud {
     const body = this.req.body;
 
     try {
+      const proofPath = this.req.transactionProof?.filename;
+      if (
+        !isSafeStoredFilename(proofPath, new Set([".jpg"]))
+      ) {
+        throw new Error("Bukti transfer tidak valid.");
+      }
       const model_r = new Model_r(this.req);
       const info_riwayat_zakat = await model_r.info_riwayat_zakat(body.id);
 
       await Riwayat_pengumpulan.update(
         {
-          bukti_transfer: body.buktiPath,
+          bukti_transfer: proofPath,
           nominal_transfer: body.nominal_transfer,
           status: "success",
           konfirmasi_pembayaran: "sudah_dikirim",
@@ -184,12 +191,18 @@ class Model_cud {
     const body = this.req.body;
 
     try {
+      const proofPath = this.req.transactionProof?.filename;
+      if (
+        !isSafeStoredFilename(proofPath, new Set([".jpg"]))
+      ) {
+        throw new Error("Bukti setoran tidak valid.");
+      }
       const model_r = new Model_r(this.req);
       const info_riwayat_zakat = await model_r.info_riwayat_zakat(body.id);
 
       await Riwayat_pengumpulan.update(
         {
-          bukti_setoran: body.buktiPath,
+          bukti_setoran: proofPath,
           nominal_setoran: body.nominal_setoran,
           status: "success",
           posisi_uang: "bank",
@@ -218,13 +231,10 @@ class Model_cud {
       });
       await this.t.commit();
       // hapus file setelah commit (tidak bisa di-rollback jika terjadi kegagalan)
-      for (const filePath of this.filesToDelete || []) {
-        try {
-          await fs.unlink(filePath);
-        } catch (err) {
-          if (err.code !== "ENOENT")
-            console.error("Failed to delete file:", filePath, err);
-        }
+      for (const file of this.filesToDelete || []) {
+        removeStoredFile(file.directory, file.filename, {
+          allowedExtensions: new Set([".jpg", ".jpeg", ".png"]),
+        });
       }
       return true;
     } else {

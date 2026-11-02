@@ -251,7 +251,6 @@ const handleSubmit = async () => {
     console.log('Payload dikirim ke backend:', payload);
 
     const response = await kirim_jawaban(payload);
-    console.log(response);
 
     emit('status', { error: false, error_msg: response.error_msg });
   } catch (error: any) {

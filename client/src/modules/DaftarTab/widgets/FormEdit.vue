@@ -75,7 +75,6 @@ const fetchData = async () => {
     const response = await get_info_edit_tab(props.selectedTab.id);
     form.value.desc = response.data.desc;
 
-    console.log(response);
   } catch (error) {
     displayNotification('Gagal mengambil data daftar_tab', 'error');
   } finally {
@@ -102,7 +101,6 @@ const handleSubmit = async () => {
 
   try {
     const response = await edit_tab(formData);
-    console.log(response);
     emit('status', { error_msg: response.message, error: response.error });
     closeModal();
   } catch (error: any) {

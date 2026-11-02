@@ -286,7 +286,6 @@ async function cetakSuratSerahTerimaZakat(id: number) {
     const buktiData: BuktiSetoranData = response.data;
 
     console.log('--------response');
-    console.log(response);
     console.log('--------response');
 
     const invalidFields: string[] = [];
@@ -553,6 +552,7 @@ async function uploadBuktiSetoranZakat(idl: number, nominalZakat: number) {
 }
 
 interface Displaybuktiparam {
+  id: number;
   tipe_pembayaran: string;
   nominal_zakat: number;
   bukti: string;
@@ -560,15 +560,14 @@ interface Displaybuktiparam {
 }
 
 const isModalDisplayBuktiOpen = ref(false);
+const document_id = ref(0);
 const tipe_pembayaran = ref('');
 const nominal_zakat = ref(0);
 const bukti = ref('');
 const nominal_bukti = ref(0);
 async function displayBukti(param: Displaybuktiparam) {
-  console.log('----');
-  console.log(param);
-  console.log('----');
   isModalDisplayBuktiOpen.value = true;
+  document_id.value = param.id;
   tipe_pembayaran.value = param.tipe_pembayaran;
   nominal_zakat.value = param.nominal_zakat;
   bukti.value = param.bukti;
@@ -851,6 +850,7 @@ async function displayBukti(param: Displaybuktiparam) {
                 "
                 @click="
                   displayBukti({
+                    id: riwayat_zakat.id,
                     tipe_pembayaran: riwayat_zakat.tipe_pembayaran,
                     nominal_zakat: riwayat_zakat.nominal,
                     bukti:
@@ -935,6 +935,8 @@ async function displayBukti(param: Displaybuktiparam) {
     <!-- Modal Form Display Bukti Transfer / Bukti Setoran -->
     <FormDisplayBukti
       :is-modal-open="isModalDisplayBuktiOpen"
+      document-kind="zakat"
+      :document-id="document_id"
       :tipe_pembayaran="tipe_pembayaran"
       :nominal_zakat="nominal_zakat"
       :bukti="bukti"

@@ -3,6 +3,11 @@ import axios from 'axios';
 import { onMounted, ref } from 'vue';
 import Notification from '@/components/Modal/Notification.vue';
 import { API_URL } from '@/config/config';
+import {
+  clearAccessToken,
+  clearLegacyTokenStorage,
+  setAccessToken,
+} from '@/service/auth_token_store';
 
 interface FormData {
   username: string;
@@ -56,14 +61,19 @@ const LoginProcess = async () => {
 
   try {
     const baseUrl = API_URL;
-    const response = await axios.post(baseUrl + '/auth/login_administrator', {
-      username: form.value.username,
-      password: form.value.password,
-    });
+    const response = await axios.post(
+      baseUrl + '/auth/login_administrator',
+      {
+        username: form.value.username,
+        password: form.value.password,
+      },
+      {
+        withCredentials: true,
+      },
+    );
     // filter
     if (response.status === 200) {
-      localStorage.setItem('administrator_access_token', response.data.access_token);
-      localStorage.setItem('administrator_refresh_token', response.data.refresh_token);
+      setAccessToken('administrator', response.data.access_token);
       displayNotification(response.data.message, 'success');
       setTimeout(() => {
         window.location.href = '/administrator-area';
@@ -77,24 +87,29 @@ const LoginProcess = async () => {
 };
 
 onMounted(() => {
-  localStorage.removeItem('administrator_access_token');
-  localStorage.removeItem('administrator_refresh_token');
+  clearLegacyTokenStorage();
+  clearAccessToken('administrator');
 });
 </script>
 <template>
   <div class="h-screen flex bg-white">
     <div class="bg-left hidden lg:flex w-full lg:w-1/2 px-8 items-center justify-center">
       <div class="w-full max-w-[550px] pt-8 flex flex-col justify-start items-start gap-7">
-
         <!-- Header: Badge + Logo + Title -->
         <div class="self-stretch flex flex-col justify-start items-start gap-3">
           <!-- Admin badge -->
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-50 border border-yellow-200">
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-50 border border-yellow-200"
+          >
             <span class="relative flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+              <span
+                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"
+              ></span>
               <span class="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
             </span>
-            <span class="text-xs font-medium text-yellow-700 tracking-wide">Panel Administrasi</span>
+            <span class="text-xs font-medium text-yellow-700 tracking-wide"
+              >Panel Administrasi</span
+            >
           </div>
           <div class="justify-start text-neutral-800 text-xl font-medium tracking-tight">
             Selamat Datang di
@@ -121,50 +136,109 @@ onMounted(() => {
         <div class="w-96 flex flex-col gap-3">
           <div class="h-px bg-neutral-200/60"></div>
           <div class="flex items-center gap-3">
-            <div class="w-7 h-7 flex items-center justify-center rounded-lg bg-[#0E561E]/8 text-[#0E561E] shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" class="w-4 h-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            <div
+              class="w-7 h-7 flex items-center justify-center rounded-lg bg-[#0E561E]/8 text-[#0E561E] shrink-0"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.75"
+                stroke="currentColor"
+                class="w-4 h-4"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
               </svg>
             </div>
-            <span class="text-neutral-700 text-sm">Kelola data penerima & program bantuan secara terpusat</span>
+            <span class="text-neutral-700 text-sm"
+              >Kelola data penerima & program bantuan secara terpusat</span
+            >
           </div>
           <div class="flex items-center gap-3">
-            <div class="w-7 h-7 flex items-center justify-center rounded-lg bg-[#0E561E]/8 text-[#0E561E] shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" class="w-4 h-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            <div
+              class="w-7 h-7 flex items-center justify-center rounded-lg bg-[#0E561E]/8 text-[#0E561E] shrink-0"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.75"
+                stroke="currentColor"
+                class="w-4 h-4"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
               </svg>
             </div>
-            <span class="text-neutral-700 text-sm">Pantau & verifikasi permohonan bantuan masuk</span>
+            <span class="text-neutral-700 text-sm"
+              >Pantau & verifikasi permohonan bantuan masuk</span
+            >
           </div>
           <div class="flex items-center gap-3">
-            <div class="w-7 h-7 flex items-center justify-center rounded-lg bg-yellow-400/15 text-yellow-600 shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" class="w-4 h-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            <div
+              class="w-7 h-7 flex items-center justify-center rounded-lg bg-yellow-400/15 text-yellow-600 shrink-0"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.75"
+                stroke="currentColor"
+                class="w-4 h-4"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
               </svg>
             </div>
-            <span class="text-neutral-700 text-sm">Akses laporan & rekap penyaluran zakat secara real-time</span>
+            <span class="text-neutral-700 text-sm"
+              >Akses laporan & rekap penyaluran zakat secara real-time</span
+            >
           </div>
         </div>
-
       </div>
     </div>
     <!-- Right Column -->
-    <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 relative overflow-hidden">
+    <div
+      class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 relative overflow-hidden"
+    >
       <div class="w-full max-w-md z-10 flex flex-col gap-6">
-        
         <!-- Header Section -->
         <div class="text-center space-y-3 mt-8 lg:mt-0">
           <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Login Administrator</h2>
           <p class="text-sm text-gray-500 px-4 leading-relaxed">
-            Akses panel administrasi untuk mengelola data operasional dan pengaturan sistem aplikasi.
+            Akses panel administrasi untuk mengelola data operasional dan pengaturan sistem
+            aplikasi.
           </p>
         </div>
 
         <!-- Security Warning Callout -->
-        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3 shadow-sm">
+        <div
+          class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3 shadow-sm"
+        >
           <div class="mt-0.5 bg-amber-100 p-1 rounded-full text-amber-600 flex-shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-4 h-4"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
             </svg>
           </div>
           <p class="text-xs text-amber-800 leading-relaxed">
@@ -180,7 +254,9 @@ onMounted(() => {
         >
           <div class="space-y-5">
             <div>
-              <label class="block text-gray-700 text-sm font-medium mb-2" for="username">Username</label>
+              <label class="block text-gray-700 text-sm font-medium mb-2" for="username"
+                >Username</label
+              >
               <input
                 v-model="form.username"
                 class="border border-gray-200 rounded-lg w-full py-2.5 px-4 text-gray-700 leading-tight focus:outline-none focus:border-[#0E561E] focus:ring-1 focus:ring-[#0E561E] transition-colors"
@@ -191,7 +267,9 @@ onMounted(() => {
             </div>
             <div>
               <div class="flex justify-between mb-2">
-                <label class="block text-gray-700 text-sm font-medium" for="password">Password</label>
+                <label class="block text-gray-700 text-sm font-medium" for="password"
+                  >Password</label
+                >
               </div>
               <input
                 v-model="form.password"

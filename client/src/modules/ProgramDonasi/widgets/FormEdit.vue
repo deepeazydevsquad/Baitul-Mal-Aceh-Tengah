@@ -145,7 +145,6 @@ const handleSubmit = async () => {
 
   try {
     const response = await edit(formData)
-    console.log(response)
     emit('status', { error_msg: response.message || response, error: response.error })
     closeModal()
   } catch (error: any) {

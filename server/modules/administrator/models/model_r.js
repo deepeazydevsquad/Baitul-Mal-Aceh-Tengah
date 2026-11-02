@@ -1,7 +1,7 @@
 "use strict";
 
 const { User, Grup, Menu, Submenu, Tab } = require("../../../models");
-const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
 class Model_r {
   constructor(req) {
@@ -9,13 +9,10 @@ class Model_r {
   }
 
   async info_user() {
-    const authHeader = this.req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-    const decoded = jwt.decode(token);
     try {
       var q = await User.findOne({
         where: {
-          id: decoded.id,
+          id: this.req.user.id,
         },
       });
       return {
@@ -30,13 +27,10 @@ class Model_r {
   }
 
   async get_info_edit_profile() {
-    const authHeader = this.req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-    const decoded = jwt.decode(token);
     try {
       var q = await User.findOne({
         where: {
-          id: decoded.id,
+          id: this.req.user.id,
         },
       });
       return {
@@ -55,6 +49,12 @@ class Model_r {
       var q = await User.findOne({
         where: { username: this.req.body.username },
       });
+      if (!q) return null;
+      const validPassword = await bcrypt.compare(
+        this.req.body.password,
+        q.password
+      );
+      if (!validPassword) return null;
       return {
         id: q.id,
         username: q.username,
@@ -62,19 +62,16 @@ class Model_r {
         jabatan: q.jabatan,
       };
     } catch (error) {
-      return {};
+      return null;
     }
   }
 
   async get_menu_submenu_tab() {
     try {
-      const authHeader = this.req.headers["authorization"];
-      const token = authHeader && authHeader.split(" ")[1];
-      const decoded = jwt.decode(token);
       var user_info = {};
       await User.findOne({
         where: {
-          id: decoded.id,
+          id: this.req.user.id,
         },
         include: [
           {
@@ -90,7 +87,11 @@ class Model_r {
           if (e.grup_id == 1) {
             user_info["group_access"] = {};
           } else {
-            user_info["group_access"] = JSON.parse(e.Grup.group_access);
+            try {
+              user_info["group_access"] = JSON.parse(e.Grup.group_access);
+            } catch {
+              user_info["group_access"] = [];
+            }
           }
         }
       });

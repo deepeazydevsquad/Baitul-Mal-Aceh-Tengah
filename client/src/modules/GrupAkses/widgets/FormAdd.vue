@@ -92,7 +92,6 @@ const handleSubmit = async () => {
       group_access: JSON.stringify(payload), // stringify sebelum kirim
     }
 
-    console.log('Data dikirim ke backend:', body)
 
     const response = await add_grup(body)
     emit('status', { error_msg: response.error_msg || response, error: response.error })

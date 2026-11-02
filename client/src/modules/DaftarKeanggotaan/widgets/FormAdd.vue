@@ -163,7 +163,6 @@ const fetchData = async () => {
   try {
     const response = await get_daftar_kecamatan()
     kecamatan.value = response.data
-    console.log(response)
   } catch (error) {
     displayNotification('Gagal mengambil data kecamatan', 'error')
   } finally {
@@ -204,7 +203,6 @@ const handleSubmit = async () => {
 
   try {
     const response = await add_keanggotaan(formData)
-    console.log(response)
     emit('status', { error_msg: response.error_msg || response, error: response.error })
   } catch (error: any) {
     console.error(error)

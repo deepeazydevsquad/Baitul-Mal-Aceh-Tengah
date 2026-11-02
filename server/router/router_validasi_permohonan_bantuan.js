@@ -5,6 +5,9 @@ const validation = require("../validation/validasi_permohonan_bantuan");
 const {
   authenticateTokenAdministrator,
 } = require("../middleware/authenticateToken.js");
+const {
+  requirePermission,
+} = require("../middleware/authorizePermission");
 const validationHelper = require("../helper/handleErrorFile.js");
 
 const router = express.Router();
@@ -58,7 +61,7 @@ router.post(
 router.post(
   "/validasi_permohonan_bantuan/edit_file",
   authenticateTokenAdministrator,
-  validation.upload.any(),
+  validation.upload,
   [
     body("id")
       .notEmpty()
@@ -73,12 +76,15 @@ router.post(
       .withMessage("Validasi ID Harus Angka")
       .custom(validation.check_id_validasi_permohonan_bantuan),
   ],
+  validation.persistValidatedUpload,
   validationHelper.handleFileErrors,
   controllers.edit_file
 );
 
 router.post(
   "/validasi_permohonan_bantuan/get_info_pemberitahuan",
+  authenticateTokenAdministrator,
+  requirePermission({ menuId: 2, submenuId: 3 }),
   [
     body("id")
       .notEmpty()
@@ -92,6 +98,8 @@ router.post(
 
 router.post(
   "/validasi_permohonan_bantuan/pemberitahuan",
+  authenticateTokenAdministrator,
+  requirePermission({ menuId: 2, submenuId: 3 }),
   [
     body("id")
       .notEmpty()
@@ -150,6 +158,8 @@ router.post(
 
 router.post(
   "/validasi_permohonan_bantuan/get_info_approve_permohonan",
+  authenticateTokenAdministrator,
+  requirePermission({ menuId: 2, submenuId: 3 }),
   [
     body("id")
       .notEmpty()
@@ -163,6 +173,8 @@ router.post(
 
 router.post(
   "/validasi_permohonan_bantuan/approve_permohonan",
+  authenticateTokenAdministrator,
+  requirePermission({ menuId: 2, submenuId: 3 }),
   [
     body("id")
       .notEmpty()
@@ -189,6 +201,8 @@ router.post(
 
 router.post(
   "/validasi_permohonan_bantuan/get_info_reject_permohonan",
+  authenticateTokenAdministrator,
+  requirePermission({ menuId: 2, submenuId: 3 }),
   [
     body("id")
       .notEmpty()
@@ -202,6 +216,8 @@ router.post(
 
 router.post(
   "/validasi_permohonan_bantuan/reject_permohonan",
+  authenticateTokenAdministrator,
+  requirePermission({ menuId: 2, submenuId: 3 }),
   [
     body("id")
       .notEmpty()

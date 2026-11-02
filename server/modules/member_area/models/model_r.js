@@ -1,5 +1,4 @@
 const { Member } = require("../../../models");
-const jwt = require("jsonwebtoken");
 
 class Model_r {
   constructor(req) {
@@ -19,13 +18,9 @@ class Model_r {
   // }
 
   async get_member_info() {
-    const authHeader = this.req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-    const decoded = jwt.decode(token);
-
     try {
       var q = await Member.findOne({
-        where: { username: decoded.username },
+        where: { id: this.req.user.id },
       });
       return { id: q.id, username: q.username, fullname: q.fullname };
     } catch (error) {
@@ -34,12 +29,6 @@ class Model_r {
   }
 
   // async get_profile_member() {
-  //   const authHeader = this.req.headers["authorization"];
-  //   const token = authHeader && authHeader.split(" ")[1];
-  //   const decoded = jwt.decode(token);
-
-  //   console.log("decoded:", decoded);
-
   //   try {
   //     const member = await Member.findOne({
   //       where: { username: decoded.username },

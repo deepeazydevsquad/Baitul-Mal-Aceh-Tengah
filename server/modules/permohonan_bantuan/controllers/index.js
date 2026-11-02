@@ -1,5 +1,6 @@
 const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
+const validation = require("../../../validation/permohonan_bantuan");
 const {
   handleValidationErrors,
   handleServerError,
@@ -122,12 +123,15 @@ controllers.add = async (req, res) => {
         error_msg: "Permohonan bantuan berhasil ditambahkan.",
       });
     } else {
+      await validation.removeUploadedDocuments(req);
       res.status(400).json({
         error: true,
-        error_msg: "Permohonan bantuan gagal ditambahkan.",
+        error_msg:
+          model_cud.message || "Permohonan bantuan gagal ditambahkan.",
       });
     }
   } catch (error) {
+    await validation.removeUploadedDocuments(req);
     handleServerError(res, error);
   }
 };
@@ -152,8 +156,9 @@ controllers.get_info_edit = async (req, res) => {
 controllers.edit = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
+  let model_cud;
   try {
-    const model_cud = new Model_cud(req);
+    model_cud = new Model_cud(req);
     await model_cud.edit();
 
     if (await model_cud.response()) {
@@ -162,9 +167,11 @@ controllers.edit = async (req, res) => {
         error_msg: "Permohonan bantuan berhasil diperbaharui.",
       });
     } else {
-      res.status(400).json({
+      res.status(model_cud.statusCode || 400).json({
         error: true,
-        error_msg: "Permohonan bantuan gagal diperbaharui.",
+        error_msg:
+          model_cud.message || "Permohonan bantuan gagal diperbaharui.",
+        code: model_cud.errorCode,
       });
     }
   } catch (error) {

@@ -1,59 +1,109 @@
-version: "3.9"
-
 services:
   server:
-    image: muammar88/baitulmal_server:1.0.0
+    image: ${SERVER_IMAGE:-muammar88/baitulmal_server:1.0.0}
     container_name: Container_server_baitulmal
     build:
       context: ./server  # pastikan Dockerfile di folder server
       dockerfile: Dockerfile
-    volumes:
-      - ./server:/app           # bind mount source code
-    ports:
-      - "3003:3003"             # port unik untuk Baitulmal
     environment:
-      ADMINISTRATOR_SECRET_KEY: "9813kbk31023khvviuytyuwqkiwvj9mnb757uytr34nm123o"
-      ADMINISTRATOR_REFRESH_SECRET_KEY: "y87238giehgaiuwgd82o123455gskiassmnxzxclaoihdsobk"
-      MEMBERSHIP_SECRET_KEY: "9813kbk31023khvviuytyuwqkiwvj9mnb757uytr34nm123o"
-      MEMBERSHIP_REFRESH_SECRET_KEY: "y87238giehgaiuwgd82o123455gskiassmnxzxclaoihdsobk"
-      NODE_ENV: "development"
+      ADMINISTRATOR_SECRET_KEY: ${ADMINISTRATOR_SECRET_KEY:?required}
+      ADMINISTRATOR_REFRESH_SECRET_KEY: ${ADMINISTRATOR_REFRESH_SECRET_KEY:?required}
+      MEMBERSHIP_SECRET_KEY: ${MEMBERSHIP_SECRET_KEY:?required}
+      MEMBERSHIP_REFRESH_SECRET_KEY: ${MEMBERSHIP_REFRESH_SECRET_KEY:?required}
+      OTP_HASH_SECRET: ${OTP_HASH_SECRET:?required}
+      CORS_ORIGINS: ${CORS_ORIGINS:?required}
+      SURVEY_BASE_URL: ${SURVEY_BASE_URL:?required}
+      TRUST_PROXY: "1"
+      AUTH_COOKIE_SECURE: "true"
+      AUTH_COOKIE_PATH: "/api/auth"
+      NODE_ENV: "production"
       PORT: 3003
-      MIDTRANS_SERVER_KEY: SB-Mid-server-zw-LJ6-UHTMlabcfbM06qqvz
+      MIDTRANS_SERVER_KEY: ${MIDTRANS_SERVER_KEY:-}
       MIDTRANS_SANDBOX_URL: "https://app.sandbox.midtrans.com/snap/v1/transactions"
       MIDTRANS_PRODUCTION_URL: ''
       DB_DIALECT: "mysql"
       DB_HOST: "mysql"
       DB_PORT: 3306
       DB_NAME: "baitulmalacehtengah_db"
-      DB_USER: "baitulmalacehtengah_user"
-      DB_PASS: "baitulmalacehtengah_password"
+      DB_USER: ${DB_USER:?required}
+      DB_PASS: ${DB_PASS:?required}
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    volumes:
+      - server-uploads-baitulmal:/apps/uploads
+      - server-logs-baitulmal:/apps/logs
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 3003"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     networks:
       - app-network-baitulmal
 
   client:
-    image: muammar88/baitulmal_client:1.0.0
+    image: ${CLIENT_IMAGE:-muammar88/baitulmal_client:1.0.0}
     container_name: Container_client_baitulmal
     ports:
-      - "8089:80"
+      - "127.0.0.1:8089:80"
     environment:
       VITE_APP_API_BASE_URL: "http://server:3003"
-      NODE_ENV: "development"
+      NODE_ENV: "production"
     depends_on:
       - server
     networks:
       - app-network-baitulmal
 
+  migrate:
+    profiles:
+      - tools
+    image: ${MIGRATE_IMAGE:-muammar88/baitulmal_migrate:1.0.0}
+    container_name: Container_migrate_baitulmal
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      target: migration
+    environment:
+      NODE_ENV: "production"
+      DB_DIALECT: "mysql"
+      DB_HOST: "mysql"
+      DB_PORT: 3306
+      DB_NAME: "baitulmalacehtengah_db"
+      DB_USER: ${DB_USER:?required}
+      DB_PASS: ${DB_PASS:?required}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - app-network-baitulmal
+
   mysql:
-    image: mysql:5.7
+    image: mysql:8.4@sha256:a0225d1ea6631c8bc2385dc4c2faba17bbf1834ecf369e1659a9a382bd8d5dd7
     container_name: mysql_container_baitulmal
     restart: always
     environment:
-      MYSQL_DATABASE: baitulmalacehtengah_db
-      MYSQL_USER: baitulmalacehtengah_user
-      MYSQL_PASSWORD: baitulmalacehtengah_password
-      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: ${DB_NAME:?required}
+      MYSQL_USER: ${DB_USER:?required}
+      MYSQL_PASSWORD: ${DB_PASS:?required}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?required}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h 127.0.0.1 -u root -p\"$${MYSQL_ROOT_PASSWORD}\" --silent",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
     volumes:
       - mysql-data-baitulmal:/var/lib/mysql     # named volume unik untuk Baitulmal
       - ./mysql_config/my.cnf:/etc/mysql/my.cnf
@@ -61,14 +111,14 @@ services:
       - app-network-baitulmal
 
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin:5.2.2@sha256:6b5ab5f9ebfe3dbb38388b5695c2ff5ba3e26cdc2c4ce0bd97092eefc6a20bfd
     container_name: phpmyadmin_container_baitulmal
     restart: always
     ports:
-      - "8085:80"
+      - "127.0.0.1:8085:80"
     environment:
       PMA_HOST: mysql
-      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?required}
     depends_on:
       - mysql
     networks:
@@ -76,6 +126,8 @@ services:
 
 volumes:
   mysql-data-baitulmal:
+  server-uploads-baitulmal:
+  server-logs-baitulmal:
 
 networks:
   app-network-baitulmal:

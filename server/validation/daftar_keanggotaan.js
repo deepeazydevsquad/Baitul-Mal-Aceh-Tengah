@@ -1,4 +1,9 @@
 const { Op, Member, Kecamatan, Desa } = require("../models");
+const { validatePassword } = require("../helper/passwordPolicyHelper");
+const {
+  normalizeNik,
+  validateNikForMemberType,
+} = require("../helper/nikHelper");
 
 const validation = {};
 
@@ -74,12 +79,27 @@ validation.check_username = async (value, { req }) => {
 
 // validasi password
 validation.check_password = async (value, { req }) => {
-  if (value && value.length < 8) {
-    throw new Error("Password minimal 8 karakter");
-  }
+  if (value) validatePassword(value);
 
   if (value && value !== req.body.confirm_password) {
     throw new Error("Password dan konfirmasi password tidak sama");
+  }
+  return true;
+};
+validation.check_nomor_ktp = async (value, { req }) => {
+  validateNikForMemberType(value, req.body.tipeAkun);
+  if (req.body.tipeAkun !== "perorangan") return true;
+
+  const where = { nomor_ktp: normalizeNik(value) };
+  if (req.body.id) {
+    where.id = { [Op.ne]: req.body.id };
+  }
+  const conflict = await Member.findOne({
+    where,
+    attributes: ["id"],
+  });
+  if (conflict) {
+    throw new Error("Nomor KTP sudah terdaftar pada member lain.");
   }
   return true;
 };

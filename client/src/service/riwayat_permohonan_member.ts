@@ -10,12 +10,12 @@ export const riwayat_permohonan = async (param: any) => {
   }
 }
 
-export const delete_riwayat_permohonan = async (param: any) => {
+export const cancel_riwayat_permohonan = async (param: any) => {
   try {
     const response = await api.post('/riwayat_permohonan_member/delete', param)
     return response.data
   } catch (error) {
-    console.error('Gagal mengambil member:', error)
+    console.error('Gagal membatalkan permohonan:', error)
     throw error
   }
 }

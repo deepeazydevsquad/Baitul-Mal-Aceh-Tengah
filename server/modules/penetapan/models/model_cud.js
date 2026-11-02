@@ -7,6 +7,17 @@ const {
 const { writeLog } = require("../../../helper/writeLogHelper");
 const moment = require("moment");
 const crypto = require("crypto");
+const path = require("path");
+const {
+  removeStoredFile,
+  resolveStoredPath,
+} = require("../../../helper/uploadStorageHelper");
+
+const SK_DIRECTORY = path.resolve(
+  __dirname,
+  "../../../uploads/img/sk_penetapan"
+);
+const SK_EXTENSIONS = new Set([".jpg", ".jpeg", ".png"]);
 
 class Model_cud {
   constructor(req) {
@@ -16,6 +27,25 @@ class Model_cud {
   async initialize() {
     this.t = await sequelize.transaction();
     this.state = true;
+  }
+
+  getUploadedSk() {
+    const filename = this.req.penetapanSk?.filename;
+    if (!filename) return null;
+    if (
+      !resolveStoredPath(SK_DIRECTORY, filename, {
+        allowedExtensions: SK_EXTENSIONS,
+      })
+    ) {
+      throw new Error("Referensi SK tidak valid.");
+    }
+    return filename;
+  }
+
+  removeUploadedSk() {
+    removeStoredFile(SK_DIRECTORY, this.req.penetapanSk?.filename, {
+      allowedExtensions: SK_EXTENSIONS,
+    });
   }
 
   // generate access_code random 200 char
@@ -38,8 +68,6 @@ class Model_cud {
     const body = this.req.body; // array of syarat baru
     await this.initialize();
     const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
-
-    console.log("body:", body);
 
     try {
       if (!Array.isArray(body) || body.length === 0) {
@@ -125,9 +153,6 @@ class Model_cud {
     const file = this.req.file;
     const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
 
-    console.log("body:", body);
-    console.log("file:", file);
-
     await this.initialize();
 
     try {
@@ -139,10 +164,18 @@ class Model_cud {
       });
       const oldSk = existing ? existing.sk : null;
 
-      // tentukan nama file yang dipakai
-      const skFileName = file
-        ? file.filename // kalau ada upload baru
-        : body.sk || oldSk; // kalau gak ada, pakai body.sk (kalau frontend kirim), else oldSk
+      const uploadedSk = this.getUploadedSk();
+      let skFileName = oldSk;
+      if (uploadedSk) {
+        skFileName = uploadedSk;
+        if (
+          resolveStoredPath(SK_DIRECTORY, oldSk, {
+            allowedExtensions: SK_EXTENSIONS,
+          })
+        ) {
+          this.oldSkToRemoveAfterCommit = oldSk;
+        }
+      }
 
       // parse surveyor array
       let surveyorArray = body.surveyor;
@@ -183,6 +216,7 @@ class Model_cud {
       console.error("Error in addSurveyor:", error);
       this.state = false;
       this.message = error.message;
+      this.removeUploadedSk();
     }
   }
 
@@ -195,12 +229,24 @@ class Model_cud {
         msg: this.message,
       });
       await this.t.commit();
+      if (this.oldSkToRemoveAfterCommit) {
+        removeStoredFile(SK_DIRECTORY, this.oldSkToRemoveAfterCommit, {
+          allowedExtensions: SK_EXTENSIONS,
+        });
+      }
       return true;
     } else {
       await this.t.rollback();
+      this.removeUploadedSk();
       return false;
     }
   }
 }
+
+Model_cud.SK_DIRECTORY = SK_DIRECTORY;
+Model_cud.removeSk = (filename) =>
+  removeStoredFile(SK_DIRECTORY, filename, {
+    allowedExtensions: SK_EXTENSIONS,
+  });
 
 module.exports = Model_cud;

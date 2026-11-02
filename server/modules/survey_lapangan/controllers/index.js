@@ -1,11 +1,23 @@
 const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
 const {
+  issueSurveyCapability,
+} = require("../../../helper/surveyCapabilityHelper");
+const {
   handleValidationErrors,
   handleServerError,
 } = require("../../../helper/handleError");
 
 const controllers = {};
+
+controllers.create_session = async (req, res, next) => {
+  if (!(await handleValidationErrors(req, res))) return;
+  try {
+    return await issueSurveyCapability(req, res);
+  } catch (error) {
+    return next(error);
+  }
+};
 
 controllers.survey_lapangan = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
@@ -61,9 +73,10 @@ controllers.submit = async (req, res) => {
         error_msg: "Survey berhasil disimpan.",
       });
     } else {
-      res.status(400).json({
+      res.status(model_cud.statusCode || 400).json({
         error: true,
-        error_msg: "Survey gagal disimpan.",
+        error_msg: model_cud.message || "Survey gagal disimpan.",
+        code: model_cud.errorCode || "SURVEY_NOT_SAVED",
       });
     }
   } catch (error) {

@@ -114,7 +114,6 @@ const handleSubmit = async () => {
 
   try {
     const response = await edit_status_program_bantuan(Number(props.selectedProgram.id))
-    console.log(response)
     emit('status', { error_msg: response.error_msg || response, error: response.error })
   } catch (error: any) {
     console.error(error)

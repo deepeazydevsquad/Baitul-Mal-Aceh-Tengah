@@ -94,10 +94,6 @@ class Model_r {
 
   async daftar_desa() {
     const body = this.req.body;
-    console.log("_____________Daftar Desa____________");
-    console.log(body);
-    console.log("_____________Daftar Desa____________");
-
     try {
       const sql = await Desa.findAll({
         where: {

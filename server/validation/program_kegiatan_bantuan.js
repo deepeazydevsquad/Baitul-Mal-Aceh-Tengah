@@ -1,8 +1,9 @@
 const { Kegiatan } = require("../models");
-const multer = require("multer");
-const sharp = require("sharp");
 const path = require("path");
-const fs = require("fs");
+const { validationResult } = require("express-validator");
+const {
+  createSecureImageUpload,
+} = require("../helper/secureImageUploadHelper");
 
 const validation = {};
 
@@ -104,70 +105,36 @@ const uploadPath = path.join(
   "../uploads/img/program_kegiatan_bantuan"
 );
 
-if (!fs.existsSync(uploadPath)) {
-  fs.mkdirSync(uploadPath, { recursive: true });
-}
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadPath),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const timestamp = Date.now();
-    const nama_kegiatan = (req.body.nama_kegiatan || "program")
-      .replace(/\s+/g, "_")
-      .toLowerCase();
-
-    const filename = `${timestamp}_${nama_kegiatan}${ext}`;
-    req.body.bannerPath = filename;
-    cb(null, filename);
-  },
+const bannerUpload = createSecureImageUpload({
+  directory: uploadPath,
+  field: "banner",
+  property: "programKegiatanBanner",
+  bodyFieldsToRemove: ["bannerPath"],
+  required: false,
+  maxSize: 2 * 1024 * 1024,
+  width: 602,
+  height: 330,
+  filenamePrefix: "program-kegiatan",
+  outputFormat: "jpg",
+  dimensionsMessage: "Ukuran gambar harus 602x330 piksel",
 });
 
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error("Format file harus PNG, JPG atau JPEG"), false);
+validation.upload = (req, res, next) => {
+  res.once("finish", () => {
+    if (res.statusCode >= 400) {
+      bannerUpload.remove(req);
+    }
+  });
+  return bannerUpload.middleware(req, res, next);
+};
+validation.check_dimensions = () => (req, res, next) => next();
+validation.cleanupRejectedUpload = (req, res, next) => {
+  if (!validationResult(req).isEmpty()) {
+    bannerUpload.remove(req);
   }
+  return next();
 };
-
-validation.upload = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2 MB
-});
-
-// Middleware validasi dimensi gambar
-validation.check_dimensions = (isRequired = true) => {
-  return async (req, res, next) => {
-    if (!req.file) {
-      if (isRequired) {
-        return res.status(400).json({
-          error: true,
-          error_msg: "Banner program kegiatan wajib diupload",
-        });
-      } else {
-        return next();
-      }
-    }
-
-    try {
-      const metadata = await sharp(req.file.path).metadata();
-      if (metadata.width !== 602 || metadata.height !== 330) {
-        fs.unlinkSync(req.file.path); // hapus file invalid
-        return res.status(400).json({
-          error: true,
-          error_msg: "Ukuran gambar harus 602x330 piksel",
-        });
-      }
-      next();
-    } catch (err) {
-      return res.status(500).json({
-        error: true,
-        error_msg: `Gagal memproses gambar: ${err.message}`,
-      });
-    }
-  };
-};
+validation.removeUploadedBanner = bannerUpload.remove;
+validation.uploadPath = uploadPath;
 
 module.exports = validation;

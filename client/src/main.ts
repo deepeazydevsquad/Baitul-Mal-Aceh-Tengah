@@ -11,7 +11,6 @@ import 'flowbite';
 // Vue Core
 import rupiahPlugin from '@/plugins/rupiahPlugin';
 import terbilangPlugin from '@/plugins/terbilangPlugin';
-import { createHead } from '@vueuse/head';
 import alertify from 'alertifyjs';
 import 'alertifyjs/build/css/alertify.min.css';
 import 'alertifyjs/build/css/themes/default.min.css'; // atau theme lain seperti semantic.min.css
@@ -19,6 +18,7 @@ import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
+import { clearLegacyTokenStorage } from '@/service/auth_token_store';
 
 // PrimeVue
 import Aura from '@primeuix/themes/aura';
@@ -309,14 +309,18 @@ library.add(
 );
 
 // Buat App Vue
+if (import.meta.env.PROD) {
+  console.log = () => {};
+  console.debug = () => {};
+  console.info = () => {};
+}
+clearLegacyTokenStorage();
 const app = createApp(App);
-const head = createHead();
 
 // Gunakan Plugin dan Komponen
 app.use(router);
 app.use(createPinia());
 app.use(VueApexCharts);
-app.use(head);
 app.use(PrimeVue, {
   theme: {
     preset: Aura,

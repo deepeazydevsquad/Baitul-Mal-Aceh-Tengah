@@ -1,8 +1,24 @@
 const { Op, Menu, Submenu, Grup } = require("../../../models");
+const { AuthorizationError } = require("../../../helper/authorizationError");
+const {
+  isPermissionSubset,
+} = require("../../../helper/groupPermissionHelper");
 
 class Model_r {
   constructor(req) {
     this.req = req;
+  }
+
+  canReadGroup(group) {
+    if (Number(this.req.user?.grup_id) === 1) return true;
+    if (!group) return false;
+    if (Number(group.id) === 1) return false;
+    if (Number(group.id) === Number(this.req.user?.grup_id)) return true;
+    return isPermissionSubset(
+      group.group_access,
+      this.req.user?.group_access,
+      { strict: true }
+    );
   }
 
   async list_menu_by_id() {
@@ -16,6 +32,12 @@ class Model_r {
 
       if (!grup) {
         throw new Error("Grup tidak ditemukan");
+      }
+      if (!this.canReadGroup(grup)) {
+        throw new AuthorizationError(
+          "Anda tidak dapat melihat grup dengan privilege lebih tinggi.",
+          "PRIVILEGE_HIERARCHY_VIOLATION"
+        );
       }
 
       // parse group_access biar langsung bisa dipakai di frontend
@@ -38,6 +60,7 @@ class Model_r {
       };
     } catch (error) {
       console.error("Error fetching grup detail:", error);
+      if (error.statusCode) throw error;
       throw new Error("Failed to fetch grup detail");
     }
   }
@@ -77,8 +100,14 @@ class Model_r {
       where.name = { [Op.like]: `%${body.search}%` };
     }
 
-    // exclude user dengan grup_id = 1
-    where.id = { [Op.ne]: 1 };
+    const readableGroups = await Grup.findAll({
+      attributes: ["id", "group_access"],
+    });
+    where.id = {
+      [Op.in]: readableGroups
+        .filter((group) => this.canReadGroup(group))
+        .map((group) => Number(group.id)),
+    };
     try {
       const result = await Grup.findAndCountAll({
         limit,

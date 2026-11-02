@@ -64,7 +64,9 @@ const props = defineProps<{
               >
                 {{ confirmTitle }}
               </h3>
-              <p class="mt-2 text-sm sm:text-base text-gray-600" v-html="confirmMessage"></p>
+              <p class="mt-2 whitespace-pre-line break-words text-sm sm:text-base text-gray-600">
+                {{ confirmMessage }}
+              </p>
             </div>
           </div>
         </div>

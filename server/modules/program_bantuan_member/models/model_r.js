@@ -112,10 +112,6 @@ class Model_r {
   async get_program_by_tipe() {
     const body = this.req.body;
 
-    console.log("___________________DDDDDDDDDDDDDDDDDD____________");
-    console.log("📦 Request Body:", body);
-    console.log("___________________DDDDDDDDDDDDDDDDDD____________");
-
     const limit = parseInt(body.perpage, 10) || 10;
     const page =
       body.pageNumber && body.pageNumber !== "0"
@@ -144,8 +140,6 @@ class Model_r {
         : { status_kegiatan: "sedang_berlangsung" };
 
     try {
-      console.log("🚀 Mulai eksekusi query Program.findAll() ...");
-
       const programs = await Program.findAll({
         where: {
           name: { [Op.like]: `%${body.name.replace("Program ", "")}%` },
@@ -178,8 +172,6 @@ class Model_r {
         console.error("🔥 Sequelize error (catch di findAll):", err);
         throw err;
       });
-
-      console.log("✅ Query selesai dieksekusi");
 
       if (!programs || programs.length === 0) {
         console.warn("⚠️ Tidak ada data ditemukan di tabel Program / Kegiatan");

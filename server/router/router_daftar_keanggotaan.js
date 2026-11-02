@@ -80,7 +80,8 @@ router.post(
       .custom(validation.check_username),
     body("nomor_ktp")
       .optional()
-      .isString().withMessage("Nomor KTP Harus String"),
+      .isString().withMessage("Nomor KTP Harus String")
+      .custom(validation.check_nomor_ktp),
     body("nomor_kk")
       .optional()
       .isString().withMessage("Nomor KK Harus String"),
@@ -143,7 +144,8 @@ router.post(
       .custom(validation.check_username),
     body("nomor_ktp")
       .optional()
-      .isString().withMessage("Nomor KTP Harus String"),
+      .isString().withMessage("Nomor KTP Harus String")
+      .custom(validation.check_nomor_ktp),
     body("nomor_kk")
       .optional()
       .isString().withMessage("Nomor KK Harus String"),

@@ -106,7 +106,6 @@ const fetchData = async () => {
     form.value.name = response.data.name;
     form.value.img = response.data.img;
     preview.value = response.data.img;
-    console.log(response);
   } catch (error) {
     displayNotification('Gagal mengambil data bank', 'error');
   } finally {
@@ -134,7 +133,6 @@ const handleSubmit = async () => {
 
   try {
     const response = await edit_bank(formData);
-    console.log(response);
     emit('status', { error_msg: response.error_msg, error: response.error });
   } catch (error: any) {
     console.error(error);

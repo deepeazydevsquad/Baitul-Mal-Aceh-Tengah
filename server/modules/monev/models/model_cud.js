@@ -1,5 +1,6 @@
 const {
   sequelize,
+  Permohonan,
   Pertanyaan_monev,
   Jawaban_monev,
   Monev,
@@ -10,6 +11,10 @@ const moment = require("moment");
 class Model_cud {
   constructor(req) {
     this.req = req;
+    this.t = null;
+    this.state = false;
+    this.message = "";
+    this.statusCode = 400;
   }
 
   async initialize() {
@@ -18,12 +23,25 @@ class Model_cud {
   }
 
   async kirim_jawaban() {
-    await this.initialize();
     const body = this.req.body;
 
-    console.log(body);
-
     try {
+      await this.initialize();
+      const permohonan = await Permohonan.findByPk(body.permohonan_id, {
+        transaction: this.t,
+        lock: this.t.LOCK.UPDATE,
+      });
+      if (
+        !permohonan ||
+        permohonan.status !== "sedang_berlangsung"
+      ) {
+        const error = new Error(
+          "Permohonan sudah tidak aktif dan tidak dapat dimonev."
+        );
+        error.statusCode = 409;
+        throw error;
+      }
+
       const insertMonev = await Monev.create(
         {
           permohonan_id: body.permohonan_id,
@@ -66,6 +84,7 @@ class Model_cud {
       console.error("Error in kirim_jawaban:", error);
       this.state = false;
       this.message = error.message;
+      this.statusCode = error.statusCode || 500;
     }
   }
 
@@ -73,6 +92,7 @@ class Model_cud {
   // Response handler
   // =============================
   async response() {
+    if (!this.t) return false;
     if (this.state) {
       await writeLog(this.req, this.t, {
         msg: this.message,

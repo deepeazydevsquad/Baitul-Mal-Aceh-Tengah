@@ -2,19 +2,23 @@ import axios from 'axios';
 
 // Gunakan variabel lingkungan dari .env
 import { API_URL } from '@/config/config';
+import {
+  clearAccessToken,
+  getAccessToken as getStoredAccessToken,
+  setAccessToken,
+} from '@/service/auth_token_store';
 
 const API_BASE_URL = API_URL;
 // Base URL API
 const api = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Fungsi untuk mengambil token dari localStorage
-const getAccessToken = () => localStorage.getItem('administrator_access_token');
-const getRefreshToken = () => localStorage.getItem('administrator_refresh_token');
+const getAccessToken = () => getStoredAccessToken('administrator');
 
 // Tambahkan interceptor untuk menyisipkan token di setiap request
 api.interceptors.request.use(
@@ -30,20 +34,24 @@ api.interceptors.request.use(
 
 // Interceptor untuk response: refresh token jika expired
 let isRefreshing = false;
-let failedRequestsQueue = [];
+type RetryCallback = (token: string | null) => void;
+let failedRequestsQueue: RetryCallback[] = [];
 
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    if (
-      (error.response?.status === 401 || error.response?.status === 403) &&
-      !originalRequest._retry
-    ) {
+    const errorCode = error.response?.data?.code;
+    const shouldRefresh =
+      error.response?.status === 401 ||
+      (error.response?.status === 403 &&
+        ['INVALID_TOKEN', 'SESSION_EXPIRED', 'TOKEN_MISSING'].includes(errorCode));
+
+    if (shouldRefresh && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
-          failedRequestsQueue.push((token) => {
+          failedRequestsQueue.push((token: string | null) => {
             if (token) {
               originalRequest.headers.Authorization = `Bearer ${token}`;
               resolve(api(originalRequest));
@@ -58,15 +66,15 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshToken = getRefreshToken();
-        if (!refreshToken) throw new Error('No refresh token available');
-
-        const response = await axios.post(`${API_BASE_URL}/auth/administrator/refresh`, {
-          refresh_token: refreshToken,
-        });
+        const response = await axios.post(
+          `${API_BASE_URL}/auth/administrator/refresh`,
+          {},
+          { withCredentials: true },
+        );
 
         const newAccessToken = response.data.access_token;
-        localStorage.setItem('administrator_access_token', newAccessToken);
+        if (!newAccessToken) throw new Error('Access token tidak tersedia');
+        setAccessToken('administrator', newAccessToken);
 
         // Jalankan semua request yang tertunda
         failedRequestsQueue.forEach((cb) => cb(newAccessToken));
@@ -76,8 +84,9 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         console.error('Refresh token gagal, harap login ulang');
-        localStorage.removeItem('administrator_access_token');
-        localStorage.removeItem('administrator_refresh_token');
+        failedRequestsQueue.forEach((cb) => cb(null));
+        failedRequestsQueue = [];
+        clearAccessToken('administrator');
         window.location.href = '/login-admin';
         return Promise.reject(refreshError);
       } finally {
@@ -89,6 +98,4 @@ api.interceptors.response.use(
   },
 );
 
-// localStorage.setItem('administrator_access_token', response.data.access_token)
-// localStorage.setItem('administrator_refresh_token', response.data.refresh_token)
 export default api;

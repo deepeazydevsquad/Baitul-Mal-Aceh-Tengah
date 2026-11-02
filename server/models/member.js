@@ -29,12 +29,18 @@ module.exports = (sequelize, DataTypes) => {
       desa_id: DataTypes.INTEGER,
       tipe: DataTypes.ENUM(["perorangan", "instansi"]),
       fullname: DataTypes.STRING,
-      nomor_ktp: DataTypes.STRING,
+      nomor_ktp: {
+        type: DataTypes.STRING,
+        unique: true,
+      },
       nomor_kk: DataTypes.STRING,
       whatsapp_number: DataTypes.STRING,
       birth_date: DataTypes.DATEONLY,
       alamat: DataTypes.TEXT,
-      username: DataTypes.STRING,
+      username: {
+        type: DataTypes.STRING,
+        unique: true,
+      },
       password: DataTypes.STRING,
     },
     {

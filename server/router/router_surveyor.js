@@ -5,7 +5,6 @@ const Controller = require("../modules/daftar_surveyor/controllers/index"); // P
 const {
     authenticateTokenAdministrator,
 } = require("../middleware/authenticateToken");
-console.log("Controller loaded:", Controller); // Debugging
 router.post(
     "/surveyor/list",
     authenticateTokenAdministrator,

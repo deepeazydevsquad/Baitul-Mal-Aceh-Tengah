@@ -133,7 +133,6 @@ async function fetchData() {
       type_year: selectedYear.value,
     });
 
-    console.log(response);
 
     dataProgramBantuan.value = response.data;
     totalRow.value = response.total;

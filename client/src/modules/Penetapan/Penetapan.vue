@@ -26,6 +26,7 @@ import FormAdd from '@/modules/ProgramKegiatanBantuan/widgets/FormAdd.vue';
 
 // Service API
 import { get_filter_type, get_program_bantuan, send_pesan } from '@/service/penetapan';
+import { openSecureFile } from '@/service/secure_file';
 import BaseSelect from '@/components/Form/BaseSelect.vue';
 import SuratIcon from '@/components/Icons/SuratIcon.vue';
 import ButtonGreen from '@/components/Button/ButtonGreen.vue';
@@ -147,7 +148,6 @@ async function fetchData() {
       pageNumber: currentPage.value,
     });
 
-    console.log(response);
 
     dataProgramBantuan.value = response.data;
     totalRow.value = response.total;
@@ -164,15 +164,17 @@ onMounted(async () => {
 
 // Function: Delete Data
 
-function openSkSurveyor(skFileName: string) {
-  const url = `${BASE_URL}/uploads/img/sk_penetapan/${skFileName}`;
-  window.open(url, '_blank'); // buka di tab baru browser
+function openSkSurveyor(surveyorKegiatanId: number) {
+  openSecureFile(`/documents/sk/${surveyorKegiatanId}`).catch(() => {
+    displayNotification('Gagal membuka SK surveyor', 'error');
+  });
 }
 
 const copyLink = async (accessCode: string) => {
   try {
-    const url = `localhost:5173/survey?code=${accessCode}`;
-    await navigator.clipboard.writeText(url);
+    const url = new URL('/survey', window.location.origin);
+    url.hash = new URLSearchParams({ code: accessCode }).toString();
+    await navigator.clipboard.writeText(url.toString());
     displayNotification('Link berhasil disalin', 'success');
   } catch (err) {
     console.error('Gagal salin link:', err);
@@ -353,7 +355,7 @@ async function kirim_pesan(kegiatan_id: number) {
                 <td class="px-4 py-1">
                   <div
                     v-if="data.kegiatans && data.kegiatans.length > 0"
-                    @click="openSkSurveyor(data.kegiatans[0].sk)"
+                    @click="openSkSurveyor(data.kegiatans[0].id)"
                     class="w-24 h-10 bg-gray-200 flex items-center justify-center cursor-pointer border rounded hover:bg-gray-300"
                   >
                     Klik untuk lihat

@@ -4,6 +4,7 @@ const controllers = require("../modules/daftar_pengguna/controllers/index");
 const {
   authenticateTokenAdministrator,
 } = require("../middleware/authenticateToken");
+const validation = require("../validation/administrator");
 
 const router = express.Router();
 
@@ -35,7 +36,16 @@ router.post(
       .notEmpty()
       .withMessage("Jabatan Pengguna Tidak Boleh Kosong"),
     body("grup_id").notEmpty().withMessage("Grup Pengguna Tidak Boleh Kosong"),
-    body("password").notEmpty().withMessage("Password Tidak Boleh Kosong"),
+    body("username")
+      .notEmpty()
+      .withMessage("Username Tidak Boleh Kosong")
+      .custom(validation.check_username),
+    body("password")
+      .notEmpty()
+      .withMessage("Password Tidak Boleh Kosong")
+      .isLength({ min: 8 })
+      .withMessage("Password minimal 8 karakter")
+      .custom(validation.check_password),
     body("password_confirmation")
       .notEmpty()
       .withMessage("Konfirmasi Password Tidak Boleh Kosong")
@@ -64,6 +74,15 @@ router.post(
       .isString()
       .withMessage("Name Harus String"),
     body("grup_id").notEmpty().withMessage("Grup Tidak Boleh Kosong"),
+    body("username")
+      .notEmpty()
+      .withMessage("Username Tidak Boleh Kosong")
+      .custom(validation.check_username),
+    body("password")
+      .optional({ values: "falsy" })
+      .isLength({ min: 8 })
+      .withMessage("Password minimal 8 karakter")
+      .custom(validation.check_password),
   ],
   controllers.update
 );

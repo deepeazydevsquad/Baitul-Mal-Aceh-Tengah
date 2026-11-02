@@ -1,141 +1,146 @@
 <script setup lang="ts">
 // Library
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
-import Notification from '@/components/Modal/Notification.vue'
-import BaseButton from '@/components/Button/BaseButton.vue'
-import InputText from '@/components/Form/InputText.vue'
-import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import Notification from '@/components/Modal/Notification.vue';
+import BaseButton from '@/components/Button/BaseButton.vue';
+import InputText from '@/components/Form/InputText.vue';
+import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 
 // Composable
-import { useNotification } from '@/composables/useNotification'
+import { useNotification } from '@/composables/useNotification';
 
 // Service
-import { get_konfigurasi, update_konfigurasi } from '@/service/pengaturan_whatsapp'
+import { get_konfigurasi, update_konfigurasi } from '@/service/pengaturan_whatsapp';
 
 // Notification
 const { showNotification, notificationType, notificationMessage, displayNotification } =
-  useNotification()
+  useNotification();
 
 // Props
 interface Props {
-  isModalOpen: boolean
+  isModalOpen: boolean;
 }
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 // Emit
 const emit = defineEmits<{
-  (e: 'close'): void
-  (e: 'status', payload: { error_msg?: string; error?: boolean }): void
-}>()
+  (e: 'close'): void;
+  (e: 'status', payload: { error_msg?: string; error?: boolean }): void;
+}>();
 
 // State
-const isSubmitting = ref(false)
+const isSubmitting = ref(false);
 const form = ref<{ whatsapp_number: string; api_key: string; device_key: string }>({
   whatsapp_number: '',
   api_key: '',
   device_key: '',
-})
-const errors = ref<Record<string, string>>({})
+});
+const configured = ref({ api_key: false, device_key: false });
+const errors = ref<Record<string, string>>({});
 
 // Reset form
 const resetForm = () => {
-  form.value = { whatsapp_number: '', api_key: '', device_key: '' }
-  errors.value = {}
-}
+  form.value = { whatsapp_number: '', api_key: '', device_key: '' };
+  configured.value = { api_key: false, device_key: false };
+  errors.value = {};
+};
 
 // Mapping dari API
-const mapApiDataToForm = (apiData: { name: string; value: string }[]) => {
+const mapApiDataToForm = (apiData: { name: string; value: string; configured?: boolean }[]) => {
   apiData.forEach((item) => {
-    if (item.name === 'whatsapp_number') form.value.whatsapp_number = item.value
-    if (item.name === 'api_key') form.value.api_key = item.value
-    if (item.name === 'device_key') form.value.device_key = item.value
-  })
-}
+    if (item.name === 'whatsapp_number') form.value.whatsapp_number = item.value;
+    if (item.name === 'api_key') form.value.api_key = item.value;
+    if (item.name === 'device_key') form.value.device_key = item.value;
+    if (item.name === 'api_key' || item.name === 'device_key') {
+      configured.value[item.name] = Boolean(item.configured);
+    }
+  });
+};
 
 // Fetch data konfigurasi
 const getData = async () => {
   try {
-    const response = await get_konfigurasi()
-    const apiData = response.data?.data || []
-    mapApiDataToForm(apiData)
+    const response = await get_konfigurasi();
+    const apiData = response.data?.data || [];
+    mapApiDataToForm(apiData);
   } catch (error: any) {
     const msg =
-      error.response?.data?.error_msg || error.response?.data?.message || 'Terjadi kesalahan'
-    displayNotification(msg, 'error')
+      error.response?.data?.error_msg || error.response?.data?.message || 'Terjadi kesalahan';
+    displayNotification(msg, 'error');
   }
-}
+};
 
 // Watch biar tiap kali modal dibuka, data di-fetch ulang
 watch(
   () => props.isModalOpen,
   (newVal) => {
     if (newVal) {
-      getData()
+      getData();
     } else {
-      resetForm()
+      resetForm();
     }
   },
-)
+);
 
 // Validasi
 const validateForm = () => {
-  let isValid = true
-  errors.value = {}
+  let isValid = true;
+  errors.value = {};
 
   if (!form.value.whatsapp_number) {
-    errors.value.whatsapp_number = 'Whatsapp Number tidak boleh kosong.'
-    isValid = false
+    errors.value.whatsapp_number = 'Whatsapp Number tidak boleh kosong.';
+    isValid = false;
   }
 
-  if (!form.value.api_key) {
-    errors.value.api_key = 'API Key tidak boleh kosong.'
-    isValid = false
+  if (!form.value.api_key && !configured.value.api_key) {
+    errors.value.api_key = 'API Key belum dikonfigurasi.';
+    isValid = false;
   }
 
-  if (!form.value.device_key) {
-    errors.value.device_key = 'Device Key tidak boleh kosong.'
-    isValid = false
+  if (!form.value.device_key && !configured.value.device_key) {
+    errors.value.device_key = 'Device Key belum dikonfigurasi.';
+    isValid = false;
   } else if (/\s/.test(form.value.device_key)) {
     errors.value.device_key =
-      'Device Key tidak boleh mengandung spasi, gunakan "_" sebagai pengganti.'
-    isValid = false
+      'Device Key tidak boleh mengandung spasi, gunakan "_" sebagai pengganti.';
+    isValid = false;
   }
 
-  return isValid
-}
+  return isValid;
+};
 
 // Submit
 const handleSubmit = async () => {
-  if (!validateForm()) return
+  if (!validateForm()) return;
 
-  form.value.device_key = form.value.device_key.replace(/\s+/g, '_')
+  form.value.device_key = form.value.device_key.replace(/\s+/g, '_');
 
-  isSubmitting.value = true
+  isSubmitting.value = true;
   try {
-    const response = await update_konfigurasi(form.value)
-    emit('status', { error_msg: response.error_msg, error: response.error })
-    closeModal()
+    const response = await update_konfigurasi(form.value);
+    emit('status', { error_msg: response.error_msg, error: response.error });
+    closeModal();
   } catch (error: any) {
     const msg =
-      error.response?.data?.error_msg || error.response?.data?.message || 'Terjadi kesalahan'
-    displayNotification(msg, 'error')
+      error.response?.data?.error_msg || error.response?.data?.message || 'Terjadi kesalahan';
+    displayNotification(msg, 'error');
   } finally {
-    isSubmitting.value = false
+    isSubmitting.value = false;
   }
-}
+};
 
 // Close modal
 const closeModal = () => {
-  resetForm()
-  emit('close')
-}
+  resetForm();
+  emit('close');
+};
 
 // Escape key
 const handleEscape = (e: KeyboardEvent) => {
-  if (e.key === 'Escape' && props.isModalOpen) closeModal()
-}
-onMounted(() => document.addEventListener('keydown', handleEscape))
-onBeforeUnmount(() => document.removeEventListener('keydown', handleEscape))
+  if (e.key === 'Escape' && props.isModalOpen) closeModal();
+};
+onMounted(() => document.addEventListener('keydown', handleEscape));
+onBeforeUnmount(() => document.removeEventListener('keydown', handleEscape));
 </script>
 
 <template>
@@ -180,8 +185,10 @@ onBeforeUnmount(() => document.removeEventListener('keydown', handleEscape))
         <InputText
           v-model="form.api_key"
           label="API Key"
-          type="text"
-          placeholder="Masukkan API Key"
+          type="password"
+          :placeholder="
+            configured.api_key ? 'Tersimpan — kosongkan untuk mempertahankan' : 'Masukkan API Key'
+          "
           :error="errors.api_key"
         />
 
@@ -189,8 +196,12 @@ onBeforeUnmount(() => document.removeEventListener('keydown', handleEscape))
         <InputText
           v-model="form.device_key"
           label="Device Key"
-          type="text"
-          placeholder="Masukkan Device Key"
+          type="password"
+          :placeholder="
+            configured.device_key
+              ? 'Tersimpan — kosongkan untuk mempertahankan'
+              : 'Masukkan Device Key'
+          "
           :error="errors.device_key"
         />
 
@@ -207,10 +218,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', handleEscape))
           <BaseButton
             type="submit"
             variant="primary"
-            :disabled="
-              !(form.whatsapp_number.trim() && form.api_key.trim() && form.device_key.trim()) ||
-              isSubmitting
-            "
+            :disabled="!form.whatsapp_number.trim() || isSubmitting"
             @click="handleSubmit"
           >
             <span v-if="isSubmitting">Menyimpan...</span>

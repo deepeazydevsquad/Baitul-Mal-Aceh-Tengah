@@ -40,21 +40,18 @@ class Model_r {
         { headers: form.getHeaders() }
       );
       const responseData = infoRes.data?.data;
-      const qr_url = `https://wapisender.id/api/v5/device/qr?api_key=${api_key}&device_key=${device_key}`;
       return {
         phone_number: responseData.phone_number || null,
-        device_key: responseData.id || device_key,
+        device_key_configured: Boolean(responseData.id || device_key),
         tanggal_berlangganan: responseData.created_at || null,
         tanggal_expired: responseData.expired_at || null,
         status_langganan: responseData.status || null,
-        qr_url,
       };
     } catch (err) {
       console.log(err.response?.data || err.message);
       return {
         error: true,
         message: err.response?.data || err.message,
-        qr_url: null,
       };
     }
   }

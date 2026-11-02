@@ -2,6 +2,17 @@ const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
 const { handleValidationErrors, handleServerError } = require("../../../helper/handleError");
 
+function handleControllerError(res, error) {
+    if (error?.statusCode) {
+        return res.status(error.statusCode).json({
+            message: error.message,
+            status: "failed",
+            code: error.code,
+        });
+    }
+    return handleServerError(res, error);
+}
+
 // list pengguna
 exports.list_daftar_pengguna = async (req, res) => {
     if (!(await handleValidationErrors(req, res))) return;
@@ -59,8 +70,7 @@ exports.add = async (req, res) => {
             });
         }
     } catch (error) {
-        console.error("Terjadi error saat menambahkan pengguna baru:", error);
-        handleServerError(res, error);
+        handleControllerError(res, error);
     }
 };
 
@@ -84,8 +94,7 @@ exports.update = async (req, res) => {
             });
         }
     } catch (error) {
-        console.error("Terjadi error saat memperbarui pengguna:", error);
-        handleServerError(res, error);
+        handleControllerError(res, error);
     }
 };
 
@@ -109,8 +118,7 @@ exports.delete = async (req, res) => {
             });
         }
     } catch (error) {
-        console.error("Terjadi error saat menghapus pengguna:", error);
-        handleServerError(res, error);
+        handleControllerError(res, error);
     }
 };
 
@@ -135,7 +143,6 @@ exports.detail = async (req, res) => {
             });
         }
     } catch (error) {
-        console.error("Terjadi error saat mengambil detail pengguna:", error);
-        handleServerError(res, error);
+        handleControllerError(res, error);
     }
 };

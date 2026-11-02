@@ -1,5 +1,6 @@
 const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
+const validation = require("../../../validation/permohonan_member");
 
 const {
   handleValidationErrors,
@@ -112,22 +113,42 @@ controllers.list_bank = async (req, res) => {
 controllers.add = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
+  const model_cud = new Model_cud(req);
   try {
-    const model_cud = new Model_cud(req);
     await model_cud.add();
+    const added = await model_cud.response();
 
-    if (await model_cud.response()) {
+    if (added) {
       res.status(200).json({
         error: false,
         error_msg: "Permohonan bantuan berhasil ditambahkan.",
       });
     } else {
-      res.status(400).json({
+      if (model_cud.isUploadCleanupSafe()) {
+        await validation.removeUploadedDocuments(req);
+      }
+      const statusCode =
+        model_cud.statusCode >= 400 && model_cud.statusCode <= 599
+          ? model_cud.statusCode
+          : 500;
+      const responseBody = {
         error: true,
-        error_msg: "Permohonan bantuan gagal ditambahkan.",
-      });
+        error_msg:
+          model_cud.message
+            ? model_cud.message
+            : "Permohonan bantuan gagal ditambahkan.",
+      };
+      if (model_cud.transactionOutcome === "commit_unknown") {
+        responseBody.code = "COMMIT_OUTCOME_UNKNOWN";
+      }
+      res.status(statusCode).json(responseBody);
     }
   } catch (error) {
+    if (model_cud.isUploadCleanupSafe()) {
+      await validation
+        .removeUploadedDocuments(req)
+        .catch(() => undefined);
+    }
     handleServerError(res, error);
   }
 };

@@ -2,7 +2,7 @@ const express = require("express");
 const { body } = require("express-validator");
 const controllers = require("../modules/infaq_member/controllers/index");
 const {
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
 } = require("../middleware/authenticateToken");
 const validation = require("../validation/infaq_member");
 
@@ -10,31 +10,31 @@ const router = express.Router();
 
 router.post(
   "/infaq_member/list",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   controllers.getInfaqList
 );
 
 router.get(
   "/infaq_member/kode_pembayaran",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   controllers.kode_pembayaran
 );
 
 router.get(
   "/infaq_member/profile",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   controllers.getMemberProfile
 );
 
 router.get(
   "/infaq_member/banks",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   controllers.getBankList
 );
 
 router.post(
   "/infaq_member/add",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   [
     body("nominal")
       .notEmpty()
@@ -61,7 +61,7 @@ router.post(
 
 router.post(
   "/infaq_member/confirm",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   [
     body("invoice")
       .notEmpty()

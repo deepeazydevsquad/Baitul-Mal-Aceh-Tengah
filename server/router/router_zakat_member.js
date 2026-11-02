@@ -3,44 +3,44 @@ const { body } = require("express-validator");
 const controllers = require("../modules/zakat_member/controllers/index");
 const validation = require("../validation/zakat_member");
 const {
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
 } = require("../middleware/authenticateToken");
 
 const router = express.Router();
 
 router.post(
   "/zakat_member/list",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   controllers.getZakatList
 );
 
 router.get(
   "/zakat_member/kode_pembayaran",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   controllers.kode_pembayaran
 );
 
 router.get(
   "/zakat_member/profile",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   controllers.getMemberProfile
 );
 
 router.get(
   "/zakat_member/banks",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   controllers.getBankList
 );
 
 router.get(
   "/zakat_member/tipe",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   controllers.getTipeZakat
 );
 
 router.post(
   "/zakat_member/add",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   [
     // Validasi Tipe Zakat
     body("tipe")
@@ -74,7 +74,7 @@ router.post(
 
 router.post(
   "/zakat_member/confirm",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   [
     body("invoice")
       .notEmpty()

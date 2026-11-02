@@ -1,87 +1,88 @@
 const axios = require("axios");
-require("dotenv").config();
-
 const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
-
 const { handleValidationErrors } = require("../../../helper/handleError");
+const {
+  normalizeWhatsAppNumber,
+  generateOtpCode,
+} = require("../../../helper/otpHelper");
 
 exports.sendOtp = async (req, res) => {
-    if (!(await handleValidationErrors(req, res))) return;
+  if (!(await handleValidationErrors(req, res))) return;
 
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiredTime = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 hari
-    const now = new Date();
-    const startOfDay = new Date(now.setHours(0, 0, 0, 0));
+  const whatsappNumber = normalizeWhatsAppNumber(req.body.whatsappNumber);
+  if (!whatsappNumber) {
+    return res.status(400).json({
+      error: true,
+      error_msg: "Nomor WhatsApp tidak valid.",
+      code: "INVALID_WHATSAPP_NUMBER",
+    });
+  }
 
-    try {
-        const { whatsappNumber } = req.body;
-        console.log("_______DDDDDDDDD________");
-        console.log(whatsappNumber);
-        console.log("_______DDDDDDDDD________");
+  const modelCud = new Model_cud(req);
+  try {
+    const otpCode = generateOtpCode();
+    await modelCud.createOtp({
+      whatsapp_number: whatsappNumber,
+      purpose: "registration",
+      otp_code: otpCode,
+    });
+    if (!(await modelCud.response())) throw new Error("OTP_COMMIT_FAILED");
 
-        const model_r = new Model_r(req);
-        const otpCount = await model_r.countOtp(startOfDay);
-
-        if (otpCount >= 2) {
-            return res.status(429).json({
-                error: "Batas maksimal OTP tercapai. Coba lagi besok.",
-                code: "OTP_LIMIT_REACHED",
-            });
-        }
-
-        const wapiSetting = await model_r.wapisender_api_device_key();
-
-        if (!wapiSetting["api_key"] || !wapiSetting["device_key"]) {
-            return res.status(500).json({
-                error: "API Key atau Device Key tidak ditemukan",
-                code: "API_KEY_MISSING",
-            });
-        }
-
-        const message = `Kode OTP Anda adalah ${otpCode}`;
-        const wapisenderResponse = await axios.post(
-            "https://wapisender.id/api/v5/message/text",
-            {
-                api_key: wapiSetting["api_key"],
-                device_key: wapiSetting["device_key"],
-                destination: whatsappNumber,
-                message: message,
-            }
-        );
-
-        if (wapisenderResponse.data.status !== "ok") {
-            return res.status(500).json({
-                error: "Gagal mengirim OTP",
-                code: "OTP_SEND_FAILED",
-                detail: wapisenderResponse.data,
-            });
-        } else {
-            const model_cud = new Model_cud(req);
-            // insert
-            await model_cud.savedOtp({
-                otp_code: otpCode,
-                expired_time: expiredTime,
-                whatsapp_number: whatsappNumber,
-            });
-
-            if (model_cud.response()) {
-                return res.json({
-                    status: "OTP berhasil dikirim",
-                    otp: otpCode,
-                });
-            } else {
-                return res.status(500).json({
-                    error: "Terjadi kesalahan saat mengirim/simpan OTP",
-                });
-            }
-        }
-    } catch (error) {
-        return res.status(500).json({
-            error: "Terjadi kesalahan saat mengirim/simpan OTP",
-            code: "INTERNAL_SERVER_ERROR",
-            detail: error.message || error,
-        });
+    const modelR = new Model_r(req);
+    const setting = await modelR.wapisender_api_device_key();
+    if (!setting.api_key || !setting.device_key) {
+      await modelCud.markFailed();
+      return res.status(503).json({
+        error: true,
+        error_msg: "Layanan OTP belum dikonfigurasi.",
+        code: "OTP_PROVIDER_UNAVAILABLE",
+      });
     }
-};
 
+    const providerResponse = await axios.post(
+      "https://wapisender.id/api/v5/message/text",
+      {
+        api_key: setting.api_key,
+        device_key: setting.device_key,
+        destination: whatsappNumber,
+        message: `Kode OTP Anda adalah ${otpCode}. Kode berlaku 5 menit.`,
+      },
+      { timeout: 10000 }
+    );
+
+    if (providerResponse.data?.status !== "ok") {
+      await modelCud.markFailed();
+      return res.status(502).json({
+        error: true,
+        error_msg: "OTP gagal dikirim.",
+        code: "OTP_SEND_FAILED",
+      });
+    }
+
+    return res.status(200).json({
+      error: false,
+      status: "OTP berhasil dikirim.",
+      expires_in_seconds: 300,
+    });
+  } catch (error) {
+    if (error.code === "OTP_SEND_LIMIT") {
+      await modelCud.response();
+      return res.status(429).json({
+        error: true,
+        error_msg: "Batas pengiriman OTP tercapai. Coba lagi besok.",
+        code: "OTP_SEND_LIMIT",
+      });
+    }
+
+    if (modelCud.record) {
+      await modelCud.markFailed();
+    }
+    await modelCud.response();
+    return res.status(500).json({
+      error: true,
+      error_msg: "Terjadi kesalahan saat mengirim OTP.",
+      code: "OTP_SEND_FAILED",
+    });
+  }
+};

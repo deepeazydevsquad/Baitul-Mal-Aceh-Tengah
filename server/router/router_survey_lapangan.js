@@ -3,11 +3,30 @@ const { body } = require("express-validator");
 const controllers = require("../modules/survey_lapangan/controllers/index");
 const validation = require("../validation/survey_lapangan.js");
 const validationHelper = require("../helper/handleErrorFile.js");
+const {
+  requireSurveyCapability,
+} = require("../helper/surveyCapabilityHelper");
+const {
+  createPersistentRateLimiter,
+} = require("../helper/rateLimitHelper");
 const router = express.Router();
 
-// Get info survey lapangan by access code
+const sessionLimiter = createPersistentRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 15,
+  keyGenerator: (req) => `survey-session:${req.ip}`,
+  message: "Terlalu banyak permintaan sesi survei.",
+});
+const submitLimiter = createPersistentRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  keyGenerator: (req) => `survey-submit:${req.ip}`,
+  message: "Terlalu banyak pengiriman survei.",
+});
+
 router.post(
-  "/survey_lapangan/info",
+  "/survey_lapangan/session",
+  sessionLimiter,
   [
     body("access_code")
       .notEmpty()
@@ -16,19 +35,23 @@ router.post(
       .withMessage("Access Code Harus String")
       .custom(validation.check_access_code),
   ],
+  controllers.create_session
+);
+
+// Get info survey lapangan by access code
+router.post(
+  "/survey_lapangan/info",
+  requireSurveyCapability,
+  [
+  ],
   controllers.survey_lapangan
 );
 
 // Get info member by access code & member_id
 router.post(
   "/survey_lapangan/info_member",
+  requireSurveyCapability,
   [
-    body("access_code")
-      .notEmpty()
-      .withMessage("Access Code Tidak Boleh Kosong")
-      .isString()
-      .withMessage("Access Code Harus String")
-      .custom(validation.check_access_code),
     body("member_id")
       .notEmpty()
       .withMessage("Member ID Tidak Boleh Kosong")
@@ -36,7 +59,7 @@ router.post(
       .withMessage("Member ID Harus Angka")
       .custom(validation.check_id_member),
     body("member_id").custom((value, { req }) =>
-      validation.check_member_in_access_code(value, req.body.access_code)
+      validation.check_member_in_capability(value, req.surveyCapability)
     ),
   ],
   controllers.get_info_member
@@ -45,19 +68,15 @@ router.post(
 // Submit survey lapangan
 router.post(
   "/survey_lapangan/submit",
-  validation.upload.fields([
-    { name: "dokumentasi", maxCount: 10 },
-    { name: "form_survey", maxCount: 1 },
-    { name: "berita_acara", maxCount: 1 },
-  ]),
+  submitLimiter,
+  requireSurveyCapability,
+  (req, res, next) => {
+    req.surveyUploadPath = validation.uploadPath;
+    next();
+  },
+  validation.uploadSurveyFiles,
+  validation.removeUntrustedUploadMetadata,
   [
-    body("access_code")
-      .notEmpty()
-      .withMessage("Access Code tidak boleh kosong")
-      .isString()
-      .withMessage("Access Code harus string")
-      .custom(validation.check_access_code),
-
     body("member_id")
       .notEmpty()
       .withMessage("Member ID tidak boleh kosong")
@@ -65,10 +84,10 @@ router.post(
       .withMessage("Member ID harus angka")
       .custom(validation.check_id_member)
       .custom((value, { req }) =>
-        validation.check_member_not_surveyed(value, req.body.access_code)
+        validation.check_member_not_surveyed(value, req.surveyCapability)
       )
       .custom((value, { req }) =>
-        validation.check_member_in_access_code(value, req.body.access_code)
+        validation.check_member_in_capability(value, req.surveyCapability)
       ),
 
     // Step 2: Data Responden

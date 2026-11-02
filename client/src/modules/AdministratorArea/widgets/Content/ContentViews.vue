@@ -248,9 +248,10 @@ watch(
     >
       <div class="grid grid-cols-2 gap-6 items-start">
         <div
-          class="px-5 text-sm text-gray-900 dark:text-white leading-relaxed"
-          v-html="tab.sharedObject[item.id].desc"
-        ></div>
+          class="px-5 whitespace-pre-line break-words text-sm text-gray-900 dark:text-white leading-relaxed"
+        >
+          {{ tab.sharedObject[item.id].desc }}
+        </div>
 
         <div
           class="px-5 text-sm text-gray-900 dark:text-white font-medium leading-relaxed text-right min-h-[40px]"

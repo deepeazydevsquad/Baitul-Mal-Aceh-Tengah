@@ -1,0 +1,3914 @@
+{
+  "date": "2026-11-02",
+  "registeredRoutes": 305,
+  "checks": 809,
+  "unexpectedQueries": 0,
+  "anomalies": [],
+  "scope": "Actual Express routers and JWT verification, synthetic account/session reads. No database, positive business-flow coverage or production testing.",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/administrator",
+      "access": "admin",
+      "permission": {
+        "menuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/asnaf_tahun/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/auth/administrator/edit_profile",
+      "access": "admin",
+      "permission": "self-profile",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/auth/administrator/get_info_edit_profile",
+      "access": "admin",
+      "permission": "self-profile",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/auth/administrator/logout",
+      "access": "public-or-capability",
+      "permission": null
+    },
+    {
+      "method": "POST",
+      "path": "/auth/administrator/refresh",
+      "access": "public-or-capability",
+      "permission": null
+    },
+    {
+      "method": "POST",
+      "path": "/auth/login_administrator",
+      "access": "public-or-capability",
+      "permission": null
+    },
+    {
+      "method": "POST",
+      "path": "/auth/login_member",
+      "access": "public-or-capability",
+      "permission": null
+    },
+    {
+      "method": "POST",
+      "path": "/auth/member/edit_profile_member",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/auth/member/get_info_edit_profile_member",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/auth/member/logout",
+      "access": "public-or-capability",
+      "permission": null
+    },
+    {
+      "method": "POST",
+      "path": "/auth/member/refresh",
+      "access": "public-or-capability",
+      "permission": null
+    },
+    {
+      "method": "POST",
+      "path": "/bakal_penerima_bantuan/batal_realisasi",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/bakal_penerima_bantuan/get_filter_type",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/bakal_penerima_bantuan/get_info_permohonan",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/bakal_penerima_bantuan/get_info_upload_berita_acara",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/bakal_penerima_bantuan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/bakal_penerima_bantuan/list_belum_upload_berita_acara",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/bakal_penerima_bantuan/realisasi_bantuan",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/bakal_penerima_bantuan/upload_berita_acara",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/bakal_penerima_bantuan/upload_berita_acara_massal",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/bank_pengumpulan/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 9
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/bank_pengumpulan/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 9
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/bank_pengumpulan/edit",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 9
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/bank/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 9
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/bank/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 9
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/bank/edit",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 9
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/bank/get_info_edit_bank",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 9
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/bank/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 9
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/beranda/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_asnaf/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 6
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_asnaf/asnaf_by_id",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 6
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_asnaf/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 6
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_asnaf/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 6
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_asnaf/update",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 6
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_bank_pengumpulan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 9
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/daftar_bank/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 9
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_keanggotaan/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 3,
+        "submenuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_keanggotaan/daftar_desa",
+      "access": "admin",
+      "permission": {
+        "menuId": 3,
+        "submenuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_keanggotaan/daftar_keanggotaan",
+      "access": "admin",
+      "permission": {
+        "menuId": 3,
+        "submenuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/daftar_keanggotaan/daftar_kecamatan",
+      "access": "admin",
+      "permission": {
+        "menuId": 3,
+        "submenuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_keanggotaan/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 3,
+        "submenuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_keanggotaan/edit",
+      "access": "admin",
+      "permission": {
+        "menuId": 3,
+        "submenuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_keanggotaan/get_info_edit_keanggotaan",
+      "access": "admin",
+      "permission": {
+        "menuId": 3,
+        "submenuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_keanggotaan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 3,
+        "submenuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_pengguna/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 17
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_pengguna/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 17
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_pengguna/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 17
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/daftar_pengguna/list_grup",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 17
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_pengguna/pengguna_by_id",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 17
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_pengguna/update",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 17
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_program/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 7
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_program/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 7
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_program/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 7
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_program/program_by_id",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 7
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/daftar_program/update",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 7
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/desa/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 8
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/desa/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 8
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/desa/edit",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 8
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/desa/get_info_edit_desa",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 8
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/desa/kecamatan_list",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 8
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/desa/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 8
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/documents/payment/:kind/:id/:field",
+      "access": "document-owner-or-capability",
+      "permission": "record-scope"
+    },
+    {
+      "method": "GET",
+      "path": "/documents/realisasi/:id/:field",
+      "access": "document-owner-or-capability",
+      "permission": "record-scope"
+    },
+    {
+      "method": "GET",
+      "path": "/documents/sk/:id",
+      "access": "document-owner-or-capability",
+      "permission": "record-scope"
+    },
+    {
+      "method": "GET",
+      "path": "/documents/survey/:id/:field",
+      "access": "document-owner-or-capability",
+      "permission": "record-scope"
+    },
+    {
+      "method": "GET",
+      "path": "/documents/validation/:id",
+      "access": "document-owner-or-capability",
+      "permission": "record-scope"
+    },
+    {
+      "method": "POST",
+      "path": "/donasi_member/add",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/donasi_member/banks",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/donasi_member/daftar_donatur",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/donasi_member/detail_donasi",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/donasi_member/detail_riwayat",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/donasi_member/get_konfirmasi",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/donasi_member/kode_pembayaran",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/donasi_member/konfirmasi_detail",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/donasi_member/list",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/donasi_member/profile",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/donasi_member/riwayat_donasi_user",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/donasi_member/update_konfirmasi",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/download_excel_laporan_all_penyaluran",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/download_excel_laporan_kesekretariatan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/download_excel_laporan_penyaluran/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/download_excel_laporan_rekap_penyaluran_per_asnaf",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/download_excel_laporan_rekap_penyaluran_per_kecamatan",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/download_excel_laporan_rekap_penyaluran_per_kode_asnaf",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/fn_asnaf_amil/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/fn_asnaf/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/grup_akses/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 16
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/grup_akses/daftar_menu",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 16
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/grup_akses/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 16
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/grup_akses/edit",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 16
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/grup_akses/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 16
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/grup_akses/list_menu_by_id",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 16
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/image/logo",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 18
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/infaq_member/add",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/infaq_member/banks",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/infaq_member/confirm",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/infaq_member/kode_pembayaran",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/infaq_member/list",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/infaq_member/profile",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/info_laporan_umum/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/kecamatan/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 8
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/kecamatan/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 8
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/kecamatan/edit",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 8
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/kecamatan/get_info_edit_kecamatan",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 8
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/kecamatan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 4,
+        "submenuId": 8
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/kegiatan_kesekretariatan/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 4
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/kegiatan_kesekretariatan/daftar_desa",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 4
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/kegiatan_kesekretariatan/daftar_kecamatan",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 4
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/kegiatan_kesekretariatan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 4
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/kriteria/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/kriteria/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/laporan_kesekretariatan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/laporan_pengumpulan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/laporan_perencanaan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/laporan_tahunan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/laporan_umum/laporan_harian",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/laporan_umum/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/member_area/get_member_info",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/monev/get_filter_type",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/monev/kirim_jawaban",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/monev/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/monev/pertanyaan",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/penetapan/add_kriteria",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/penetapan/add_surveyor",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/penetapan/add_syarat",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/penetapan/daftar_surveyor",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/penetapan/daftar_syarat",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/penetapan/detail_kriteria",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/penetapan/detail_surveyor",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/penetapan/detail_syarat",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/penetapan/get_filter_type",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/penetapan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/penetapan/send_pesan",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/pengaturan_umum/edit",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 15
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/pengaturan_umum/get_info_pengaturan_umum",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 15
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/pengaturan_whatsapp/get_konfigurasi",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 19
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/pengaturan_whatsapp/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 19
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/pengaturan_whatsapp/start",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 19
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/pengaturan_whatsapp/update",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 19
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/permohonan_bantuan/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/permohonan_bantuan/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/permohonan_bantuan/edit",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/permohonan_bantuan/edit_status",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/permohonan_bantuan/get_filter_type",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/permohonan_bantuan/get_info_edit_permohonan_bantuan",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/permohonan_bantuan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/permohonan_bantuan/list_bank",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/permohonan_bantuan/list_kegiatan",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/permohonan_bantuan/list_kriteria_syarat",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/permohonan_bantuan/list_member",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/permohonan_member/add",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/permohonan_member/desc",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/permohonan_member/info",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/permohonan_member/info_member",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/permohonan_member/kriteria",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/permohonan_member/list_bank",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/permohonan_member/lokasi",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/permohonan_member/syarat",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/permohonan_member/syarat_permohonan",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/pertanyaan-monev/create",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/pertanyaan-monev/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/pertanyaan-monev/get-info-edit",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/pertanyaan-monev/get-jenis",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/pertanyaan-monev/get-urutan-bagian",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/pertanyaan-monev/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/pertanyaan-monev/update",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/program_bantuan_member/list",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/program_bantuan_member/list_program",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/program_donasi/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/program_donasi/add_donasi",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/program_donasi/daftar_member",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/program_donasi/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/program_donasi/detail",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/program_donasi/edit",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/program_donasi/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/program_donasi/tutup",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/program_kegiatan_bantuan/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/program_kegiatan_bantuan/daftar_desa",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/program_kegiatan_bantuan/daftar_kecamatan",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/program_kegiatan_bantuan/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/program_kegiatan_bantuan/edit",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/program_kegiatan_bantuan/edit_status_program_bantuan",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/program_kegiatan_bantuan/get_filter_type",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/program_kegiatan_bantuan/get_info_edit_program_bantuan",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/program_kegiatan_bantuan/get_info_edit_status_program_bantuan",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/program_kegiatan_bantuan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/register",
+      "access": "public-or-capability",
+      "permission": null
+    },
+    {
+      "method": "POST",
+      "path": "/register/daftar_desa",
+      "access": "public-or-capability",
+      "permission": null
+    },
+    {
+      "method": "GET",
+      "path": "/register/daftar_kecamatan",
+      "access": "public-or-capability",
+      "permission": null
+    },
+    {
+      "method": "GET",
+      "path": "/rekap_distribusi_kecamatan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/rekap_distribusi_per_asnaf/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/rekap_distribusi_per_kode_asnaf/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/rekap_pengumpulan_per_kecamatan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/rekap_pengumpulan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/rekap_perkecamatan/download",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/request_keanggotaan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 3,
+        "submenuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/request_keanggotaan/verifikasi",
+      "access": "admin",
+      "permission": {
+        "menuId": 3,
+        "submenuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_donasi/approve_online",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_donasi/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_donasi/info_bukti_setoran",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_donasi/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_donasi/reject_online",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_donasi/riwayat_donasi_by_id",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_donasi/upload_bukti_setoran",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_donasi/upload_bukti_transfer",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_infaq/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_infaq/approve_online",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_infaq/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_infaq/info_bukti_setoran",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_infaq/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/riwayat_infaq/list_member",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_infaq/reject_online",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_infaq/upload_bukti_setoran",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_infaq/upload_bukti_transfer",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_permohonan_member/delete",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_permohonan_member/list",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_pesan_whatsapp/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 19
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_pesan_whatsapp/get_pesan_template_pesan_whatsapp",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 19
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_pesan_whatsapp/get_template_pesan_whatsapp",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 19
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_pesan_whatsapp/kirim_pesan",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 19
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_pesan_whatsapp/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 19
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_zakat/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_zakat/approve_online",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_zakat/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_zakat/info_bukti_setoran",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_zakat/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/riwayat_zakat/list_member",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_zakat/reject_online",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_zakat/upload_bukti_setoran",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/riwayat_zakat/upload_bukti_transfer",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/running_text/active",
+      "access": "public-or-capability",
+      "permission": null
+    },
+    {
+      "method": "POST",
+      "path": "/running_text/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 18
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/running_text/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 18
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/running_text/edit",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 18
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/running_text/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 18
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/running_text/speed",
+      "access": "public-or-capability",
+      "permission": null
+    },
+    {
+      "method": "POST",
+      "path": "/running_text/speed/update",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 18
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/running_text/toggle",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 18
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/running_text/update-order",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 18
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/send_otp",
+      "access": "public-or-capability",
+      "permission": null
+    },
+    {
+      "method": "POST",
+      "path": "/survey_lapangan/info",
+      "access": "public-or-capability",
+      "permission": null
+    },
+    {
+      "method": "POST",
+      "path": "/survey_lapangan/info_member",
+      "access": "public-or-capability",
+      "permission": null
+    },
+    {
+      "method": "POST",
+      "path": "/survey_lapangan/session",
+      "access": "public-or-capability",
+      "permission": null
+    },
+    {
+      "method": "POST",
+      "path": "/survey_lapangan/submit",
+      "access": "public-or-capability",
+      "permission": null
+    },
+    {
+      "method": "POST",
+      "path": "/surveyor/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/surveyor/delete/",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/surveyor/detail/",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/surveyor/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/surveyor/update/",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/syarat/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/syarat/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/syarat/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/syarat/syarat_by_id",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/syarat/update",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/system_log_surveyor/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 20
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/system_log/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 20
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/tab/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/tab/tab_by_id",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/tab/update",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/tanda_tangan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/tanda_tangan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 5
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/target_distribusi/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/target_distribusi/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/target_distribusi/detail",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/target_distribusi/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/target_distribusi/list_asnaf",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/target_distribusi/update",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/target_pengumpulan/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/target_pengumpulan/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/target_pengumpulan/detail",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/target_pengumpulan/edit",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/target_pengumpulan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 1
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/template_pesan_whatsapp/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 19
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/template_pesan_whatsapp/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 19
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/template_pesan_whatsapp/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 19
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/template_pesan_whatsapp/template_pesan_whatsapp_by_id",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 19
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/template_pesan_whatsapp/update",
+      "access": "admin",
+      "permission": {
+        "menuId": 6,
+        "submenuId": 19
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/urutan-monev/get-jenis",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/urutan-monev/get-urutan",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/urutan-monev/update-urutan",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/validasi_permohonan_bantuan/approve_berkas",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/validasi_permohonan_bantuan/approve_permohonan",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/validasi_permohonan_bantuan/edit_file",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/validasi_permohonan_bantuan/get_filter_type",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/validasi_permohonan_bantuan/get_info_approve_permohonan",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/validasi_permohonan_bantuan/get_info_edit_file",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/validasi_permohonan_bantuan/get_info_pemberitahuan",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/validasi_permohonan_bantuan/get_info_reject_permohonan",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/validasi_permohonan_bantuan/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/validasi_permohonan_bantuan/pemberitahuan",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/validasi_permohonan_bantuan/reject_berkas",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/validasi_permohonan_bantuan/reject_permohonan",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/wakalah/add",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/wakalah/delete",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/wakalah/edit",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/wakalah/get_info_edit_wakalah",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/wakalah/list",
+      "access": "admin",
+      "permission": {
+        "menuId": 2,
+        "submenuId": 3
+      },
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403,
+        "adminWithoutPermission": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/zakat_member/add",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/zakat_member/banks",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/zakat_member/confirm",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/zakat_member/kode_pembayaran",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/zakat_member/list",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/zakat_member/profile",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/zakat_member/tipe",
+      "access": "member",
+      "permission": "owner-scope",
+      "checks": {
+        "anonymous": 401,
+        "wrongPrincipal": 403
+      }
+    }
+  ]
+}

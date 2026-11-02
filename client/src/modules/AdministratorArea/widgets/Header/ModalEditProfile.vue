@@ -49,7 +49,6 @@ async function fetchData() {
   try {
     const response = await get_info_edit_profile();
     form.value = response.data;
-    console.log(response);
   } catch (error) {
     console.error(error);
   } finally {

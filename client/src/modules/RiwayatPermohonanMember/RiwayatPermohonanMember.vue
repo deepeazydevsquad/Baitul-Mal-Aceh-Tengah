@@ -19,7 +19,7 @@ import { useConfirmation } from '@/composables/useConfirmation';
 import { useNotification } from '@/composables/useNotification';
 
 // Service API
-import { riwayat_permohonan, delete_riwayat_permohonan } from '@/service/riwayat_permohonan_member';
+import { riwayat_permohonan, cancel_riwayat_permohonan } from '@/service/riwayat_permohonan_member';
 
 // State: Loading
 const isLoading = ref(false);
@@ -49,7 +49,9 @@ interface Data {
   tanggal: string;
   kegiatan: string;
   program: string;
+  status_permohonan: string;
   status_realisasi: string;
+  can_cancel: boolean;
 }
 
 const datas = ref<Data[]>([]);
@@ -103,20 +105,23 @@ onMounted(async () => {
   await fetchData();
 });
 
-async function deleteData(id: number) {
+async function cancelData(id: number) {
   displayConfirmation(
-    'Hapus Data Permohonan',
-    'Apakah Anda yakin ingin menghapus data permohonan ini?',
+    'Batalkan Permohonan',
+    'Permohonan hanya dapat dibatalkan sebelum diverifikasi atau diproses. Riwayat akan tetap tersimpan. Lanjutkan?',
     async () => {
       try {
         isLoading.value = true;
-        await delete_riwayat_permohonan({
+        const response = await cancel_riwayat_permohonan({
           id: id,
         });
-        displayNotification('Data Permohonan berhasil dihapus', 'success');
+        displayNotification(response.message || 'Permohonan berhasil dibatalkan', 'success');
         await fetchData();
-      } catch (error) {
-        displayNotification('Gagal menghapus data permohohan', 'error');
+      } catch (error: any) {
+        displayNotification(
+          error.response?.data?.message || 'Permohonan tidak dapat dibatalkan',
+          'error',
+        );
       } finally {
         isLoading.value = false;
       }
@@ -173,7 +178,10 @@ async function deleteData(id: number) {
         </template>
 
         <template #cell-status_realisasi="{ row }">
-          {{ row.status_realisasi?.replaceAll('_', ' ').toUpperCase() }}
+          <div>{{ row.status_realisasi?.replaceAll('_', ' ').toUpperCase() }}</div>
+          <div v-if="row.status_permohonan === 'terhenti'" class="text-xs text-gray-500 mt-1">
+            RIWAYAT DIBATALKAN
+          </div>
         </template>
         
         <template #cell-tanggal="{ row }">
@@ -182,7 +190,11 @@ async function deleteData(id: number) {
 
         <template #row-actions="{ row }">
           <div class="flex justify-center gap-2">
-            <DangerButton @click="deleteData(row.id)">
+            <DangerButton
+              v-if="row.can_cancel"
+              title="Batalkan permohonan"
+              @click="cancelData(row.id)"
+            >
               <DeleteIcon />
             </DangerButton>
           </div>

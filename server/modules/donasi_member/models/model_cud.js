@@ -1,7 +1,6 @@
 const { sequelize, Riwayat_donasi } = require("../../../models");
 const { get_member_id } = require("../../../helper/memberHelper");
 const moment = require("moment");
-const { where } = require("sequelize");
 
 class Model_cud {
   constructor(req) {
@@ -64,7 +63,7 @@ class Model_cud {
       this.message = `Menambahkan Riwayat Donasi Baru dengan Nominal Donasi: ${body.nominal} `;
     } catch (error) {
       this.state = false;
-      console.log(error);
+      console.error("Gagal menambahkan donasi.");
     }
   }
 
@@ -74,7 +73,7 @@ class Model_cud {
     const body = this.req.body;
 
     try {
-      await Riwayat_donasi.update(
+      const [updated] = await Riwayat_donasi.update(
         {
           konfirmasi_pembayaran: "sudah_dikirim",
           updatedAt: myDate,
@@ -82,14 +81,16 @@ class Model_cud {
         {
           where: {
             invoice: body.invoice,
+            member_id: this.member_id,
           },
           transaction: this.t,
         }
       );
+      if (updated !== 1) throw new Error("Data donasi tidak ditemukan");
       this.message = `Update Konfirmasi Pembayaran Donasi`;
     } catch (error) {
       this.state = false;
-      console.log(error);
+      console.error("Gagal memperbarui konfirmasi donasi.");
     }
   }
 

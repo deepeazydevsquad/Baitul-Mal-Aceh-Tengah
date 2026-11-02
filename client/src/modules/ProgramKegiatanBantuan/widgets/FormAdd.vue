@@ -434,7 +434,6 @@ const handleSubmit = async () => {
   let isSuccess = false;
   try {
     const response = await add_program_bantuan(formData);
-    console.log(response);
     emit('status', { error_msg: response.error_msg || response, error: response.error });
     
     if (!response.error) {

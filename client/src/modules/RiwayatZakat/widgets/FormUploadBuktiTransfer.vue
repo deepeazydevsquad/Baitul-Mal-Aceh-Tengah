@@ -100,7 +100,6 @@ const handleSubmit = async () => {
 
   try {
     const response = await upload_bukti_transfer(formData);
-    console.log(response);
     emit('status', { error_msg: response.error_msg || response, error: response.error });
   } catch (error: any) {
     console.error(error);

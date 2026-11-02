@@ -2,14 +2,14 @@ const express = require("express");
 const { body } = require("express-validator");
 const controllers = require("../modules/riwayat_permohonan_bantuan/controllers/index");
 const {
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
 } = require("../middleware/authenticateToken");
 
 const router = express.Router();
 
 router.post(
   "/riwayat_permohonan_member/list",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   [
     body("perpage")
       .notEmpty()
@@ -28,7 +28,7 @@ router.post(
 
 router.post(
   "/riwayat_permohonan_member/delete",
-  authenticateTokenAdministrator,
+  authenticateTokenMember,
   [
     body("id")
       .notEmpty()

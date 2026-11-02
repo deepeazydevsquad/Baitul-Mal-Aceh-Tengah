@@ -93,10 +93,9 @@ async function getOtp() {
     };
 
     // panggil service backend
-    const res = await Otp.send_otp(payload);
+    await Otp.send_otp(payload);
 
     displayNotification('OTP berhasil dikirim ke WhatsApp kamu 🚀', 'success');
-    console.log('Respon backend OTP:', res);
   } catch (err) {
     displayNotification('Gagal kirim OTP, coba lagi!', 'error');
     console.error('Error kirim OTP:', err);
@@ -149,6 +148,13 @@ async function onSubmit(e: Event) {
   if (!form.password) {
     errors.password = 'Password wajib diisi';
     ok = false;
+  } else if (form.password.length < 8) {
+    errors.password = 'Password minimal 8 karakter';
+    ok = false;
+  }
+  if (!/^\d{6}$/.test(form.otp)) {
+    errors.otp = 'OTP harus terdiri dari 6 digit';
+    ok = false;
   }
   if (form.password !== form.confirm_password) {
     errors.confirm_password = 'Password konfirmasi tidak cocok';
@@ -165,6 +171,7 @@ async function onSubmit(e: Event) {
       nomor_ktp: form.nomor_ktp || null,
       nomor_kk: form.nomor_kk || null,
       whatsapp_number: form.whatsapp_number,
+      otp: form.otp,
       birth_date: form.birth_date || null,
       alamat: form.alamat || '', // tambahin input alamat di form kalau belum ada
       username: form.username,

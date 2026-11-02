@@ -21,10 +21,6 @@ import FormTolakPermohonan from '@/modules/ValidasiPermohonanBantuan/widgets/For
 import BaseTable from '@/components/Table/BaseTable.vue';
 import type { TableColumn } from '@/components/Table/BaseTable.vue';
 
-// Config API
-import { API_URL } from '@/config/config';
-const BASE_URL = API_URL;
-
 import { RefreshValidasi } from '@/stores/refresh';
 const refreshValidasi = RefreshValidasi();
 
@@ -39,6 +35,7 @@ import {
   get_filter_type,
   get_validasi_permohonan_bantuan,
 } from '@/service/validasi_permohonan_bantuan';
+import { openSecureFile } from '@/service/secure_file';
 
 // State: Loading
 const isLoading = ref(false);
@@ -128,7 +125,9 @@ function openModalSetujui(data: any) {
 
 // Function: Aksi Syarat
 function viewFile(syarat: any) {
-  window.open(BASEURL + `/uploads/dokumen/permohonan_bantuan/${syarat.file_path}`, '_blank');
+  openSecureFile(`/documents/validation/${syarat.validasi_id}`).catch(() => {
+    displayNotification('Gagal membuka dokumen', 'error');
+  });
 }
 
 function editFile(realisasi_id: number, syarat: any) {

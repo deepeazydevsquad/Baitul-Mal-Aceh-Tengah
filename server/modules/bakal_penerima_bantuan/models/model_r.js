@@ -376,7 +376,6 @@ class Model_r {
     const body = this.req.body;
 
     try {
-      console.log(body);
       const dataRealisasi = await Realisasi_permohonan.findOne({
         where: { id: body.id, status_realisasi: "sudah_direalisasi" },
         attributes: ["id"],
@@ -402,7 +401,6 @@ class Model_r {
         ],
       });
 
-      console.log(dataRealisasi);
 
       return {
         id: dataRealisasi.id,

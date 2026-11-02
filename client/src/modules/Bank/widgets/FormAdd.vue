@@ -108,7 +108,6 @@ const handleSubmit = async () => {
 
   try {
     const response = await add_bank(formData);
-    console.log(response);
     emit('status', { error_msg: response.error_msg || response, error: response.error });
     closeModal();
   } catch (error: any) {

@@ -90,7 +90,6 @@ const handleSubmit = async () => {
 
   try {
     const response = await edit_status_permohonan_bantuan(formData);
-    console.log(response);
     emit('status', { error_msg: response.error_msg || response, error: response.error });
   } catch (error: any) {
     console.error(error);

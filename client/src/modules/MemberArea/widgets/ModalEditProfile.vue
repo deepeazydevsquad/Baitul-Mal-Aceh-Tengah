@@ -4,6 +4,7 @@ import Notification from '@/components/Modal/Notification.vue';
 import LoadingSpinner from '@/components/Loading/LoadingSpinner.vue';
 import InputText from '@/components/Form/InputText.vue';
 import { edit_profile_member, get_info_edit_profile_member } from '@/service/auth';
+import { clearAccessToken } from '@/service/auth_token_store';
 
 import { Fullname } from '@/stores/memberInfo';
 const fullname = Fullname();
@@ -81,7 +82,6 @@ async function fetchData() {
   isLoading.value = true;
   try {
     const res = await get_info_edit_profile_member();
-    console.log(res);
     form.value = res.data;
   } catch (error) {
     console.error(error);
@@ -115,8 +115,7 @@ const validateForm = () => {
 
 const logout = async () => {
   displayNotification('Proses logout berhasil dilakukan.', 'success');
-  localStorage.removeItem('member_access_token');
-  localStorage.removeItem('member_refresh_token');
+  clearAccessToken('member');
   setTimeout(() => (window.location.href = '/'), 1200);
 };
 
@@ -134,11 +133,9 @@ const handleSubmit = async () => {
     username: form.value.username,
     password: form.value.password || '',
   };
-  console.log(dataToSend);
   try {
     const res = await edit_profile_member(dataToSend);
     fullname.setString(form.value.fullname);
-    console.log(res);
     emit('notify', { type: res.error ? 'error' : 'success', message: res.error_msg });
   } catch (error: any) {
     console.error(error);

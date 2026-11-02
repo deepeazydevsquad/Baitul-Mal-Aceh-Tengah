@@ -40,6 +40,7 @@ router.post(
       .isString().withMessage("Name Harus String")
       .custom(validation.check_nama_bank),
   ],
+  validation.cleanupRejectedUpload,
   controllers.add
 );
 
@@ -70,6 +71,7 @@ router.post(
       .isString().withMessage("Name Harus String")
       .custom(validation.check_nama_bank),
   ],
+  validation.cleanupRejectedUpload,
   controllers.edit
 )
 

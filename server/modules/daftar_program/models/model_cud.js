@@ -11,7 +11,6 @@ class Model_cud {
 
     async create() {
         const body = this.req.body;
-        console.log("body", body);
         const date =  moment().format('YYYY-MM-DD HH:mm:ss');
         this.t = await sequelize.transaction();
         try {

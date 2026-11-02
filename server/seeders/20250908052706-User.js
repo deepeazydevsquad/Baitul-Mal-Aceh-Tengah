@@ -1,8 +1,23 @@
 "use strict";
+const bcrypt = require("bcryptjs");
+const { validatePassword } = require("../helper/passwordPolicyHelper");
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
+    const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+    const bendaharaPassword = process.env.SEED_BENDAHARA_PASSWORD;
+    if (!adminPassword || !bendaharaPassword) {
+      throw new Error(
+        "SEED_ADMIN_PASSWORD dan SEED_BENDAHARA_PASSWORD wajib diisi."
+      );
+    }
+    validatePassword(adminPassword, { minLength: 12 });
+    validatePassword(bendaharaPassword, { minLength: 12 });
+    const [adminHash, bendaharaHash] = await Promise.all([
+      bcrypt.hash(adminPassword, 12),
+      bcrypt.hash(bendaharaPassword, 12),
+    ]);
     await queryInterface.bulkInsert(
       "Users",
       [
@@ -12,8 +27,7 @@ module.exports = {
           jabatan: "Super Admin",
           kode: "AS1233",
           username: "admin",
-          password:
-            "$2a$10$Zr648UXQwtmNNUqeHhE5oujX.ecj7Kz4xL8Fv9iOQXMOREUf2PVDK",
+          password: adminHash,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -23,8 +37,7 @@ module.exports = {
           jabatan: "Bendahara",
           kode: "BD1234",
           username: "bendahara",
-          password:
-            "$2a$10$Zr648UXQwtmNNUqeHhE5oujX.ecj7Kz4xL8Fv9iOQXMOREUf2PVDK",
+          password: bendaharaHash,
           createdAt: new Date(),
           updatedAt: new Date(),
         },

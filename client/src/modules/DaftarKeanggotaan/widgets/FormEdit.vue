@@ -147,7 +147,6 @@ const fetchData = async () => {
 
     const responseKecamatan = await get_daftar_kecamatan()
     kecamatan.value = responseKecamatan.data
-    console.log(response)
     console.log(responseKecamatan)
   } catch (error) {
     displayNotification('Gagal mengambil data keanggotaan', 'error')
@@ -207,7 +206,6 @@ const handleSubmit = async () => {
 
   try {
     const response = await edit_keanggotaan(formData)
-    console.log(response)
     emit('status', { error_msg: response.error_msg, error: response.error })
   } catch (error: any) {
     console.error(error)
@@ -252,7 +250,6 @@ watch(
     try {
       console.log(val)
       const response = await get_daftar_desa(val)
-      console.log(response)
       desa.value = response.data
     } catch (error) {
       console.error('Gagal fetch desa:', error)

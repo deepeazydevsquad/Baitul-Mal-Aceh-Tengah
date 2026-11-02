@@ -7,10 +7,11 @@ const {
   Bank,
   Member,
 } = require("../models");
-const multer = require("multer");
 const path = require("path");
-const fs = require("fs");
 const moment = require("moment");
+const {
+  createSecureDocumentUpload,
+} = require("../helper/secureDocumentUploadHelper");
 
 const validation = {};
 
@@ -203,38 +204,15 @@ const uploadPathRealisasi = path.join(
   "../uploads/dokumen/bakal_penerima_bantuan/bukti_realisasi"
 );
 
-if (!fs.existsSync(uploadPathRealisasi)) {
-  fs.mkdirSync(uploadPathRealisasi, { recursive: true });
-}
-
-const storageRealisasi = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadPathRealisasi);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 10); // 8 karakter
-    const filename = `${randomString}_${req.body.tipe}_${timestamp}${ext}`;
-
-    req.body.bukti_realisasi = filename;
-    cb(null, filename);
-  },
+const realisasiUpload = createSecureDocumentUpload({
+  directory: uploadPathRealisasi,
+  field: "bukti_realisasi",
+  property: "buktiRealisasiDocument",
+  bodyFieldsToRemove: ["bukti_realisasi"],
+  required: true,
+  maxSize: 1 * 1024 * 1024,
+  filenamePrefix: "bukti-realisasi",
 });
-
-const fileFilterRealisasi = (req, file, cb) => {
-  const allowedTypes = [
-    "application/pdf",
-    "image/jpeg",
-    "image/jpg",
-    "image/png",
-  ];
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error("Format file harus PDF atau gambar (JPG, JPEG, PNG)"), false);
-  }
-};
 
 // ========================================
 // UPLOAD HANDLER - BERITA ACARA
@@ -244,33 +222,15 @@ const uploadPathBeritaAcara = path.join(
   "../uploads/dokumen/bakal_penerima_bantuan/berita_acara"
 );
 
-if (!fs.existsSync(uploadPathBeritaAcara)) {
-  fs.mkdirSync(uploadPathBeritaAcara, { recursive: true });
-}
-
-const storageBeritaAcara = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadPathBeritaAcara);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 10); // 8 karakter
-    const filename = `${randomString}_${timestamp}${ext}`;
-
-    req.body.berita_acara = filename;
-    cb(null, filename);
-  },
+const beritaAcaraUpload = createSecureDocumentUpload({
+  directory: uploadPathBeritaAcara,
+  field: "berita_acara",
+  property: "beritaAcaraDocument",
+  bodyFieldsToRemove: ["berita_acara"],
+  required: true,
+  maxSize: 1 * 1024 * 1024,
+  filenamePrefix: "berita-acara",
 });
-
-const fileFilterBeritaAcara = (req, file, cb) => {
-  const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error("Format file harus gambar (JPG, JPEG, PNG)"), false);
-  }
-};
 
 // ========================================
 // MULTER UPLOAD CONFIGS
@@ -278,33 +238,29 @@ const fileFilterBeritaAcara = (req, file, cb) => {
 validation.single = {
   upload: (fieldName) => {
     return (req, res, next) => {
-      let upload;
-
-      if (fieldName === "bukti_realisasi") {
-        upload = multer({
-          storage: storageRealisasi,
-          fileFilter: fileFilterRealisasi,
-          limits: { fileSize: 1 * 1024 * 1024 }, // 1 MB
-        }).single(fieldName);
-      } else if (fieldName === "berita_acara") {
-        upload = multer({
-          storage: storageBeritaAcara,
-          fileFilter: fileFilterBeritaAcara,
-          limits: { fileSize: 1 * 1024 * 1024 }, // 1 MB
-        }).single(fieldName);
+      const upload =
+        fieldName === "bukti_realisasi"
+          ? realisasiUpload
+          : fieldName === "berita_acara"
+            ? beritaAcaraUpload
+            : null;
+      if (!upload) {
+        return res.status(400).json({
+          error: true,
+          error_msg: "Field unggahan tidak valid.",
+        });
       }
-
-      upload(req, res, (err) => {
-        if (err) {
-          return res.status(400).json({
-            error: true,
-            error_msg: err.message,
-          });
-        }
-        next();
+      return upload.middleware(req, res, (error) => {
+        if (error) return next(error);
+        return upload.persist(req, res, next);
       });
     };
   },
 };
+
+validation.uploadPathRealisasi = uploadPathRealisasi;
+validation.uploadPathBeritaAcara = uploadPathBeritaAcara;
+validation.removeUploadedRealisasi = realisasiUpload.remove;
+validation.removeUploadedBeritaAcara = beritaAcaraUpload.remove;
 
 module.exports = validation;

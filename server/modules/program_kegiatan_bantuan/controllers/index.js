@@ -116,8 +116,9 @@ controllers.get_info_edit_program_kegiatan_bantuan = async (req, res) => {
 controllers.edit = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
+  let model_cud;
   try {
-    const model_cud = new Model_cud(req);
+    model_cud = new Model_cud(req);
     await model_cud.edit();
 
     if (await model_cud.response()) {
@@ -126,9 +127,11 @@ controllers.edit = async (req, res) => {
         error_msg: 'Program kegiatan bantuan berhasil diperbaharui.',
       });
     } else {
-      res.status(400).json({
+      res.status(model_cud.statusCode || 400).json({
         error: true,
-        error_msg: 'Program kegiatan bantuan gagal diperbaharui.',
+        error_msg:
+          model_cud.message ||
+          'Program kegiatan bantuan gagal diperbaharui.',
       });
     }
   } catch (error) {

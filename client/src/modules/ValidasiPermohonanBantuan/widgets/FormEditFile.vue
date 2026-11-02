@@ -11,10 +11,7 @@ import { useNotification } from '@/composables/useNotification';
 
 // Service
 import { edit_file, get_info_edit_file } from '@/service/validasi_permohonan_bantuan';
-
-// Config API
-import { API_URL } from '@/config/config';
-const BASE_URL = API_URL;
+import { openSecureFile } from '@/service/secure_file';
 
 // State: Loading
 const isLoading = ref(false);
@@ -155,7 +152,7 @@ const handleSubmit = async () => {
   // Append file baru
   if (formUpload.value) {
     Object.entries(formUpload.value).forEach(([key, value]) => {
-      formData.append(key, value);
+      if (value) formData.append(key, value);
     });
   }
 
@@ -272,15 +269,15 @@ watch(
             <p v-if="fileData.alasan_penolakan">
               <strong>Alasan Penolakan:</strong> {{ fileData.alasan_penolakan }}
             </p>
-            <a
+            <button
               v-if="fileData.file_path"
-              :href="`${BASEURL}/uploads/dokumen/permohonan_bantuan/${fileData.file_path}`"
-              target="_blank"
+              type="button"
+              @click="openSecureFile(`/documents/validation/${fileData.id}`)"
               class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-semibold"
             >
               <font-awesome-icon icon="fa-solid fa-eye" />
               Lihat File Lama
-            </a>
+            </button>
           </div>
         </div>
 

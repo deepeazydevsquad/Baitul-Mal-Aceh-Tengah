@@ -3,6 +3,10 @@
 const { User, sequelize, Grup } = require("../../../models");
 const { Op } = require("sequelize");
 const moment = require("moment");
+const { AuthorizationError } = require("../../../helper/authorizationError");
+const {
+  isPermissionSubset,
+} = require("../../../helper/groupPermissionHelper");
 
 class Model_r {
   constructor(req) {
@@ -27,8 +31,24 @@ class Model_r {
       where.name = { [Op.like]: `%${body.search}%` };
     }
 
-    // exclude user dengan grup_id = 1
-    where.grup_id = { [Op.ne]: 1 };
+    const groups = await Grup.findAll({
+      attributes: ["id", "group_access"],
+    });
+    const actorIsSuperAdmin = Number(this.req.user?.grup_id) === 1;
+    const readableGroupIds = groups
+      .filter(
+        (group) =>
+          Number(group.id) !== 1 &&
+          (actorIsSuperAdmin ||
+            Number(group.id) === Number(this.req.user?.grup_id) ||
+            isPermissionSubset(
+              group.group_access,
+              this.req.user?.group_access,
+              { strict: true }
+            ))
+      )
+      .map((group) => Number(group.id));
+    where.grup_id = { [Op.in]: readableGroupIds };
 
     try {
       const q = await User.findAndCountAll({
@@ -85,17 +105,24 @@ class Model_r {
 
   async list_grup() {
     try {
-      const grup = await Grup.findAll({
-        attributes: ["id", "name"],
-        where: {
-          id: {
-            [Op.ne]: 1, // exclude id 1
-          },
-        },
+      const groups = await Grup.findAll({
+        attributes: ["id", "name", "group_access"],
+        where: { id: { [Op.ne]: 1 } },
         order: [["id", "ASC"]],
       });
-
-      return grup;
+      const actorIsSuperAdmin = Number(this.req.user?.grup_id) === 1;
+      return groups
+        .filter(
+          (group) =>
+            actorIsSuperAdmin ||
+            Number(group.id) === Number(this.req.user?.grup_id) ||
+            isPermissionSubset(
+              group.group_access,
+              this.req.user?.group_access,
+              { strict: true }
+            )
+        )
+        .map((group) => ({ id: group.id, name: group.name }));
     } catch (error) {
       console.error("Error fetching grup:", error);
       throw new Error("Failed to fetch grup");
@@ -123,6 +150,33 @@ class Model_r {
       if (!item) {
         return null;
       }
+      const targetGroup = await Grup.findByPk(item.grup_id, {
+        attributes: ["id", "group_access"],
+      });
+      const actorIsSuperAdmin = Number(this.req.user?.grup_id) === 1;
+      if (!targetGroup) {
+        throw new Error("Grup pengguna tidak ditemukan");
+      }
+      if (Number(targetGroup.id) === 1 && !actorIsSuperAdmin) {
+        throw new AuthorizationError(
+          "Akun grup istimewa tidak dapat dikelola.",
+          "PROTECTED_ACCOUNT"
+        );
+      }
+      if (
+        !actorIsSuperAdmin &&
+        Number(targetGroup.id) !== Number(this.req.user?.grup_id) &&
+        !isPermissionSubset(
+          targetGroup.group_access,
+          this.req.user?.group_access,
+          { strict: true }
+        )
+      ) {
+        throw new AuthorizationError(
+          "Anda tidak dapat melihat akun dengan privilege lebih tinggi.",
+          "PRIVILEGE_HIERARCHY_VIOLATION"
+        );
+      }
 
       const row = item.toJSON();
       return {
@@ -132,12 +186,12 @@ class Model_r {
         grup_id: row.grup_id,
         kode: row.kode,
         username: row.username,
-        password: row.password,
         createdAt: moment(row.createdAt).format("YYYY-MM-DD HH:mm:ss"),
         updatedAt: moment(row.updatedAt).format("YYYY-MM-DD HH:mm:ss"),
       };
     } catch (error) {
       console.error("🔥 ERROR detail_pengguna :", error);
+      if (error.statusCode) throw error;
       return null;
     }
   }

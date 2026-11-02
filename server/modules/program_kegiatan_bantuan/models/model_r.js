@@ -168,7 +168,6 @@ class Model_r {
 
   async program_kegiatan_bantuan() {
     const body = this.req.body;
-    console.log(body);
     const limit = parseInt(body.perpage, 10) || 10;
     const page =
       body.pageNumber && body.pageNumber !== "0"

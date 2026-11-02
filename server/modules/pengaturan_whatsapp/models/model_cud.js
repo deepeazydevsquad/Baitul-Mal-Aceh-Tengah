@@ -27,7 +27,10 @@ class Model_cud {
       const allowedKeys = ["api_key", "device_key", "whatsapp_number"];
 
       for (const key of allowedKeys) {
-        if (body[key] !== undefined) {
+        if (
+          body[key] !== undefined &&
+          (key === "whatsapp_number" || String(body[key]).trim() !== "")
+        ) {
           const data = await Setting.findOne({
             where: { name: key },
             transaction: this.t,

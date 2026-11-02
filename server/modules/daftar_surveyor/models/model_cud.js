@@ -13,7 +13,6 @@ class Model_cud {
         const body = this.req.body;
         console.log("--------------");
 
-        console.log(body);
         console.log("--------------");
 
         const date = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -38,7 +37,6 @@ class Model_cud {
         const body = this.req.body;
         console.log("--------------");
 
-        console.log(body);
         console.log("--------------");
         const date = moment().format('YYYY-MM-DD HH:mm:ss');
         this.t = await sequelize.transaction();

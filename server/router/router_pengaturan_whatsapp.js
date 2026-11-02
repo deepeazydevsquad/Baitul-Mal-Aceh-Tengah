@@ -30,8 +30,14 @@ router.post(
   "/pengaturan_whatsapp/update",
   authenticateTokenAdministrator,
   [
-    body("api_key").notEmpty().withMessage("API Key Tidak Boleh Kosong"),
-    body("device_key").notEmpty().withMessage("Device Key Tidak Boleh Kosong"),
+    body("api_key")
+      .optional({ checkFalsy: true })
+      .isString()
+      .withMessage("API Key Harus String"),
+    body("device_key")
+      .optional({ checkFalsy: true })
+      .isString()
+      .withMessage("Device Key Harus String"),
     body("whatsapp_number")
       .notEmpty()
       .withMessage("Nomor WhatsApp Tidak Boleh Kosong"),

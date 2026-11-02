@@ -1,5 +1,6 @@
 const { Op, Member } = require("../models");
 const bcrypt = require("bcryptjs");
+const { validatePassword } = require("../helper/passwordPolicyHelper");
 
 const validation = {};
 
@@ -13,29 +14,7 @@ validation.username = async (value) => {
   return true;
 };
 
-validation.password = async (value, { req }) => {
-  var q = await Member.findOne({
-    where: { username: req.body.username },
-  });
-  if (!q) {
-    throw new Error("Member ini tidak terdaftar dipangkalan data");
-  } else {
-    const salt = await bcrypt.genSalt(10);
-    const hasil = await bcrypt.hash(value, salt);
-    console.log(" Username Password ");
-    console.log(hasil);
-
-    console.log(value);
-    console.log(q.password);
-    console.log(" Username Password ");
-
-    const valid_password = await bcrypt.compare(value, q.password);
-    if (!valid_password) {
-      throw new Error("Username atau Password anda tidak valid.");
-    }
-  }
-  return true;
-};
+validation.password = async (value) => typeof value === "string" && value.length > 0;
 
 validation.check_username = async (value, { req }) => {
   // Jika sedang login (edit profil)
@@ -83,9 +62,7 @@ validation.check_username = async (value, { req }) => {
 validation.check_password = async (value, { req }) => {
   if (!value) return true; // kalau user tidak ubah password, biarkan valid (edit profile)
 
-  if (value.length < 8) {
-    throw new Error("Password harus minimal 8 karakter.");
-  }
+  validatePassword(value);
 
   if (req.user && req.user.username) {
     const q = await Member.findOne({

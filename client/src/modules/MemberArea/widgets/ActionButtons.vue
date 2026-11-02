@@ -8,6 +8,8 @@ import DonasiMember from '@/modules/DonasiMember/DonasiMember.vue';
 import Notification from '@/components/Modal/Notification.vue';
 import ModalEditProfile from '@/modules/MemberArea/widgets/ModalEditProfile.vue';
 import { initTooltips } from 'flowbite';
+import { logout_member } from '@/service/auth';
+import { clearAccessToken } from '@/service/auth_token_store';
 
 // === State Notification ===
 const timeoutId = ref<number | null>(null);
@@ -15,7 +17,6 @@ const showNotification = ref<boolean>(false);
 const notificationMessage = ref<string>('');
 const notificationType = ref<'success' | 'error'>('success');
 const isModalEditProfile = ref<boolean>(false);
-
 
 // === Modal Edit Profile ===
 const openModalEditProfile = () => {
@@ -46,9 +47,13 @@ const dynamicLabel = (val: string) => {
 
 // === Logout ===
 const logout = async () => {
+  try {
+    await logout_member();
+  } catch {
+    // Token lokal tetap dibersihkan jika sesi server sudah kedaluwarsa.
+  }
   displayNotification('Proses logout berhasil dilakukan.', 'success');
-  localStorage.removeItem('member_access_token');
-  localStorage.removeItem('member_refresh_token');
+  clearAccessToken('member');
   setTimeout(() => (window.location.href = '/'), 1200);
 };
 
@@ -119,9 +124,13 @@ const activeComponent = computed(() => {
 
 const emit = defineEmits(['tab-change']);
 
-watch(activeTab, (newVal) => {
-  emit('tab-change', newVal);
-}, { immediate: true });
+watch(
+  activeTab,
+  (newVal) => {
+    emit('tab-change', newVal);
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -139,28 +148,37 @@ watch(activeTab, (newVal) => {
 
   <!-- Navbar Tabs -->
   <div class="w-full flex flex-col xl:flex-row items-center justify-between gap-4 xl:gap-8">
-    
     <!-- Spacer for balanced flex on large screens -->
     <div class="hidden xl:flex flex-1 justify-start"></div>
 
     <!-- Center Navigation Tabs -->
-    <div class="flex flex-wrap sm:flex-nowrap justify-center items-center p-1.5 bg-white rounded-xl shadow-sm border border-gray-100 w-full sm:w-auto">
+    <div
+      class="flex flex-wrap sm:flex-nowrap justify-center items-center p-1.5 bg-white rounded-xl shadow-sm border border-gray-100 w-full sm:w-auto"
+    >
       <button
         v-for="item in menuItems"
         :key="item.id"
         @click="activeTab = item.id"
         class="relative px-3 py-2.5 sm:px-5 lg:px-6 min-w-[3rem] sm:min-w-[6rem] lg:min-w-[8rem] flex justify-center items-center gap-2 font-semibold text-sm transition-all duration-300 rounded-lg group focus:outline-none"
         :class="[
-          activeTab === item.id 
-            ? 'text-white shadow-md transform scale-[1.02]' 
-            : 'text-gray-500 hover:text-green-700 hover:bg-green-50'
+          activeTab === item.id
+            ? 'text-white shadow-md transform scale-[1.02]'
+            : 'text-gray-500 hover:text-green-700 hover:bg-green-50',
         ]"
         :data-tooltip-target="`tooltip-default-${item.id}`"
       >
         <!-- Dynamic Background for Active Tab -->
-        <div v-if="activeTab === item.id" class="absolute inset-0 -z-10 rounded-lg transition-colors duration-300" :class="item.bg"></div>
-        
-        <font-awesome-icon :icon="item.icon" :class="{'scale-110': activeTab === item.id}" class="transition-transform duration-300" />
+        <div
+          v-if="activeTab === item.id"
+          class="absolute inset-0 -z-10 rounded-lg transition-colors duration-300"
+          :class="item.bg"
+        ></div>
+
+        <font-awesome-icon
+          :icon="item.icon"
+          :class="{ 'scale-110': activeTab === item.id }"
+          class="transition-transform duration-300"
+        />
         <span class="hidden md:inline relative z-10">{{ dynamicLabel(item.label) }}</span>
       </button>
     </div>
@@ -193,16 +211,14 @@ watch(activeTab, (newVal) => {
     @notify="(payload) => displayNotification(payload.message, payload.type)"
   />
 
-
   <!-- Konten Dinamis -->
   <div class="mt-6 md:mt-8 min-h-[400px]">
     <transition name="fade-slide" mode="out-in">
-      <component
-        v-if="activeComponent"
-        :is="activeComponent"
-        :key="activeTab"
-      />
-      <div v-else class="text-gray-400 italic bg-white p-10 rounded-2xl text-center shadow-sm border border-gray-100 flex items-center justify-center">
+      <component v-if="activeComponent" :is="activeComponent" :key="activeTab" />
+      <div
+        v-else
+        class="text-gray-400 italic bg-white p-10 rounded-2xl text-center shadow-sm border border-gray-100 flex items-center justify-center"
+      >
         <div class="flex flex-col items-center gap-3">
           <font-awesome-icon icon="fa-solid fa-hammer" class="text-4xl text-gray-300" />
           <span>Halaman "{{ activeTab }}" belum tersedia atau sedang dibangun.</span>
@@ -223,7 +239,9 @@ watch(activeTab, (newVal) => {
 <style scoped>
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 
 .fade-slide-enter-from {

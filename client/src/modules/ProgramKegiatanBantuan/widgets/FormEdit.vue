@@ -482,7 +482,6 @@ const handleSubmit = async () => {
   let isSuccess = false;
   try {
     const response = await edit_program_bantuan(formData);
-    console.log(response);
     emit('status', { error_msg: response.error_msg || response, error: response.error });
     
     if (!response.error) {
@@ -673,6 +672,7 @@ function openImageInNewTab() {
                 label="Tahun Penyaluran"
                 placeholder="Masukkan tahun"
                 required
+                note="Tahun tidak dapat diubah jika kegiatan sudah memiliki realisasi."
                 :error="errors.tahun"
               />
             </div>
